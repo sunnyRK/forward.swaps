@@ -25,7 +25,6 @@ import { useActiveWeb3React } from './index'
 
 import CHILL_ABI from '../constants/abis/chill.json'
 
-
 // returns null on errors
 function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { library, account } = useActiveWeb3React()

@@ -7,7 +7,7 @@ import { abi as IUniswapV2Router02ABI } from '@uniswap/v2-periphery/build/IUnisw
 import { ROUTER_ADDRESS } from '../constants'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@uniswap/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
-import CHILL_ABI  from "../constants/abis/chill.json";
+import CHILL_ABI from '../constants/abis/chill.json'
 // import { useActiveWeb3React } from "../hooks/";
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -99,14 +99,11 @@ export function getContract(address: string, ABI: any, library: Web3Provider, ac
   // return new Contract('0x769C2c66b7eC3980c630c878FaF3591061F12d42', ABI)
 
   return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
-
 }
-
 
 export function getContract2(account?: string): Contract {
   return new Contract('0x4ad97fd79F8a2aE0e5415821BC06781bF5a164e1', CHILL_ABI)
   // return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
-
 }
 
 // account is optional
