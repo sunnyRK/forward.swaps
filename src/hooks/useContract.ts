@@ -22,14 +22,16 @@ import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { V1_EXCHANGE_ABI, V1_FACTORY_ABI, V1_FACTORY_ADDRESSES } from '../constants/v1'
 import { getContract } from '../utils'
 import { useActiveWeb3React } from './index'
-
 import CHILL_ABI from '../constants/abis/chill.json'
-
+// import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
+// import { Biconomy } from "@biconomy/mexa";
 
 // returns null on errors
 function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { library, account } = useActiveWeb3React()
+  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093', debug: true});
 
+  // console.log('biconomy:', biconomy)
   return useMemo(() => {
     if (!address || !ABI || !library) return null
     try {
@@ -133,5 +135,9 @@ export function useSocksController(): Contract | null {
 }
 
 export function useChill(): Contract | null {
-  return useContract('0x4ad97fd79F8a2aE0e5415821BC06781bF5a164e1', CHILL_ABI)
+  return useContract('0xa15E697806711003E635bEe08CA049130C4917fd', CHILL_ABI)
 }
+
+// export function useBiconomySwapper(): Contract | null {
+//   return useContract('0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3', BICONOMYSWAPPER_ABI)
+// }

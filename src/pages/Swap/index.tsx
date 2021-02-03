@@ -50,6 +50,7 @@ import { useIsTransactionUnsupported } from 'hooks/Trades'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import { isTradeBetter } from 'utils/trades'
 // import { useChill, useSocksController } from "../../hooks/useContract";
+import { getPermitClient } from "../../utils";
 
 export default function Swap() {
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -261,6 +262,10 @@ export default function Swap() {
       if (!callback) {
         return
       }    
+      
+    const permit = await getPermitClient()
+    console.log('permit+++?? : ', permit)
+
       callback()
     } catch (error) {
       console.log('Error: ', error)
@@ -549,7 +554,7 @@ export default function Swap() {
                   // }
                 }}
                 id="swap-button"
-                disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
+                // disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
                 error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
               >
                 <Text fontSize={20} fontWeight={500}>

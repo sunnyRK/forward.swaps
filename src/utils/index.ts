@@ -3,11 +3,13 @@ import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BigNumber } from '@ethersproject/bignumber'
+import { ethers } from "ethers";
 import { abi as IUniswapV2Router02ABI } from '@uniswap/v2-periphery/build/IUniswapV2Router02.json'
 import { ROUTER_ADDRESS } from '../constants'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@uniswap/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
-import CHILL_ABI  from "../constants/abis/chill.json";
+// import CHILL_ABI  from "../constants/abis/chill.json";
+import { Biconomy } from "@biconomy/mexa";
 // import { useActiveWeb3React } from "../hooks/";
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -25,6 +27,20 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   5: 'goerli.',
   42: 'kovan.'
 }
+
+const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'});
+let ercForwarderClient : any;
+let permitClient : any;
+
+biconomy.onEvent(biconomy.READY, () => {
+  // Initialize your dapp here like getting user accounts etc
+  ercForwarderClient = biconomy.erc20ForwarderClient;
+  permitClient = biconomy.permitClient;
+  console.log('permitClientOnevent++', permitClient, ercForwarderClient)
+}).onEvent(biconomy.ERROR, () => {
+  // Handle error while initializing mexa
+  // console.log(error, message)
+});
 
 export function getEtherscanLink(
   chainId: ChainId,
@@ -94,20 +110,45 @@ export function getContract(address: string, ABI: any, library: Web3Provider, ac
   if (!isAddress(address) || address === AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
-  // const ABI2: any = '[{"inputs":[{"internalType":"address","name":"_reciever","type":"address"},{"internalType":"address","name":"_erc20","type":"address"},{"internalType":"address[]","name":"_path","type":"address[]"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"swapWithoutETH","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"forwarder","type":"address"}],"name":"isTrustedForwarder","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"iUniswapV2Router02","outputs":[{"internalType":"contract IUniswapV2Router02","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"trustedForwarder","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}]'
-
-  // return new Contract('0x769C2c66b7eC3980c630c878FaF3591061F12d42', ABI)
-
   return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
-
 }
 
-
-export function getContract2(account?: string): Contract {
-  return new Contract('0x4ad97fd79F8a2aE0e5415821BC06781bF5a164e1', CHILL_ABI)
-  // return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
-
+// Biconomy Methods till 137 lines
+export function getBiconomySwappperContract(address: string, ABI: any, library: Web3Provider, account?: string): Contract {
+  const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'});
+  let ethersProvider = new ethers.providers.Web3Provider(biconomy);
+  let signer = ethersProvider.getSigner();
+  console.log('ethersProvider+++++', window.ethereum, biconomy, ethersProvider, signer)
+  let contract = new ethers.Contract(
+    address,
+    ABI,
+    signer.connectUnchecked()
+  );
+  console.log('getBiconomySwappperContract+++++', contract)
+  return contract
 }
+
+export function getEthersProvider(): Web3Provider {
+  const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
+  let ethersProvider = new ethers.providers.Web3Provider(biconomy)
+  console.log('ethersProvider+++++', ethersProvider)
+  return ethersProvider
+}
+
+export function getErcForwarderClient() : any {
+  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
+  // let ercForwarderClient = biconomy.erc20ForwarderClient
+  console.log('ercForwarderClient++', ercForwarderClient)
+  return ercForwarderClient
+}
+
+export function getPermitClient() : any {
+  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
+  // let permitClient = biconomy.permitClient
+  console.log('permitClient++', permitClient)
+  return permitClient
+}
+/////////////////////////////////////////
 
 // account is optional
 export function getRouterContract(_: number, library: Web3Provider, account?: string): Contract {

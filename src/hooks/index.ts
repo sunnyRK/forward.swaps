@@ -6,10 +6,16 @@ import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { injected } from '../connectors'
 import { NetworkContextName } from '../constants'
+// import { Biconomy } from "@biconomy/mexa";
 
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
+  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093', debug: true});
+  // console.log(biconomy)
+  // return biconomy
+
   const context = useWeb3ReactCore<Web3Provider>()
   const contextNetwork = useWeb3ReactCore<Web3Provider>(NetworkContextName)
+  // console.log('context.active ? context : contextNetwork: ', contextNetwork)
   return context.active ? context : contextNetwork
 }
 
