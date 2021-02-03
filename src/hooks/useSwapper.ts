@@ -78,7 +78,7 @@ function useSwapCallArguments(
     // const contract3: Contract | null = getContract('0xa15E697806711003E635bEe08CA049130C4917fd', CHILL_ABI, library, account)
     // const contract3: Contract | null = getContract('0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3', BICONOMYSWAPPER_ABI, library, account)
     
-    const _contract: Contract | null = getBiconomySwappperContract('0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3', BICONOMYSWAPPER_ABI, library, account)
+    const _contract: Contract | null = getBiconomySwappperContract('0xf7972686B57a861D079A1477cbFF7B7B6A469A43', BICONOMYSWAPPER_ABI, library, account)
     const _ethersProvider: Web3Provider | null = getEthersProvider()
     // const _ercForwarderClient: any | null = getErcForwarderClient()
     // const _permitClient: any | null = getPermitClient()
@@ -133,36 +133,36 @@ export function useSwapper() : {
             } = call
             console.log('AllSwapCalls:++', account, contract, ethersProvider, permitClient, ercForwarderClient, parameters)
 
-            // const domainData = {
-            //   name: "Dai Stablecoin",
-            //   version: "1",
-            //   chainId: 42,
-            //   verifyingContract: "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa" // kovan
-            // };
+            const domainData = {
+              name: "Dai Stablecoin",
+              version: "1",
+              chainId: 42,
+              verifyingContract: "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa" // kovan
+            };
 
-            // const tokenPermitOptions1 = { //contract
-            //   spender: '0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3',
-            //   domainData: domainData,
-            //   value: "100000000000000000000", 
-            //   deadline: Math.floor(Date.now() / 1000 + 3600),
-            // }
+            const tokenPermitOptions1 = { //contract
+              spender: '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
+              domainData: domainData,
+              value: "100000000000000000000", 
+              deadline: Math.floor(Date.now() / 1000 + 3600),
+            }
 
-            // const tokenPermitOptions2 = { //forwarder
-            //   domainData: domainData,
-            //   value: "100000000000000000000", 
-            //   deadline: Math.floor(Date.now() / 1000 + 3600),
-            // }
+            const tokenPermitOptions2 = { //forwarder
+              domainData: domainData,
+              value: "100000000000000000000", 
+              deadline: Math.floor(Date.now() / 1000 + 3600),
+            }
             
-            // let permitTx1 = await permitClient.daiPermit(tokenPermitOptions1);
-            // await permitTx1.wait(1)
-            // console.log('permitTx1++: ', permitTx1)
+            let permitTx1 = await permitClient.daiPermit(tokenPermitOptions1);
+            await permitTx1.wait(1)
+            console.log('permitTx1++: ', permitTx1)
             
-            // let permitTx2 = await permitClient.daiPermit(tokenPermitOptions2);
-            // await permitTx2.wait(1)
-            // console.log('permitTx2++: ', permitTx2)
+            let permitTx2 = await permitClient.daiPermit(tokenPermitOptions2);
+            await permitTx2.wait(1)
+            console.log('permitTx2++: ', permitTx2)
 
-            // // const options = !value || isZero(value) ? {} : { value }
-            // // console.log('methodName1:', methodName)
+            // // // const options = !value || isZero(value) ? {} : { value }
+            // // // console.log('methodName1:', methodName)
             const addr1 = "0x48845392F5a7c6b360A733e0ABE2EdcC74f1F4d6"
             const dai = "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa"
             const path = ["0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa","0xd0A1E359811322d97991E03f863a0C30C2cF029C"]
@@ -171,7 +171,7 @@ export function useSwapper() : {
 
             let gasPrice = await ethersProvider.getGasPrice();
             let gasLimit = await ethersProvider.estimateGas({
-              to: '0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3',
+              to: '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
               from: account,
               data: txResponse.data,
             });
@@ -180,7 +180,7 @@ export function useSwapper() : {
             console.log('txResponse++', txResponse);
 
             const builtTx = await ercForwarderClient.buildTx({
-              to: '0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3',
+              to: '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
               token:'0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa',
               txGas:Number(gasLimit),
               data: txResponse.data
