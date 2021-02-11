@@ -352,7 +352,7 @@ function useSwapCallArguments(
     if (!_contract && !_permitClient) {
       return []
     }
-    
+
     const swapMethods = []
     const _parameters = { pid : '0', amount: '0'}
     const pass = {
@@ -365,13 +365,15 @@ function useSwapCallArguments(
     } 
     swapMethods.push(pass)
     return swapMethods
-    
+
     // return swapMethods.map(parameters => ({ parameters, contract }))
   }, [account, chainId, library, _permitClient, _ercForwarderClient])
 }
 
-export function useSwapper() : {
-  state: SwapCallbackState; callback : any; error: string | null
+export function useSwapper(): {
+  state: SwapCallbackState
+  callback: any
+  error: string | null
 } {
     const { account } = useActiveWeb3React()
     const swapCalls = useSwapCallArguments()
@@ -382,8 +384,8 @@ export function useSwapper() : {
      return {
       state: SwapCallbackState.VALID,
       callback: async function onSwap() {
-      // : Promise<string> {
-      //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
+        // : Promise<string> {
+        //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
           
           swapCalls.map(async (call) => {
@@ -498,18 +500,18 @@ export function useSwapper() : {
               //     })
               // })
           })
-        // )
+          // )
         } catch (error) {
           console.log('error:', error)
         }
       },
       error: null
-     }
-      
+    }
+
     // } catch (error) {
-    //  console.log(error)   
+    //  console.log(error)
     // }
-    }, [swapCalls, account])
+  }, [swapCalls, account])
 }
 
 // const useSwapper = () => {
@@ -525,7 +527,7 @@ export function useSwapper() : {
 //         //     '0x48845392F5a7c6b360A733e0ABE2EdcC74f1F4d6',
 //         //     '0xff795577d9ac8bd7d90ee22b6c1703490b6512fd',
 //         //     ["0xff795577d9ac8bd7d90ee22b6c1703490b6512fd","0xd0A1E359811322d97991E03f863a0C30C2cF029C"],
-//         //     "10000000000"    
+//         //     "10000000000"
 //         // ).send({from : '0x48845392F5a7c6b360A733e0ABE2EdcC74f1F4d6'})
 //         // console.log(txHash)
 //     },
@@ -533,7 +535,5 @@ export function useSwapper() : {
 //   )
 //   return { onSwap: handleSwapper }
 // }
-
-
 
 // export default useSwapper
