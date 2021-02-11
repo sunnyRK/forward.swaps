@@ -36,7 +36,7 @@ biconomy.onEvent(biconomy.READY, () => {
   // Initialize your dapp here like getting user accounts etc
   ercForwarderClient = biconomy.erc20ForwarderClient;
   permitClient = biconomy.permitClient;
-  console.log('permitClientOnevent++', permitClient, ercForwarderClient)
+  // console.log('permitClientOnevent++', permitClient, ercForwarderClient)
 }).onEvent(biconomy.ERROR, () => {
   // Handle error while initializing mexa
   // console.log(error, message)

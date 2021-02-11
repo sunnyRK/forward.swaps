@@ -28,7 +28,7 @@ import { useCurrency, useAllTokens } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useSwapCallback } from '../../hooks/useSwapCallback'
-import {useSwapper}  from '../../hooks/useSwapper'
+import {useSwapper2}  from '../../hooks/useSwapper'
 import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
 import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
 import { useToggleSettingsMenu, useWalletModalToggle } from '../../state/application/hooks'
@@ -189,12 +189,7 @@ export default function Swap() {
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
-  // const chillContract = useChill()
-  // const socksContract = useSocksController()
-
-  // console.log('socksContract:', socksContract)
-
-  const { callback } = useSwapper()
+  const { callback } = useSwapper2(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
   const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient)
