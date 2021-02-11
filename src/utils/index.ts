@@ -3,13 +3,13 @@ import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BigNumber } from '@ethersproject/bignumber'
-import { ethers } from "ethers";
+import { ethers } from 'ethers'
 import { abi as IUniswapV2Router02ABI } from '@uniswap/v2-periphery/build/IUniswapV2Router02.json'
 import { ROUTER_ADDRESS } from '../constants'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@uniswap/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
 // import CHILL_ABI  from "../constants/abis/chill.json";
-import { Biconomy } from "@biconomy/mexa";
+import { Biconomy } from '@biconomy/mexa'
 // import { useActiveWeb3React } from "../hooks/";
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -28,19 +28,21 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   42: 'kovan.'
 }
 
-const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'});
-let ercForwarderClient : any;
-let permitClient : any;
+const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+let ercForwarderClient: any
+let permitClient: any
 
-biconomy.onEvent(biconomy.READY, () => {
-  // Initialize your dapp here like getting user accounts etc
-  ercForwarderClient = biconomy.erc20ForwarderClient;
-  permitClient = biconomy.permitClient;
-  // console.log('permitClientOnevent++', permitClient, ercForwarderClient)
-}).onEvent(biconomy.ERROR, () => {
-  // Handle error while initializing mexa
-  // console.log(error, message)
-});
+biconomy
+  .onEvent(biconomy.READY, () => {
+    // Initialize your dapp here like getting user accounts etc
+    ercForwarderClient = biconomy.erc20ForwarderClient
+    permitClient = biconomy.permitClient
+    // console.log('permitClientOnevent++', permitClient, ercForwarderClient)
+  })
+  .onEvent(biconomy.ERROR, () => {
+    // Handle error while initializing mexa
+    // console.log(error, message)
+  })
 
 export function getEtherscanLink(
   chainId: ChainId,
@@ -114,35 +116,36 @@ export function getContract(address: string, ABI: any, library: Web3Provider, ac
 }
 
 // Biconomy Methods till 137 lines
-export function getBiconomySwappperContract(address: string, ABI: any, library: Web3Provider, account?: string): Contract {
-  const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'});
-  let ethersProvider = new ethers.providers.Web3Provider(biconomy);
-  let signer = ethersProvider.getSigner();
+export function getBiconomySwappperContract(
+  address: string,
+  ABI: any,
+  library: Web3Provider,
+  account?: string
+): Contract {
+  const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+  const ethersProvider = new ethers.providers.Web3Provider(biconomy)
+  const signer = ethersProvider.getSigner()
   console.log('ethersProvider+++++', window.ethereum, biconomy, ethersProvider, signer)
-  let contract = new ethers.Contract(
-    address,
-    ABI,
-    signer.connectUnchecked()
-  );
+  const contract = new ethers.Contract(address, ABI, signer.connectUnchecked())
   console.log('getBiconomySwappperContract+++++', contract)
   return contract
 }
 
 export function getEthersProvider(): Web3Provider {
-  const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
-  let ethersProvider = new ethers.providers.Web3Provider(biconomy)
+  const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+  const ethersProvider = new ethers.providers.Web3Provider(biconomy)
   console.log('ethersProvider+++++', ethersProvider)
   return ethersProvider
 }
 
-export function getErcForwarderClient() : any {
+export function getErcForwarderClient(): any {
   // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
   // let ercForwarderClient = biconomy.erc20ForwarderClient
   console.log('ercForwarderClient++', ercForwarderClient)
   return ercForwarderClient
 }
 
-export function getPermitClient() : any {
+export function getPermitClient(): any {
   // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
   // let permitClient = biconomy.permitClient
   console.log('permitClient++', permitClient)
