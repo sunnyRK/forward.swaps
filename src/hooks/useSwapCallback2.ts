@@ -65,7 +65,7 @@ function useSwapCallArguments(
     if (!contract) {
       return []
     }
-    
+
     const swapMethods = []
 
     switch (tradeVersion) {

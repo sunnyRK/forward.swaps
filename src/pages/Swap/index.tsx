@@ -28,7 +28,7 @@ import { useCurrency, useAllTokens } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useSwapCallback } from '../../hooks/useSwapCallback'
-import {useSwapper2}  from '../../hooks/useSwapper'
+import { useSwapper2 } from '../../hooks/useSwapper'
 import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
 import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
 import { useToggleSettingsMenu, useWalletModalToggle } from '../../state/application/hooks'
@@ -50,7 +50,7 @@ import { useIsTransactionUnsupported } from 'hooks/Trades'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import { isTradeBetter } from 'utils/trades'
 // import { useChill, useSocksController } from "../../hooks/useContract";
-import { getPermitClient } from "../../utils";
+import { getPermitClient } from '../../utils'
 
 export default function Swap() {
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -206,7 +206,7 @@ export default function Swap() {
       return
     }
     setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
-    
+
     swapCallback()
       .then(hash => {
         setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
@@ -248,27 +248,24 @@ export default function Swap() {
     recipientAddress,
     account,
     trade,
-    singleHopOnly,
+    singleHopOnly
   ])
 
   const handleDeposit = useCallback(async () => {
     try {
-      console.log("HandleDeposit")
+      console.log('HandleDeposit')
       if (!callback) {
         return
-      }    
-      
-    const permit = await getPermitClient()
-    console.log('permit+++?? : ', permit)
+      }
+
+      const permit = await getPermitClient()
+      console.log('permit+++?? : ', permit)
 
       callback()
     } catch (error) {
       console.log('Error: ', error)
     }
-  }, [
-    callback
-  ])
-
+  }, [callback])
 
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -533,11 +530,11 @@ export default function Swap() {
           {/* // TRIAL  */}
 
           <BottomGrouping>
-            {(
+            {
               <ButtonError
                 onClick={() => {
                   // if (isExpertMode) {
-                    handleDeposit()
+                  handleDeposit()
                   // } else {
                   //   setSwapState({
                   //     tradeToConfirm: trade,
@@ -556,7 +553,7 @@ export default function Swap() {
                   {'Deposit'}
                 </Text>
               </ButtonError>
-            )}
+            }
             {showApproveFlow && (
               <Column style={{ marginTop: '1rem' }}>
                 <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
@@ -569,7 +566,6 @@ export default function Swap() {
               <DefaultVersionLink />
             ) : null}
           </BottomGrouping>
-
         </Wrapper>
       </AppBody>
       {!swapIsUnsupported ? (
