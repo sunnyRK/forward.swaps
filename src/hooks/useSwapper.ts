@@ -240,7 +240,7 @@ export function useSwapper2(
             const dai = swapMethod.args[2][0]
             const path = [swapMethod.args[2][0],swapMethod.args[2][1]]
 
-            const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, '10000000')
+            const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, swapMethod.args[0])
 
             let gasPrice = await ethersProvider.getGasPrice();
             let gasLimit = await ethersProvider.estimateGas({
