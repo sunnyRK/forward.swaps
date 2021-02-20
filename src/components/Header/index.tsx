@@ -1,6 +1,7 @@
-import { ChainId
+import {
+  ChainId
   // TokenAmount
- } from '@uniswap/sdk'
+} from '@uniswap/sdk'
 import React, { useState } from 'react'
 import { Text } from 'rebass'
 import { NavLink } from 'react-router-dom'
@@ -13,13 +14,15 @@ import Logo from '../../assets/svg/logo.svg'
 import LogoDark from '../../assets/svg/logo_white.svg'
 import { useActiveWeb3React } from '../../hooks'
 import { useDarkModeManager } from '../../state/user/hooks'
-import { useETHBalances
+import {
+  useETHBalances
   //  useAggregateUniBalance
-   } from '../../state/wallet/hooks'
+} from '../../state/wallet/hooks'
 import { CardNoise } from '../earn/styled'
 // import { CountUp } from 'use-count-up'
-import { TYPE
-  // ExternalLink 
+import {
+  TYPE
+  // ExternalLink
 } from '../../theme'
 
 import { YellowCard } from '../Card'

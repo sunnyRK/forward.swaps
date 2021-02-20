@@ -1,42 +1,52 @@
-import DAI_kovan_contract from "../contracts/DAI_kovan.json";
-import USDT_kovan_contract from "../contracts/USDT_kovan.json";
-import USDC_kovan_contract from "../contracts/USDC_kovan.json";
+import DAI_kovan_contract from '../contracts/DAI_kovan.json'
+import USDT_kovan_contract from '../contracts/USDT_kovan.json'
+import USDC_kovan_contract from '../contracts/USDC_kovan.json'
 
 import { Contract } from '@ethersproject/contracts'
 import { getContract } from '../utils'
 import { useActiveWeb3React } from './index'
 import { Web3Provider } from '@ethersproject/providers'
-import Swal from "sweetalert2";
-import { Biconomy } from "@biconomy/mexa";
+import Swal from 'sweetalert2'
+import { Biconomy } from '@biconomy/mexa'
 import { getEthersProvider, getBiconomySwappperContract } from '../utils'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
 
-const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'});
-let ercForwarderClient : any;
-let permitClient : any;
+const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+let ercForwarderClient: any
+let permitClient: any
 
-biconomy.onEvent(biconomy.READY, () => {
-  // Initialize your dapp here like getting user accounts etc
-  ercForwarderClient = biconomy.erc20ForwarderClient;
-  permitClient = biconomy.permitClient;
-  // console.log('permitClientOneventuseBiconomyContracts++', permitClient, ercForwarderClient)
-}).onEvent(biconomy.ERROR, () => {
-  // Handle error while initializing mexa
-  // console.log(error, message)
-});
-
+biconomy
+  .onEvent(biconomy.READY, () => {
+    // Initialize your dapp here like getting user accounts etc
+    ercForwarderClient = biconomy.erc20ForwarderClient
+    permitClient = biconomy.permitClient
+    // console.log('permitClientOneventuseBiconomyContracts++', permitClient, ercForwarderClient)
+  })
+  .onEvent(biconomy.ERROR, () => {
+    // Handle error while initializing mexa
+    // console.log(error, message)
+  })
 
 const useBiconomyContracts = () => {
-
   const { account, library } = useActiveWeb3React()
-  const BICONOMY_CONTRACT = "0xf7972686B57a861D079A1477cbFF7B7B6A469A43";
+  const BICONOMY_CONTRACT = '0xf7972686B57a861D079A1477cbFF7B7B6A469A43'
 
-  function getContractInstance(erc20token: string) : any {
-    if (erc20token === "USDC") {
-      return getContract(USDC_kovan_contract.address, USDC_kovan_contract.abi, library as Web3Provider, account as string)
-    } else if (erc20token === "USDT") {
-      return getContract(USDT_kovan_contract.address, USDT_kovan_contract.abi, library as Web3Provider, account as string)
-    } else if (erc20token === "DAI") {
+  function getContractInstance(erc20token: string): any {
+    if (erc20token === 'USDC') {
+      return getContract(
+        USDC_kovan_contract.address,
+        USDC_kovan_contract.abi,
+        library as Web3Provider,
+        account as string
+      )
+    } else if (erc20token === 'USDT') {
+      return getContract(
+        USDT_kovan_contract.address,
+        USDT_kovan_contract.abi,
+        library as Web3Provider,
+        account as string
+      )
+    } else if (erc20token === 'DAI') {
       return getContract(DAI_kovan_contract.address, DAI_kovan_contract.abi, library as Web3Provider, account as string)
     }
   }
@@ -46,11 +56,11 @@ const useBiconomyContracts = () => {
       const allowance = await checkAllowance(tokenSymbol)
       if (allowance) {
         let gasToken
-        if (tokenSymbol === "USDC") {
+        if (tokenSymbol === 'USDC') {
           gasToken = USDC_kovan_contract.address
-        } else if (tokenSymbol === "USDT") {
+        } else if (tokenSymbol === 'USDT') {
           gasToken = USDT_kovan_contract.address
-        } else if (tokenSymbol === "DAI") {
+        } else if (tokenSymbol === 'DAI') {
           gasToken = DAI_kovan_contract.address
         }
         const path = ['0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '0xd0a1e359811322d97991e03f863a0c30c2cf029c']
@@ -82,14 +92,14 @@ const useBiconomyContracts = () => {
           data: txResponse.data
         })
         // const tx = builtTx.request
-        let TxFess: any = builtTx.cost
+        const TxFess: any = builtTx.cost
         console.log('Modal-builtTx-tx: ', TxFess)
         return TxFess
       } else {
         return 0
       }
     } catch (error) {
-      console.log('error: ', error);
+      console.log('error: ', error)
     }
   }
 
@@ -102,56 +112,57 @@ const useBiconomyContracts = () => {
     let tokenPermitOptions1
     let permitTx
 
-    if (erc20token === "USDC") {
+    if (erc20token === 'USDC') {
       // console.log("USDCUSDC")
       domainData = {
-        name : "USDC Coin",
-        version : "1",
-        chainId : 42,
-        verifyingContract : USDC_kovan_contract.address
-      };
-
-       tokenPermitOptions1 = {
-        domainData: domainData,
-        value: "100000000000000000000", 
-        deadline: Math.floor(Date.now() / 1000 + 3600),
+        name: 'USDC Coin',
+        version: '1',
+        chainId: 42,
+        verifyingContract: USDC_kovan_contract.address
       }
-      permitTx = await permitClient.eip2612Permit(tokenPermitOptions1);
-      await permitTx.wait(1);
-    } else if (erc20token === "USDT") {
+
+      tokenPermitOptions1 = {
+        domainData: domainData,
+        value: '100000000000000000000',
+        deadline: Math.floor(Date.now() / 1000 + 3600)
+      }
+      permitTx = await permitClient.eip2612Permit(tokenPermitOptions1)
+      await permitTx.wait(1)
+    } else if (erc20token === 'USDT') {
       // console.log("USDTUSDT")
-    } else if (erc20token === "DAI") {
+    } else if (erc20token === 'DAI') {
       // console.log("DAIDAI")
       domainData = {
-        name: "Dai Stablecoin",
-        version: "1",
+        name: 'Dai Stablecoin',
+        version: '1',
         chainId: 42,
         verifyingContract: DAI_kovan_contract.address // kovan
-      };
-    
-      tokenPermitOptions1 = { //forwarder
-        domainData: domainData,
-        value: "100000000000000000000",
-        deadline: Math.floor(Date.now() / 1000 + 3600),
       }
 
-      permitTx = await permitClient.daiPermit(tokenPermitOptions1);
+      tokenPermitOptions1 = {
+        //forwarder
+        domainData: domainData,
+        value: '100000000000000000000',
+        deadline: Math.floor(Date.now() / 1000 + 3600)
+      }
+
+      permitTx = await permitClient.daiPermit(tokenPermitOptions1)
       await permitTx.wait(1)
       console.log('permitTx++: ', permitTx)
     }
 
-    if(permitTx.hash) {
-      Swal.fire("Success!", "Allowance Tx Submitted", "success");
+    if (permitTx.hash) {
+      Swal.fire('Success!', 'Allowance Tx Submitted', 'success')
       return true
     } else {
-      Swal.fire("reverted", "Tx has been cancelled or failed", "error");
-        return false
+      Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
+      return false
     }
 
     // console.log('TokenContractInstance: ', TokenContractInstance)
     // const txHash = await TokenContractInstance.approve(BICONOMY_CONTRACT, maxValue)
     // console.log('txHash++', txHash)
-    
+
     // .on("error", function () {
     //   Swal.fire("reverted", "Tx has been cancelled by user", "error");
     // })
@@ -161,39 +172,37 @@ const useBiconomyContracts = () => {
     // .on("receipt", function (receipt: any) {
     //   // setShouldUpdate(true);
     // });
-  };
+  }
 
   const checkAllowance = async (erc20token: string) => {
-    let TokenContractInstance = getContractInstance(erc20token);
+    const TokenContractInstance = getContractInstance(erc20token)
     console.log('TokenContractInstance', TokenContractInstance)
     const erc20Forwarder = '0xbc4de0Fa9734af8DB0fA70A24908Ab48F7c8D75d'
-    let allowance = await TokenContractInstance
-      .allowance(account, erc20Forwarder)
-      // .call();
+    const allowance = await TokenContractInstance.allowance(account, erc20Forwarder)
+    // .call();
     // let balance = await TokenContractInstance
     //   .balanceOf(account)
     // console.log('balance:::', balance)
     if (allowance > 0) {
-      return true;
+      return true
     } else {
-      return false;
+      return false
     }
-  };
+  }
 
   const checkBalance = async (erc20token: string) => {
-    let TokenContractInstance = getContractInstance(erc20token);
-    let balance = await TokenContractInstance
-      .balanceOf(account)
+    const TokenContractInstance = getContractInstance(erc20token)
+    const balance = await TokenContractInstance.balanceOf(account)
     console.log('balance:::', balance)
-     return balance
-  };
+    return balance
+  }
 
   return {
     approveToken,
     checkAllowance,
     checkBalance,
     calculateFees
-  };
-};
+  }
+}
 
-export default useBiconomyContracts;
+export default useBiconomyContracts

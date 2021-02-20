@@ -1,5 +1,5 @@
-import Icon from "@atlantum/feather-react-ts";
-import React from "react";
+import Icon from '@atlantum/feather-react-ts'
+import React from 'react'
 
 // hooks and services
 
@@ -7,14 +7,12 @@ import React from "react";
 
 // interfaces
 export interface CustomButtonProps {
-  disabled?: boolean;
-  title: string;
-  description?: string;
-  icon: any;
-  color: "blue" | "teal" | "green";
-  onClick?:
-    | ((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void)
-    | undefined;
+  disabled?: boolean
+  title: string
+  description?: string
+  icon: any
+  color: 'blue' | 'teal' | 'green'
+  onClick?: ((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void) | undefined
 }
 
 const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
@@ -23,17 +21,15 @@ const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
   description,
   icon,
   color,
-  onClick,
+  onClick
 }) => {
   return (
     <div
-      style={{"height": "100px"}}
+      style={{ height: '100px' }}
       onClick={onClick}
-      className={
-        "custom-button bg-" + color + " " + `${disabled ? "disabled" : ""}`
-      }
+      className={'custom-button bg-' + color + ' ' + `${disabled ? 'disabled' : ''}`}
     >
-      <div className={"icon bg-dark-" + color}>
+      <div className={'icon bg-dark-' + color}>
         <Icon name={icon} strokeWidth={1.5} size={20} color="white" />
       </div>
       <div className="text">
@@ -41,7 +37,7 @@ const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
         <div className="description">{description}</div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CustomButton;
+export default CustomButton

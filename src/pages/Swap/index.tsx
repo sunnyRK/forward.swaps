@@ -5,9 +5,12 @@ import { ArrowDown } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import AddressInputPanel from '../../components/AddressInputPanel'
-import { 
+import {
   // ButtonError,
-   ButtonLight, ButtonPrimary, ButtonConfirmed } from '../../components/Button'
+  ButtonLight,
+  ButtonPrimary,
+  ButtonConfirmed
+} from '../../components/Button'
 import Card, { GreyCard } from '../../components/Card'
 import Column, { AutoColumn } from '../../components/Column'
 import ConfirmSwapModal from '../../components/swap/ConfirmSwapModal'
@@ -23,7 +26,7 @@ import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
 import SwapHeader from '../../components/swap/SwapHeader'
 
-import GasModal from "../../components/BiconomyEstimator/GasModal";
+import GasModal from '../../components/BiconomyEstimator/GasModal'
 
 import { INITIAL_ALLOWED_SLIPPAGE } from '../../constants'
 // import { getTradeVersion } from '../../data/V1'
@@ -32,9 +35,10 @@ import { useCurrency, useAllTokens } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
 // import useENSAddress from '../../hooks/useENSAddress'
 // import { useSwapCallback } from '../../hooks/useSwapCallback'
-import { useSwapper2
+import {
+  useSwapper2
   //  useSwapper3
-   } from '../../hooks/useSwapper'
+} from '../../hooks/useSwapper'
 import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
 import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
 import { useToggleSettingsMenu, useWalletModalToggle } from '../../state/application/hooks'
@@ -428,14 +432,12 @@ export default function Swap() {
 
           {/* //Trial approve */}
           <BottomGrouping>
-            {currencies[Field.INPUT]?.symbol == "ETH" ? 
-            (
+            {currencies[Field.INPUT]?.symbol == 'ETH' ? (
               <GreyCard style={{ textAlign: 'center' }}>
                 <TYPE.main mb="4px">ETH is not supported.</TYPE.main>
                 {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
               </GreyCard>
-            ):
-            swapIsUnsupported ? (
+            ) : swapIsUnsupported ? (
               <ButtonPrimary disabled={true}>
                 <TYPE.main mb="4px">Unsupported Asset</TYPE.main>
               </ButtonPrimary>
@@ -451,25 +453,25 @@ export default function Swap() {
                 <TYPE.main mb="4px">Insufficient liquidity for this trade.</TYPE.main>
                 {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
               </GreyCard>
-            ) : 
-                <ButtonConfirmed
-                  onClick={approveCallback}
-                  disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
-                  width="100%"
-                  altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
-                  confirmed={approval === ApprovalState.APPROVED}
-                >
-                  {approval === ApprovalState.PENDING ? (
-                    <AutoRow gap="6px" justify="center">
-                      Approving <Loader stroke="white" />
-                    </AutoRow>
-                  ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
-                    'Approved'
-                  ) : (
-                    'Approve ' + currencies[Field.INPUT]?.symbol
-                  )}
-                </ButtonConfirmed>
-            }
+            ) : (
+              <ButtonConfirmed
+                onClick={approveCallback}
+                disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
+                width="100%"
+                altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
+                confirmed={approval === ApprovalState.APPROVED}
+              >
+                {approval === ApprovalState.PENDING ? (
+                  <AutoRow gap="6px" justify="center">
+                    Approving <Loader stroke="white" />
+                  </AutoRow>
+                ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
+                  'Approved'
+                ) : (
+                  'Approve ' + currencies[Field.INPUT]?.symbol
+                )}
+              </ButtonConfirmed>
+            )}
             {showApproveFlow && (
               <Column style={{ marginTop: '1rem' }}>
                 <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
@@ -619,7 +621,7 @@ export default function Swap() {
           </BottomGrouping>
  */}
           <BottomGrouping>
-            <GasModal handleDeposit={handleDeposit}/>
+            <GasModal handleDeposit={handleDeposit} />
           </BottomGrouping>
         </Wrapper>
       </AppBody>

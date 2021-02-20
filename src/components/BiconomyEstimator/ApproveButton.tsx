@@ -1,5 +1,5 @@
-import React from "react";
-import useBiconomyContracts from "../../hooks/useBiconomyContracts";
+import React from 'react'
+import useBiconomyContracts from '../../hooks/useBiconomyContracts'
 
 // hooks and services
 
@@ -7,22 +7,17 @@ import useBiconomyContracts from "../../hooks/useBiconomyContracts";
 
 // interfaces
 export interface ApproveButtonProps {
-  tokenName: "DAI" | "USDT" | "USDC";
+  tokenName: 'DAI' | 'USDT' | 'USDC'
 }
 
-const ApproveButton: React.FunctionComponent<ApproveButtonProps> = ({
-  tokenName,
-}) => {
-  const { approveToken } = useBiconomyContracts();
+const ApproveButton: React.FunctionComponent<ApproveButtonProps> = ({ tokenName }) => {
+  const { approveToken } = useBiconomyContracts()
 
   return (
-    <div
-      className="approve-token-button"
-      onClick={() => approveToken(tokenName)}
-    >
+    <div className="approve-token-button" onClick={() => approveToken(tokenName)}>
       Approve {tokenName}
     </div>
-  );
-};
+  )
+}
 
-export default ApproveButton;
+export default ApproveButton

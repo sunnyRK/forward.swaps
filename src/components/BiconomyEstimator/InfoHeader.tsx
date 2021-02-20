@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 // import { useStoreState } from "../../store/globalStore";
 // import { useActiveWeb3React } from '../../index'
 
@@ -9,11 +9,9 @@ const InfoHeader: React.FunctionComponent = () => {
   return (
     <div className="header">
       <div className="title">Biconomy Gas Estimator</div>
-      <div className="wallet-address">
-        {/* {account ? `(${account}) ${account}` : "connect wallet to continue"} */}
-      </div>
+      <div className="wallet-address">{/* {account ? `(${account}) ${account}` : "connect wallet to continue"} */}</div>
     </div>
-  );
-};
+  )
+}
 
-export default InfoHeader;
+export default InfoHeader

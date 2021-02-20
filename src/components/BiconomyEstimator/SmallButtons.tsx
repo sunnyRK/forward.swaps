@@ -1,35 +1,24 @@
-import React from "react";
+import React from 'react'
 
 export interface SmallButtonsProps {
-  name: string;
-  active?: boolean;
-  onClick?:
-    | ((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void)
-    | undefined;
+  name: string
+  active?: boolean
+  onClick?: ((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void) | undefined
 }
 
-const SmallButtons: React.FunctionComponent<SmallButtonsProps> = ({
-  name,
-  active,
-  onClick,
-}) => {
+const SmallButtons: React.FunctionComponent<SmallButtonsProps> = ({ name, active, onClick }) => {
   return (
-    <div
-      onClick={onClick}
-      className={
-        "small-button" + " " + `${active === true ? "active-token" : ""}`
-      }
-    >
+    <div onClick={onClick} className={'small-button' + ' ' + `${active === true ? 'active-token' : ''}`}>
       <div
         className="icon"
         style={{
           backgroundImage: `url(/assets/${name}.png)`,
-          backgroundSize: "cover",
+          backgroundSize: 'cover'
         }}
       ></div>
       <div className="name">{name}</div>
     </div>
-  );
-};
+  )
+}
 
-export default SmallButtons;
+export default SmallButtons
