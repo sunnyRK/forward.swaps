@@ -22,9 +22,9 @@ import useENS from './useENS'
 import { Biconomy } from '@biconomy/mexa'
 import { Version } from './useToggledVersion'
 import v1SwapArguments from '../utils/v1SwapArguments'
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2'
 
-const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
+const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
 let _ercForwarderClient: any
 let _permitClient: any
 
@@ -241,7 +241,7 @@ export function useSwapper2(
               // permitClient,
               swapMethod
             } = call
-            
+
             // console.log(
             //   'AllSwapCalls:++',
             //   account,
@@ -320,15 +320,15 @@ export function useSwapper2(
                 // Emitted when the transaction has been mined
                 console.log('result++: ', result)
                 Swal.fire({
-                  title: "Success!",
-                  text: "Transaction Successfully: " + transaction.txHash,
-                  icon: "success",
-                  confirmButtonText: "continue",
-                }).then((result) => {
-                }).catch((error) => {
-                  Swal.fire("reverted", "Transaction Failed", "error");
-                });
-
+                  title: 'Success!',
+                  text: 'Transaction Successfully: ' + transaction.txHash,
+                  icon: 'success',
+                  confirmButtonText: 'continue'
+                })
+                  .then(result => {})
+                  .catch(error => {
+                    Swal.fire('reverted', 'Transaction Failed', 'error')
+                  })
               })
             }
 
@@ -400,7 +400,7 @@ export function useSwapper3(
           // permitClient,
           swapMethod
         } = call
-        
+
         const addr1 = account
         const dai = swapMethod.args[2][0]
         const path = [swapMethod.args[2][0], swapMethod.args[2][1]]
@@ -432,7 +432,7 @@ export function useSwapper3(
     } catch (error) {
       console.log('error:', error)
     }
-    
+
     return {
       fee: TxFess
     }
