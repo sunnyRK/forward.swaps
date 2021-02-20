@@ -9,15 +9,15 @@ Forward swap is a decentralized exchange on top of Biconomy-forward-swap and Uni
 
 ## What we used to build
 
-Biconomy Forward Swap protocol
-Uniswap-V2 protocol
-Uniswap-Interface (open-source Frontend)
-Solidity
-React-JS
-EtherJS
+1). Biconomy Forward Swap protocol  
+2). Uniswap-V2 protocol  
+3). Uniswap-Interface (open-source Frontend)  
+4). Solidity  
+5). React-JS  
+6). EtherJS  
 
 ## Run
 
-1). clone this repo
-2). yarn
-3). yarn start
+1). clone this repo  
+2). yarn  
+3). yarn start  
