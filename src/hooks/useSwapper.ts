@@ -22,8 +22,9 @@ import useENS from './useENS'
 import { Biconomy } from '@biconomy/mexa'
 import { Version } from './useToggledVersion'
 import v1SwapArguments from '../utils/v1SwapArguments'
+import Swal from "sweetalert2";
 
-const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
 let _ercForwarderClient: any
 let _permitClient: any
 
@@ -60,6 +61,8 @@ interface SwapCall21 {
   permitClient: any
   swapMethod: any
 }
+
+let TxFess: any
 
 // interface SuccessfulCall {
 //   call: SwapCall
@@ -116,7 +119,7 @@ function useSwapCallArguments2(
     )
       return []
     // if (!library || !account || !chainId  || !_permitClient || !_ercForwarderClient) return []
-    console.log('HIIII++', _permitClient)
+    // console.log('HIIII++', _permitClient)
 
     const contract: Contract | null = getBiconomySwappperContract(
       '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
@@ -126,7 +129,7 @@ function useSwapCallArguments2(
     )
     const _ethersProvider: Web3Provider | null = getEthersProvider()
 
-    console.log('contract3+++++', contract, _ethersProvider)
+    // console.log('contract3+++++', contract, _ethersProvider)
 
     if (!contract && !_permitClient) {
       return []
@@ -138,7 +141,7 @@ function useSwapCallArguments2(
 
     switch (tradeVersion) {
       case Version.v2:
-        console.log('1111:', 'HII1', trade.inputAmount.toString())
+        // console.log('1111:', 'HII1', trade.inputAmount.toString())
         swapMethods.push(
           Router.swapCallParameters(trade, {
             feeOnTransfer: false,
@@ -149,7 +152,7 @@ function useSwapCallArguments2(
         )
 
         if (trade.tradeType === TradeType.EXACT_INPUT) {
-          console.log('1111:', 'HII2', trade)
+          // console.log('1111:', 'HII2', trade)
           swapMethods.push(
             Router.swapCallParameters(trade, {
               feeOnTransfer: true,
@@ -162,7 +165,7 @@ function useSwapCallArguments2(
         break
 
       case Version.v1:
-        console.log('1111:', 'HII3', trade)
+        // console.log('1111:', 'HII3', trade)
         swapMethods.push(
           v1SwapArguments(trade, {
             allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
@@ -186,7 +189,7 @@ function useSwapCallArguments2(
       // parameters: _parameters,
       swapMethod: swapMethods[0]
     }
-    console.log('passpass++++', pass)
+    // console.log('passpass++++', pass)
 
     swapper.push(pass)
     return swapper
@@ -217,7 +220,7 @@ export function useSwapper2(
   const { account } = useActiveWeb3React()
   const swapCalls = useSwapCallArguments2(trade, allowedSlippage, recipientAddressOrName)
 
-  console.log('swapCallsNew++++', swapCalls)
+  // console.log('swapCallsNew++++', swapCalls)
 
   return useMemo(() => {
     // try {
@@ -235,20 +238,21 @@ export function useSwapper2(
               contract,
               ethersProvider,
               ercForwarderClient,
-              permitClient,
+              // permitClient,
               swapMethod
             } = call
-            console.log(
-              'AllSwapCalls:++',
-              account,
-              contract,
-              ethersProvider,
-              permitClient,
-              ercForwarderClient,
-              parseInt(swapMethod.args[0], 10),
-              swapMethod.args[2][0],
-              swapMethod.args[2][1]
-            )
+            
+            // console.log(
+            //   'AllSwapCalls:++',
+            //   account,
+            //   contract,
+            //   ethersProvider,
+            //   permitClient,
+            //   ercForwarderClient,
+            //   parseInt(swapMethod.args[0], 10),
+            //   swapMethod.args[2][0],
+            //   swapMethod.args[2][1]
+            // )
 
             // const domainData = {
             //   name: "Dai Stablecoin",
@@ -286,15 +290,15 @@ export function useSwapper2(
 
             const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, swapMethod.args[0])
 
-            const gasPrice = await ethersProvider.getGasPrice()
+            // const gasPrice = await ethersProvider.getGasPrice()
             const gasLimit = await ethersProvider.estimateGas({
               to: contract.address,
               from: account,
               data: txResponse.data
             })
-            console.log('gasLimit++', gasLimit.toString())
-            console.log('gasPrice++', gasPrice.toString())
-            console.log('txResponse++', txResponse)
+            // console.log('gasLimit++', gasLimit.toString())
+            // console.log('gasPrice++', gasPrice.toString())
+            // console.log('txResponse++', txResponse)
 
             const builtTx = await ercForwarderClient.buildTx({
               to: contract.address,
@@ -303,19 +307,28 @@ export function useSwapper2(
               data: txResponse.data
             })
             const tx = builtTx.request
-            const fee = builtTx.cost
-            console.log('builtTx-tx++', tx)
-            console.log('builtTx-fee++', fee)
+            // const fee = builtTx.cost
+            // console.log('builtTx-tx++', tx)
+            // console.log('builtTx-fee++', fee)
 
             const transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
             //returns an object containing code, log, message, txHash
-            console.log(transaction)
 
             if (transaction && transaction.code == 200 && transaction.txHash) {
               //event emitter methods
               ethersProvider.once(transaction.txHash, result => {
                 // Emitted when the transaction has been mined
                 console.log('result++: ', result)
+                Swal.fire({
+                  title: "Success!",
+                  text: "Transaction Successfully: " + transaction.txHash,
+                  icon: "success",
+                  confirmButtonText: "continue",
+                }).then((result) => {
+                }).catch((error) => {
+                  Swal.fire("reverted", "Transaction Failed", "error");
+                });
+
               })
             }
 
@@ -365,6 +378,71 @@ export function useSwapper2(
   }, [swapCalls, account])
 }
 
+export function useSwapper3(
+  trade: Trade | undefined, // trade to execute, required
+  allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
+  recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+): {
+  fee: string | null
+} {
+  const { account } = useActiveWeb3React()
+  const swapCalls = useSwapCallArguments2(trade, allowedSlippage, recipientAddressOrName)
+  let txfee: any
+  return useMemo(() => {
+    try {
+      swapCalls.map(async call => {
+        const {
+          account,
+          // parameters,
+          contract,
+          ethersProvider,
+          ercForwarderClient,
+          // permitClient,
+          swapMethod
+        } = call
+        
+        const addr1 = account
+        const dai = swapMethod.args[2][0]
+        const path = [swapMethod.args[2][0], swapMethod.args[2][1]]
+
+        const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, swapMethod.args[0])
+
+        // const gasPrice = await ethersProvider.getGasPrice()
+        const gasLimit = await ethersProvider.estimateGas({
+          to: contract.address,
+          from: account,
+          data: txResponse.data
+        })
+        // console.log('gasLimit++', gasLimit.toString())
+        // console.log('gasPrice++', gasPrice.toString())
+        // console.log('txResponse++', txResponse)
+
+        const builtTx = await ercForwarderClient.buildTx({
+          to: contract.address,
+          token: swapMethod.args[2][0],
+          txGas: Number(gasLimit),
+          data: txResponse.data
+        })
+        // const tx = builtTx.request
+        TxFess = builtTx.cost
+        // console.log('builtTx-tx++', tx)
+        // console.log('builtTx-fee++', txfee)
+        return TxFess
+      })
+    } catch (error) {
+      console.log('error:', error)
+    }
+    
+    return {
+      fee: TxFess
+    }
+  }, [swapCalls, account])
+}
+
+export function getTxfees(): string {
+  return TxFess
+}
+
 function useSwapCallArguments(): SwapCall[] {
   const { account, chainId, library } = useActiveWeb3React()
 
@@ -373,16 +451,13 @@ function useSwapCallArguments(): SwapCall[] {
       // Initialize your dapp here like getting user accounts etc
       _ercForwarderClient = biconomy.erc20ForwarderClient
       _permitClient = biconomy.permitClient
-      // console.log('permitClientOnevent++++++', _permitClient, _ercForwarderClient)
     })
     .onEvent(biconomy.ERROR, () => {
       // Handle error while initializing mexa
-      // console.log(error, message)
     })
 
   return useMemo(() => {
     if (!library || !account || !chainId || !_permitClient || !_ercForwarderClient) return []
-    // console.log('HIIII++', _permitClient)
     // const contract3: Contract | null = getContract('0xa15E697806711003E635bEe08CA049130C4917fd', CHILL_ABI, library, account)
     // const contract3: Contract | null = getContract('0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3', BICONOMYSWAPPER_ABI, library, account)
 
@@ -395,8 +470,6 @@ function useSwapCallArguments(): SwapCall[] {
     const _ethersProvider: Web3Provider | null = getEthersProvider()
     // const _ercForwarderClient: any | null = getErcForwarderClient()
     // const _permitClient: any | null = getPermitClient()
-
-    // console.log('contract3+++++', _contract, _ethersProvider)
 
     if (!_contract && !_permitClient) {
       return []
@@ -437,16 +510,7 @@ export function useSwapper(): {
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
           swapCalls.map(async call => {
-            const { account, parameters, contract, ethersProvider, ercForwarderClient, permitClient } = call
-            console.log(
-              'AllSwapCalls:++',
-              account,
-              contract,
-              ethersProvider,
-              permitClient,
-              ercForwarderClient,
-              parameters
-            )
+            const { account, contract, ethersProvider, ercForwarderClient, permitClient } = call
 
             const domainData = {
               name: 'Dai Stablecoin',
@@ -472,11 +536,9 @@ export function useSwapper(): {
 
             const permitTx1 = await permitClient.daiPermit(tokenPermitOptions1)
             await permitTx1.wait(1)
-            console.log('permitTx1++: ', permitTx1)
 
             const permitTx2 = await permitClient.daiPermit(tokenPermitOptions2)
             await permitTx2.wait(1)
-            console.log('permitTx2++: ', permitTx2)
 
             // // // const options = !value || isZero(value) ? {} : { value }
             // // // console.log('methodName1:', methodName)
@@ -486,15 +548,15 @@ export function useSwapper(): {
 
             const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, '100000000')
 
-            const gasPrice = await ethersProvider.getGasPrice()
+            // const gasPrice = await ethersProvider.getGasPrice()
             const gasLimit = await ethersProvider.estimateGas({
               to: '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
               from: account,
               data: txResponse.data
             })
-            console.log('gasLimit++', gasLimit.toString())
-            console.log('gasPrice++', gasPrice.toString())
-            console.log('txResponse++', txResponse)
+            // console.log('gasLimit++', gasLimit.toString())
+            // console.log('gasPrice++', gasPrice.toString())
+            // console.log('txResponse++', txResponse)
 
             const builtTx = await ercForwarderClient.buildTx({
               to: '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
@@ -503,19 +565,18 @@ export function useSwapper(): {
               data: txResponse.data
             })
             const tx = builtTx.request
-            const fee = builtTx.cost
-            console.log('builtTx-tx++', tx)
-            console.log('builtTx-fee++', fee)
+            // const fee = builtTx.cost
+            // console.log('builtTx-tx++', tx)
+            // console.log('builtTx-fee', fee)
 
             const transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
             //returns an object containing code, log, message, txHash
-            console.log(transaction)
 
             if (transaction && transaction.code == 200 && transaction.txHash) {
               //event emitter methods
               ethersProvider.once(transaction.txHash, result => {
                 // Emitted when the transaction has been mined
-                console.log('result++: ', result)
+                console.log('result: ', result)
               })
             }
 
@@ -570,7 +631,6 @@ export function useSwapper(): {
 //   const handleSwapper = useCallback(
 //     async () => {
 //         // const contract = await getContract2()
-//         console.log('contract:')
 //         // await chillContract.deposit(
 //         //     '0', '0'
 //         // ).send({from : '0xb50685c25485CA8C520F5286Bbbf1d3F216D6989'})

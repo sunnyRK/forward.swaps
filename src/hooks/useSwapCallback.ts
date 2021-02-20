@@ -70,7 +70,7 @@ function useSwapCallArguments(
 
     switch (tradeVersion) {
       case Version.v2:
-        console.log('1111:', 'HII1', trade)
+        // console.log('1111:', 'HII1', trade)
         swapMethods.push(
           Router.swapCallParameters(trade, {
             feeOnTransfer: false,
@@ -81,7 +81,7 @@ function useSwapCallArguments(
         )
 
         if (trade.tradeType === TradeType.EXACT_INPUT) {
-          console.log('1111:', 'HII2', trade)
+          // console.log('1111:', 'HII2', trade)
           swapMethods.push(
             Router.swapCallParameters(trade, {
               feeOnTransfer: true,
@@ -93,7 +93,7 @@ function useSwapCallArguments(
         }
         break
       case Version.v1:
-        console.log('1111:', 'HII3', trade)
+        // console.log('1111:', 'HII3', trade)
         swapMethods.push(
           v1SwapArguments(trade, {
             allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
@@ -104,7 +104,7 @@ function useSwapCallArguments(
         break
     }
     swapMethods.map(parameters => {
-      console.log('parameters11111', parameters)
+      // console.log('parameters11111', parameters)
     })
     return swapMethods.map(parameters => ({ parameters, contract }))
   }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, v1Exchange])
@@ -145,13 +145,13 @@ export function useSwapCallback(
       callback: async function onSwap(): Promise<string> {
         const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
           swapCalls.map(call => {
-            console.log('Call11111+++', call)
+            // console.log('Call11111+++', call)
             const {
               parameters: { methodName, args, value },
               contract
             } = call
             const options = !value || isZero(value) ? {} : { value }
-            console.log('methodName1111:', methodName, args, ...args, options)
+            // console.log('methodName1111:', methodName, args, ...args, options)
             return contract.estimateGas[methodName](...args, options)
               .then(gasEstimate => {
                 return {

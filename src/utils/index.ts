@@ -28,7 +28,7 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   42: 'kovan.'
 }
 
-const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093', debug: true })
 let ercForwarderClient: any
 let permitClient: any
 
@@ -127,7 +127,7 @@ export function getBiconomySwappperContract(
   const signer = ethersProvider.getSigner()
   console.log('ethersProvider+++++', window.ethereum, biconomy, ethersProvider, signer)
   const contract = new ethers.Contract(address, ABI, signer.connectUnchecked())
-  console.log('getBiconomySwappperContract+++++', contract)
+    console.log('getBiconomySwappperContract+++++', contract)
   return contract
 }
 

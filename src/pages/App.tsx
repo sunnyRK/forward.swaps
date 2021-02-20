@@ -1,5 +1,9 @@
 import React, { Suspense } from 'react'
 import { Route, Switch } from 'react-router-dom'
+
+import "./App.css";
+
+
 import styled from 'styled-components'
 import GoogleAnalyticsReporter from '../components/analytics/GoogleAnalyticsReporter'
 import AddressClaimModal from '../components/claim/AddressClaimModal'
