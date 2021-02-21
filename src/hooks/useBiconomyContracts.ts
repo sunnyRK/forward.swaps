@@ -108,10 +108,9 @@ const useBiconomyContracts = () => {
   }
 
   const approveToken = async (erc20token: string) => {
-    let maxValue =
-      "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+    const maxValue = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
 
-    let TokenContractInstance: Contract = getContractInstance(erc20token);
+    const TokenContractInstance: Contract = getContractInstance(erc20token)
     let domainData
     let tokenPermitOptions1
     let permitTx
@@ -155,7 +154,6 @@ const useBiconomyContracts = () => {
       await permitTx.wait(1)
       console.log('permitTx3++: ', permitTx)
     }
-
 
     if (permitTx.hash) {
       Swal.fire('Success!', 'Allowance Tx Submitted', 'success')
