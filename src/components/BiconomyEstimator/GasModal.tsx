@@ -7,15 +7,16 @@ import CustomButton from './CustomButton'
 import SmallButtons from './SmallButtons'
 import useBiconomyContracts from '../../hooks/useBiconomyContracts'
 // import ApproveButton from "./ApproveButton";
-// import { getTxfees } from "../../hooks/useSwapper";
 // import { useStoreState } from "../../store/globalStore";
 // import Swal from "sweetalert2";
 
 interface GasModalProps {
   handleDeposit: () => void
+  path0: any
+  path1: any
 }
 
-const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit }) => {
+const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0, path1 }) => {
   // const { connected } = useStoreState((state) => state);
   const { checkAllowance, checkBalance, approveToken, calculateFees } = useBiconomyContracts()
 
@@ -42,6 +43,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit }) => 
     const approvedResp: any = await approveToken(tokenSymbol)
     if (approvedResp) {
       setIsApproved(true)
+      const fee = await calculateFees(tokenSymbol, path0, path1)
+      console.log('TxFeeOnApprove', fee)
+      setFees(fee)
     }
   }
 
@@ -54,24 +58,33 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit }) => 
       setCheckingAllowance(true)
       const isApproved = await checkAllowance(selectedToken)
       const balance = await checkBalance(selectedToken)
-      const fee = await calculateFees(selectedToken)
+      const fee = await calculateFees(selectedToken, path0, path1)
       setBalance((balance / 1e18).toString())
       setIsApproved(isApproved)
       setCheckingAllowance(false)
       setFees(fee)
       console.log('TxFee: ', fee)
     }
-    if (selectedToken != '') {
+    if (selectedToken != '' && path0 != '' && path1 != '') {
+      console.log('pathpath1++', path0, path1)
       process()
     }
   }, [selectedToken])
 
   useEffect(() => {
-    if (open) {
-      setFees('0')
-      setSelectedToken('USDC')
-      setError(false)
+    const process = async () => {
+      if (open) {
+        setFees('0')
+        setSelectedToken('USDC')  
+        setError(false)
+        if (path0 != '' && path1 != '') {
+          const fee = await calculateFees(selectedToken, path0, path1)
+          setFees(fee)
+        }
+      }
     }
+    console.log('pathpath0++', selectedToken, path0, path1)
+    process()
   }, [open])
 
   return (

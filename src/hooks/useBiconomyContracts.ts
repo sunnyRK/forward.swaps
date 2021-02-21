@@ -30,6 +30,7 @@ biconomy
 const useBiconomyContracts = () => {
   const { account, library } = useActiveWeb3React()
   const BICONOMY_CONTRACT = '0xf7972686B57a861D079A1477cbFF7B7B6A469A43'
+  const erc20ForwarderAddress = '0xbc4de0Fa9734af8DB0fA70A24908Ab48F7c8D75d'
 
   function getContractInstance(erc20token: string): any {
     if (erc20token === 'USDC') {
@@ -51,7 +52,7 @@ const useBiconomyContracts = () => {
     }
   }
 
-  const calculateFees = async (tokenSymbol: string) => {
+  const calculateFees = async (tokenSymbol: string, path0: string, path1: string) => {
     try {
       const allowance = await checkAllowance(tokenSymbol)
       if (allowance) {
@@ -63,8 +64,10 @@ const useBiconomyContracts = () => {
         } else if (tokenSymbol === 'DAI') {
           gasToken = DAI_kovan_contract.address
         }
-        const path = ['0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '0xd0a1e359811322d97991e03f863a0c30c2cf029c']
-
+        console.log('pathpath2++', path0, path1, gasToken)
+        // const path = ['0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '0xd0a1e359811322d97991e03f863a0c30c2cf029c']
+        const path = [path0, path1]
+        // debugger
         const contract: Contract | null = getBiconomySwappperContract(
           BICONOMY_CONTRACT,
           BICONOMYSWAPPER_ABI,
@@ -73,7 +76,8 @@ const useBiconomyContracts = () => {
         )
         const ethersProvider: Web3Provider | null = getEthersProvider()
 
-        const txResponse = await contract.populateTransaction.swapWithoutETH(account, gasToken, path, '100000')
+        const txResponse = await contract.populateTransaction.swapWithoutETH(account, path0, path, '100000')
+        console.log('pathpath3++', txResponse)
 
         // const gasPrice = await ethersProvider.getGasPrice()
         const gasLimit = await ethersProvider.estimateGas({
@@ -81,7 +85,7 @@ const useBiconomyContracts = () => {
           from: account?.toString(),
           data: txResponse.data
         })
-        // console.log('gasLimit++', gasLimit.toString())
+        console.log('gasLimit++', gasLimit.toString())
         // console.log('gasPrice++', gasPrice.toString())
         // console.log('txResponse++', txResponse)
 
@@ -104,16 +108,15 @@ const useBiconomyContracts = () => {
   }
 
   const approveToken = async (erc20token: string) => {
-    // let maxValue =
-    //   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+    let maxValue =
+      "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
-    // let TokenContractInstance: Contract = getContractInstance(erc20token);
+    let TokenContractInstance: Contract = getContractInstance(erc20token);
     let domainData
     let tokenPermitOptions1
     let permitTx
 
     if (erc20token === 'USDC') {
-      // console.log("USDCUSDC")
       domainData = {
         name: 'USDC Coin',
         version: '1',
@@ -128,10 +131,12 @@ const useBiconomyContracts = () => {
       }
       permitTx = await permitClient.eip2612Permit(tokenPermitOptions1)
       await permitTx.wait(1)
+      console.log('permitTx1++: ', permitTx)
     } else if (erc20token === 'USDT') {
-      // console.log("USDTUSDT")
+      permitTx = await TokenContractInstance.approve(erc20ForwarderAddress, maxValue)
+      await permitTx.wait(1)
+      console.log('permitTx2++: ', permitTx)
     } else if (erc20token === 'DAI') {
-      // console.log("DAIDAI")
       domainData = {
         name: 'Dai Stablecoin',
         version: '1',
@@ -148,8 +153,9 @@ const useBiconomyContracts = () => {
 
       permitTx = await permitClient.daiPermit(tokenPermitOptions1)
       await permitTx.wait(1)
-      console.log('permitTx++: ', permitTx)
+      console.log('permitTx3++: ', permitTx)
     }
+
 
     if (permitTx.hash) {
       Swal.fire('Success!', 'Allowance Tx Submitted', 'success')
@@ -177,8 +183,7 @@ const useBiconomyContracts = () => {
   const checkAllowance = async (erc20token: string) => {
     const TokenContractInstance = getContractInstance(erc20token)
     console.log('TokenContractInstance', TokenContractInstance)
-    const erc20Forwarder = '0xbc4de0Fa9734af8DB0fA70A24908Ab48F7c8D75d'
-    const allowance = await TokenContractInstance.allowance(account, erc20Forwarder)
+    const allowance = await TokenContractInstance.allowance(account, erc20ForwarderAddress)
     // .call();
     // let balance = await TokenContractInstance
     //   .balanceOf(account)

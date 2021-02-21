@@ -36,8 +36,8 @@ import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useAppro
 // import useENSAddress from '../../hooks/useENSAddress'
 // import { useSwapCallback } from '../../hooks/useSwapCallback'
 import {
-  useSwapper2
-  //  useSwapper3
+  useBiconomySwapper
+  //  useSwapperForGas
 } from '../../hooks/useSwapper'
 import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
 import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
@@ -200,8 +200,9 @@ export default function Swap() {
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
-  const { callback } = useSwapper2(trade, allowedSlippage, recipient)
-  // const { fee } = useSwapper3(trade, allowedSlippage, recipient)
+  const { callback } = useBiconomySwapper(trade, allowedSlippage, recipient)
+  console.log('tradetrade+++: ', trade, trade?.inputAmount.toString(), trade && trade.route.path[0].address, trade && trade.route.path[1].address)
+  // const { fee } = useSwapperForGas(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
   // const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient)
@@ -621,7 +622,7 @@ export default function Swap() {
           </BottomGrouping>
  */}
           <BottomGrouping>
-            <GasModal handleDeposit={handleDeposit} />
+            <GasModal handleDeposit={handleDeposit} path0={trade && trade.route.path[0].address} path1={trade && trade.route.path[1].address} />
           </BottomGrouping>
         </Wrapper>
       </AppBody>
