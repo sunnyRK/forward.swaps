@@ -52,7 +52,7 @@ const useBiconomyContracts = () => {
     }
   }
 
-  const calculateFees = async (tokenSymbol: string, path0: string, path1: string) => {
+  const calculateFees = async (tokenSymbol: string, path0: string, path1: string, inputAmount: any) => {
     try {
       const allowance = await checkAllowance(tokenSymbol)
       if (allowance) {
@@ -64,7 +64,7 @@ const useBiconomyContracts = () => {
         } else if (tokenSymbol === 'DAI') {
           gasToken = DAI_kovan_contract.address
         }
-        console.log('pathpath2++', path0, path1, gasToken)
+        console.log('pathpath2++', path0, path1, gasToken, inputAmount.toString())
         // const path = ['0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '0xd0a1e359811322d97991e03f863a0c30c2cf029c']
         const path = [path0, path1]
         // debugger
@@ -76,7 +76,7 @@ const useBiconomyContracts = () => {
         )
         const ethersProvider: Web3Provider | null = getEthersProvider()
 
-        const txResponse = await contract.populateTransaction.swapWithoutETH(account, path0, path, '100000')
+        const txResponse = await contract.populateTransaction.swapWithoutETH(account, path0, path, (inputAmount*1e18).toString())
         console.log('pathpath3++', txResponse)
 
         // const gasPrice = await ethersProvider.getGasPrice()

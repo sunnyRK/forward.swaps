@@ -12,6 +12,10 @@ import { calculateGasMargin } from '../utils'
 import { useTokenContract } from './useContract'
 import { useActiveWeb3React } from './index'
 // import { Version } from './useToggledVersion'
+import { Biconomy } from '@biconomy/mexa'
+
+import DAI_kovan_contract from '../contracts/DAI_kovan.json'
+import USDC_kovan_contract from '../contracts/USDC_kovan.json'
 
 export enum ApprovalState {
   UNKNOWN,
@@ -19,6 +23,22 @@ export enum ApprovalState {
   PENDING,
   APPROVED
 }
+
+const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+// let ercForwarderClient: any
+let permitClient: any
+
+biconomy
+  .onEvent(biconomy.READY, () => {
+    // Initialize your dapp here like getting user accounts etc
+    // ercForwarderClient = biconomy.erc20ForwarderClient
+    permitClient = biconomy.permitClient
+    // console.log('permitClientOneventuseBiconomyContracts++', permitClient, ercForwarderClient)
+  })
+  .onEvent(biconomy.ERROR, () => {
+    // Handle error while initializing mexa
+    // console.log(error, message)
+  })
 
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
 export function useApproveCallback(
@@ -80,7 +100,51 @@ export function useApproveCallback(
       return tokenContract.estimateGas.approve(spender, amountToApprove.raw.toString())
     })
 
-    return tokenContract
+    let domainData
+    let tokenPermitOptions1
+    let permitTx
+    if(tokenContract.address == DAI_kovan_contract.address) { // DAI
+      domainData = {
+        name: 'Dai Stablecoin',
+        version: '1',
+        chainId: 42,
+        verifyingContract: DAI_kovan_contract.address // kovan
+      }
+
+      tokenPermitOptions1 = {
+        //forwarder
+        domainData: domainData,
+        value: '100000000000000000000',
+        deadline: Math.floor(Date.now() / 1000 + 3600)
+      }
+
+      permitTx = await permitClient.daiPermit(tokenPermitOptions1)
+      await permitTx.wait(1)
+      addTransaction(permitTx, {
+        summary: 'Approve ' + amountToApprove.currency.symbol,
+        approval: { tokenAddress: token.address, spender: spender }
+      })
+      console.log('permitTx3++: ', permitTx)
+      return permitTx
+    } else if(tokenContract.address == USDC_kovan_contract.address) { // USDC
+      domainData = {
+        name: 'USDC Coin',
+        version: '1',
+        chainId: 42,
+        verifyingContract: USDC_kovan_contract.address
+      }
+
+      tokenPermitOptions1 = {
+        domainData: domainData,
+        value: '100000000000000000000',
+        deadline: Math.floor(Date.now() / 1000 + 3600)
+      }
+      permitTx = await permitClient.eip2612Permit(tokenPermitOptions1)
+      await permitTx.wait(1)
+      console.log('permitTx3++: ', permitTx)
+      return permitTx
+    } else { // OtherTokens
+      return tokenContract
       .approve(spender, useExact ? amountToApprove.raw.toString() : MaxUint256, {
         gasLimit: calculateGasMargin(estimatedGas)
       })
@@ -94,6 +158,8 @@ export function useApproveCallback(
         console.debug('Failed to approve token', error)
         throw error
       })
+    }
+
   }, [approvalState, token, tokenContract, amountToApprove, spender, addTransaction])
 
   return [approvalState, approve]

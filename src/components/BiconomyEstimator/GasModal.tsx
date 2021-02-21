@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import 'react-responsive-modal/styles.css'
-
+// import { BigNumber } from '@ethersproject/bignumber'
+// import { BigNumber } from 'ethers'
 import { Modal } from 'react-responsive-modal'
-
 import CustomButton from './CustomButton'
 import SmallButtons from './SmallButtons'
 import useBiconomyContracts from '../../hooks/useBiconomyContracts'
@@ -14,9 +14,10 @@ interface GasModalProps {
   handleDeposit: () => void
   path0: any
   path1: any
+  inputAmount: any
 }
 
-const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0, path1 }) => {
+const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0, path1, inputAmount }) => {
   // const { connected } = useStoreState((state) => state);
   const { checkAllowance, checkBalance, approveToken, calculateFees } = useBiconomyContracts()
 
@@ -32,10 +33,21 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0
   const onCloseModal = () => setOpen(false)
 
   const onDeposit = async () => {
-    if (fees > checkBal) {
-      setError(true)
-    } else {
-      return handleDeposit()
+    try {
+      const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees) 
+      console.log("feesfees+:", totalExchangeVolume, inputAmount, fees, checkBal)
+      if(totalExchangeVolume > parseFloat(checkBal)) {
+        setError(true)
+      } else {
+        return handleDeposit()
+      }
+      // if (fees > checkBal) {
+      //   setError(true)
+      // } else {
+      //   return handleDeposit()
+      // }
+    } catch (error) {
+      
     }
   }
 
@@ -43,7 +55,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0
     const approvedResp: any = await approveToken(tokenSymbol)
     if (approvedResp) {
       setIsApproved(true)
-      const fee = await calculateFees(tokenSymbol, path0, path1)
+      const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
       console.log('TxFeeOnApprove', fee)
       setFees(fee)
     }
@@ -58,7 +70,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0
       setCheckingAllowance(true)
       const isApproved = await checkAllowance(selectedToken)
       const balance = await checkBalance(selectedToken)
-      const fee = await calculateFees(selectedToken, path0, path1)
+      const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
       setBalance((balance / 1e18).toString())
       setIsApproved(isApproved)
       setCheckingAllowance(false)
@@ -78,12 +90,17 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0
         setSelectedToken('USDC')  
         setError(false)
         if (path0 != '' && path1 != '') {
-          const fee = await calculateFees(selectedToken, path0, path1)
+          const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
           setFees(fee)
         }
       }
     }
-    console.log('pathpath0++', selectedToken, path0, path1)
+    // const feess : BigNumber =  BigNumber.from(inputAmount).add(4.75)
+    // console.log('pathpath0++', selectedToken, path0, path1, inputAmount, 
+    //   parseFloat(inputAmount), parseInt(inputAmount), feess)
+      // (parseFloat(inputAmount)+parseFloat(feess)), (parseInt(inputAmount)+parseInt(feess)))
+      // BigNumber.from(inputAmount), BigNumber.from(feess), BigNumber.from(inputAmount).add(BigNumber.from(feess))
+    // )
     process()
   }, [open])
 
