@@ -87,7 +87,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0
     const process = async () => {
       if (open) {
         setFees('0')
-        setSelectedToken('USDC')  
+        setSelectedToken('USDC')
         setError(false)
         if (path0 != '' && path1 != '') {
           const fee = await calculateFees(selectedToken, path0, path1, inputAmount)

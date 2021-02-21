@@ -207,13 +207,7 @@ export function useBiconomySwapper(
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
           swapCalls.map(async call => {
-            const {
-              account,
-              contract,
-              ethersProvider,
-              ercForwarderClient,
-              swapMethod
-            } = call
+            const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
 
             // const domainData = {
             //   name: "Dai Stablecoin",
@@ -344,13 +338,7 @@ export function useSwapperForGas(
   return useMemo(() => {
     try {
       swapCalls.map(async call => {
-        const {
-          account,
-          contract,
-          ethersProvider,
-          ercForwarderClient,
-          swapMethod
-        } = call
+        const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
 
         const addr1 = account
         const dai = swapMethod.args[2][0]

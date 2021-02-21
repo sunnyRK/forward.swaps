@@ -201,7 +201,13 @@ export default function Swap() {
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
   const { callback } = useBiconomySwapper(trade, allowedSlippage, recipient)
-  console.log('tradetrade+++: ', trade, trade?.inputAmount.toString(), trade && trade.route.path[0].address, trade && trade.route.path[1].address)
+  console.log(
+    'tradetrade+++: ',
+    trade,
+    trade?.inputAmount.toString(),
+    trade && trade.route.path[0].address,
+    trade && trade.route.path[1].address
+  )
   // const { fee } = useSwapperForGas(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
