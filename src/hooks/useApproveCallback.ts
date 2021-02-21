@@ -103,7 +103,8 @@ export function useApproveCallback(
     let domainData
     let tokenPermitOptions1
     let permitTx
-    if(tokenContract.address == DAI_kovan_contract.address) { // DAI
+    if (tokenContract.address == DAI_kovan_contract.address) {
+      // DAI
       domainData = {
         name: 'Dai Stablecoin',
         version: '1',
@@ -126,7 +127,8 @@ export function useApproveCallback(
       })
       console.log('permitTx3++: ', permitTx)
       return permitTx
-    } else if(tokenContract.address == USDC_kovan_contract.address) { // USDC
+    } else if (tokenContract.address == USDC_kovan_contract.address) {
+      // USDC
       domainData = {
         name: 'USDC Coin',
         version: '1',
@@ -143,23 +145,23 @@ export function useApproveCallback(
       await permitTx.wait(1)
       console.log('permitTx3++: ', permitTx)
       return permitTx
-    } else { // OtherTokens
+    } else {
+      // OtherTokens
       return tokenContract
-      .approve(spender, useExact ? amountToApprove.raw.toString() : MaxUint256, {
-        gasLimit: calculateGasMargin(estimatedGas)
-      })
-      .then((response: TransactionResponse) => {
-        addTransaction(response, {
-          summary: 'Approve ' + amountToApprove.currency.symbol,
-          approval: { tokenAddress: token.address, spender: spender }
+        .approve(spender, useExact ? amountToApprove.raw.toString() : MaxUint256, {
+          gasLimit: calculateGasMargin(estimatedGas)
         })
-      })
-      .catch((error: Error) => {
-        console.debug('Failed to approve token', error)
-        throw error
-      })
+        .then((response: TransactionResponse) => {
+          addTransaction(response, {
+            summary: 'Approve ' + amountToApprove.currency.symbol,
+            approval: { tokenAddress: token.address, spender: spender }
+          })
+        })
+        .catch((error: Error) => {
+          console.debug('Failed to approve token', error)
+          throw error
+        })
     }
-
   }, [approvalState, token, tokenContract, amountToApprove, spender, addTransaction])
 
   return [approvalState, approve]

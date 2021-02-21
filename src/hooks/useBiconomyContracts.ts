@@ -76,7 +76,12 @@ const useBiconomyContracts = () => {
         )
         const ethersProvider: Web3Provider | null = getEthersProvider()
 
-        const txResponse = await contract.populateTransaction.swapWithoutETH(account, path0, path, (inputAmount*1e18).toString())
+        const txResponse = await contract.populateTransaction.swapWithoutETH(
+          account,
+          path0,
+          path,
+          (inputAmount * 1e18).toString()
+        )
         console.log('pathpath3++', txResponse)
 
         // const gasPrice = await ethersProvider.getGasPrice()
