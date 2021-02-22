@@ -34,9 +34,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0
 
   const onDeposit = async () => {
     try {
-      const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees) 
-      console.log("feesfees+:", totalExchangeVolume, inputAmount, fees, checkBal)
-      if(totalExchangeVolume > parseFloat(checkBal)) {
+      const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
+      console.log('feesfees+:', totalExchangeVolume, inputAmount, fees, checkBal)
+      if (totalExchangeVolume > parseFloat(checkBal)) {
         setError(true)
       } else {
         return handleDeposit()
@@ -46,9 +46,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0
       // } else {
       //   return handleDeposit()
       // }
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
 
   const onApprove = async (tokenSymbol: any) => {
@@ -96,10 +94,10 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, path0
       }
     }
     // const feess : BigNumber =  BigNumber.from(inputAmount).add(4.75)
-    // console.log('pathpath0++', selectedToken, path0, path1, inputAmount, 
+    // console.log('pathpath0++', selectedToken, path0, path1, inputAmount,
     //   parseFloat(inputAmount), parseInt(inputAmount), feess)
-      // (parseFloat(inputAmount)+parseFloat(feess)), (parseInt(inputAmount)+parseInt(feess)))
-      // BigNumber.from(inputAmount), BigNumber.from(feess), BigNumber.from(inputAmount).add(BigNumber.from(feess))
+    // (parseFloat(inputAmount)+parseFloat(feess)), (parseInt(inputAmount)+parseInt(feess)))
+    // BigNumber.from(inputAmount), BigNumber.from(feess), BigNumber.from(inputAmount).add(BigNumber.from(feess))
     // )
     process()
   }, [open])
