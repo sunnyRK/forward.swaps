@@ -192,8 +192,8 @@ export function useBiconomySwapper(
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
   // gasToken: string | null
-  ): {
-  state: SwapCallbackState  
+): {
+  state: SwapCallbackState
   callback: any
   error: string | null
 } {
@@ -248,7 +248,12 @@ export function useBiconomySwapper(
             const token0 = swapMethod.args[2][0]
             const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
 
-            const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, token0, path, swapMethod.args[0])
+            const txResponse = await contract.populateTransaction.swapWithoutETH(
+              addr1,
+              token0,
+              path,
+              swapMethod.args[0]
+            )
 
             const gasLimit = await ethersProvider.estimateGas({
               to: contract.address,
@@ -268,7 +273,6 @@ export function useBiconomySwapper(
             //returns an object containing code, log, message, txHash
 
             if (transaction && transaction.code == 200 && transaction.txHash) {
-
               // addTransaction(transaction)
 
               //event emitter methods

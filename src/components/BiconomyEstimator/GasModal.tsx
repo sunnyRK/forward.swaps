@@ -27,7 +27,14 @@ interface GasModalProps {
   inputAmount: any
 }
 
-const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, hadaleGasModalEnable, setGasTokenCallback, path0, path1, inputAmount }) => {
+const GasModal: React.FunctionComponent<GasModalProps> = ({
+  handleDeposit,
+  hadaleGasModalEnable,
+  setGasTokenCallback,
+  path0,
+  path1,
+  inputAmount
+}) => {
   // const { connected } = useStoreState((state) => state);
   const { checkAllowance, checkBalance, approveToken, calculateFees } = useBiconomyContracts()
 
@@ -41,7 +48,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, hadal
   const [selectedToken, setSelectedToken] = useState('')
 
   // const onOpenModal = () => setOpen(true)
-  const onCloseModal = () => { 
+  const onCloseModal = () => {
     hadaleGasModalEnable()
     setOpen(false)
   }
@@ -49,12 +56,11 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, hadal
 
   const onDeposit = async () => {
     try {
-
-      if(inputAmount == '') {
+      if (inputAmount == '') {
         setInputError(true)
         return
       }
-      let gasTokenValue: any = selectedToken
+      const gasTokenValue: any = selectedToken
       if (gasTokenValue == 'DAI' || gasTokenValue == 'USDC' || gasTokenValue == 'USDT') {
         const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
         console.log('feesfees+:', totalExchangeVolume, inputAmount, fees, checkBal)
@@ -129,7 +135,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, hadal
       const isApproved = await checkAllowance(selectedToken)
       const balance = await checkBalance(selectedToken)
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
-      if(selectedToken == "USDT") {
+      if (selectedToken == 'USDT') {
         setBalance((balance / 1e6).toString())
       } else {
         setBalance((balance / 1e18).toString())
@@ -202,7 +208,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, hadal
 
           <div className="token-action">
             {checkingAllowance ? (
-              <div className="alignCenter"><strong>Checking Allowance Status...</strong></div>
+              <div className="alignCenter">
+                <strong>Checking Allowance Status...</strong>
+              </div>
             ) : isApproved ? (
               <div className="pay-tx">
                 {balanceError && (
@@ -217,44 +225,36 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({ handleDeposit, hadal
                   </div>
                 )}
 
-                
-
-                    
-          <AutoColumn gap="0px">
-            <RowBetween>
-              <RowFixed>
-                <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-                  Your Balance :{' '}
-                </TYPE.black>
-                <QuestionHelper text="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed." />
-              </RowFixed>
-              <RowFixed>
-                <TYPE.black fontSize={14}>
-                  {checkBal} 
-                </TYPE.black>
-                <TYPE.black fontSize={14} marginLeft={'4px'}>
-                  {selectedToken}
-                </TYPE.black>
-              </RowFixed>
-            </RowBetween>
-            <RowBetween>
-              <RowFixed>
-                <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-                  Estimated Tx fee :{' '}
-                </TYPE.black>
-                <QuestionHelper text="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed." />
-              </RowFixed>
-              <RowFixed>
-                <TYPE.black fontSize={14}>
-                  {parseInt(fees) > 0 ?  fees : '0'} 
-                </TYPE.black>
-                <TYPE.black fontSize={14} marginLeft={'4px'}>
-                  {selectedToken}
-                </TYPE.black>
-              </RowFixed>
-            </RowBetween>
-            </AutoColumn>
-
+                <AutoColumn gap="0px">
+                  <RowBetween>
+                    <RowFixed>
+                      <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                        Your Balance :{' '}
+                      </TYPE.black>
+                      <QuestionHelper text="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed." />
+                    </RowFixed>
+                    <RowFixed>
+                      <TYPE.black fontSize={14}>{checkBal}</TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'}>
+                        {selectedToken}
+                      </TYPE.black>
+                    </RowFixed>
+                  </RowBetween>
+                  <RowBetween>
+                    <RowFixed>
+                      <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                        Estimated Tx fee :{' '}
+                      </TYPE.black>
+                      <QuestionHelper text="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed." />
+                    </RowFixed>
+                    <RowFixed>
+                      <TYPE.black fontSize={14}>{parseInt(fees) > 0 ? fees : '0'}</TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'}>
+                        {selectedToken}
+                      </TYPE.black>
+                    </RowFixed>
+                  </RowBetween>
+                </AutoColumn>
 
                 <div className="buttons">
                   <div className="tx-button cancel" onClick={onCloseModal}>

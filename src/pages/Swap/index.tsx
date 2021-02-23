@@ -5,12 +5,7 @@ import { ArrowDown } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import AddressInputPanel from '../../components/AddressInputPanel'
-import {
-  ButtonError,
-  ButtonLight,
-  ButtonPrimary,
-  ButtonConfirmed
-} from '../../components/Button'
+import { ButtonError, ButtonLight, ButtonPrimary, ButtonConfirmed } from '../../components/Button'
 import Card, { GreyCard } from '../../components/Card'
 import Column, { AutoColumn } from '../../components/Column'
 import ConfirmSwapModal from '../../components/swap/ConfirmSwapModal'
@@ -212,9 +207,10 @@ export default function Swap() {
   // const { fee } = useSwapperForGas(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
-  const { 
-    // callback: swapCallback, 
-    error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient)
+  const {
+    // callback: swapCallback,
+    error: swapCallbackError
+  } = useSwapCallback(trade, allowedSlippage, recipient)
 
   const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade)
 
@@ -285,22 +281,25 @@ export default function Swap() {
     }
   }, [callback, gasToken])
 
-  const setGasTokenCallback = useCallback((gasTokenValue: any) => {
-    try {
-      console.log('gasTokenValue+2:', gasTokenValue)
-      setGasToken(gasTokenValue)
-      if(!callback) {
-        return
+  const setGasTokenCallback = useCallback(
+    (gasTokenValue: any) => {
+      try {
+        console.log('gasTokenValue+2:', gasTokenValue)
+        setGasToken(gasTokenValue)
+        if (!callback) {
+          return
+        }
+        callback(gasTokenValue)
+      } catch (error) {
+        console.log('Error: ', error)
       }
-      callback(gasTokenValue)
-    } catch (error) {
-      console.log('Error: ', error)
-    }
-  }, [gasToken])
+    },
+    [gasToken]
+  )
 
   const hadaleGasModalEnable = useCallback(async () => {
     try {
-      if(gasModalEnable) {
+      if (gasModalEnable) {
         setGasModalEnable(false)
       } else {
         setGasModalEnable(true)
@@ -467,79 +466,81 @@ export default function Swap() {
           </AutoColumn>
 
           {/* //Trial approve */}
-          
-          { approval !== 3 ? ( <BottomGrouping>
-            {currencies[Field.INPUT]?.symbol == 'ETH' ? (
-              <GreyCard style={{ textAlign: 'center' }}>
-                <TYPE.main mb="4px">ETH is not supported.</TYPE.main>
-                {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
-              </GreyCard>
-            ) : swapIsUnsupported ? (
-              <ButtonPrimary disabled={true}>
-                <TYPE.main mb="4px">Unsupported Asset</TYPE.main>
-              </ButtonPrimary>
-            ) : !account ? (
-              <ButtonLight onClick={toggleWalletModal}>Connect Wallet</ButtonLight>
-            ) : showWrap ? (
-              <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
-                {wrapInputError ??
-                  (wrapType === WrapType.WRAP ? 'Wrap' : wrapType === WrapType.UNWRAP ? 'Unwrap' : null)}
-              </ButtonPrimary>
-            ) : noRoute && userHasSpecifiedInputOutput ? (
-              <GreyCard style={{ textAlign: 'center' }}>
-                <TYPE.main mb="4px">Insufficient liquidity for this trade.</TYPE.main>
-                {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
-              </GreyCard>
-            ) : (
-              <ButtonConfirmed
-                onClick={approveCallback}
-                disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
-                width="100%"
-                altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
-                confirmed={approval === ApprovalState.APPROVED}
-              >
-                {approval === ApprovalState.PENDING ? (
-                  <AutoRow gap="6px" justify="center">
-                    Approving <Loader stroke="white" />
-                  </AutoRow>
-                ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
-                  'Approved'
-                ) : (
-                  'Approve ' + currencies[Field.INPUT]?.symbol
-                )}
-              </ButtonConfirmed>
-            )}
-            {showApproveFlow && (
-              <Column style={{ marginTop: '1rem' }}>
-                <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
-              </Column>
-            )}
-            {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
-            {betterTradeLinkV2 && !swapIsUnsupported && toggledVersion === Version.v1 ? (
-              <BetterTradeLink version={betterTradeLinkV2} />
-            ) : toggledVersion !== DEFAULT_VERSION && defaultTrade ? (
-              <DefaultVersionLink />
-            ) : null}
-          </BottomGrouping> ) : (
 
-          <BottomGrouping>
-            <ButtonError
-              onClick={() => {
-                hadaleGasModalEnable()
-              }}
-              id="swap-button"
-              disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
-              error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
+          {approval !== 3 ? (
+            <BottomGrouping>
+              {currencies[Field.INPUT]?.symbol == 'ETH' ? (
+                <GreyCard style={{ textAlign: 'center' }}>
+                  <TYPE.main mb="4px">ETH is not supported.</TYPE.main>
+                  {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
+                </GreyCard>
+              ) : swapIsUnsupported ? (
+                <ButtonPrimary disabled={true}>
+                  <TYPE.main mb="4px">Unsupported Asset</TYPE.main>
+                </ButtonPrimary>
+              ) : !account ? (
+                <ButtonLight onClick={toggleWalletModal}>Connect Wallet</ButtonLight>
+              ) : showWrap ? (
+                <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
+                  {wrapInputError ??
+                    (wrapType === WrapType.WRAP ? 'Wrap' : wrapType === WrapType.UNWRAP ? 'Unwrap' : null)}
+                </ButtonPrimary>
+              ) : noRoute && userHasSpecifiedInputOutput ? (
+                <GreyCard style={{ textAlign: 'center' }}>
+                  <TYPE.main mb="4px">Insufficient liquidity for this trade.</TYPE.main>
+                  {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
+                </GreyCard>
+              ) : (
+                <ButtonConfirmed
+                  onClick={approveCallback}
+                  disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
+                  width="100%"
+                  altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
+                  confirmed={approval === ApprovalState.APPROVED}
+                >
+                  {approval === ApprovalState.PENDING ? (
+                    <AutoRow gap="6px" justify="center">
+                      Approving <Loader stroke="white" />
+                    </AutoRow>
+                  ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
+                    'Approved'
+                  ) : (
+                    'Approve ' + currencies[Field.INPUT]?.symbol
+                  )}
+                </ButtonConfirmed>
+              )}
+              {showApproveFlow && (
+                <Column style={{ marginTop: '1rem' }}>
+                  <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
+                </Column>
+              )}
+              {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
+              {betterTradeLinkV2 && !swapIsUnsupported && toggledVersion === Version.v1 ? (
+                <BetterTradeLink version={betterTradeLinkV2} />
+              ) : toggledVersion !== DEFAULT_VERSION && defaultTrade ? (
+                <DefaultVersionLink />
+              ) : null}
+            </BottomGrouping>
+          ) : (
+            <BottomGrouping>
+              <ButtonError
+                onClick={() => {
+                  hadaleGasModalEnable()
+                }}
+                id="swap-button"
+                disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
+                error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
               >
-              <Text fontSize={20} fontWeight={500}>
-                {swapInputError
-                  ? swapInputError
-                  : priceImpactSeverity > 3 && !isExpertMode
-                  ? `Price Impact Too High`
-                  : `Swap${priceImpactSeverity > 2 ? ' Anyway' : ''}`}
-              </Text>
-            </ButtonError>
-          </BottomGrouping>)}
+                <Text fontSize={20} fontWeight={500}>
+                  {swapInputError
+                    ? swapInputError
+                    : priceImpactSeverity > 3 && !isExpertMode
+                    ? `Price Impact Too High`
+                    : `Swap${priceImpactSeverity > 2 ? ' Anyway' : ''}`}
+                </Text>
+              </ButtonError>
+            </BottomGrouping>
+          )}
 
           {/* // Original */}
           {/* <BottomGrouping>
@@ -676,16 +677,20 @@ export default function Swap() {
             ) : null}
           </BottomGrouping>
  */}
-          { gasModalEnable ? ( <BottomGrouping>
-            <GasModal
-              handleDeposit={handleDeposit}
-              path0={trade && trade.route.path[0].address}
-              path1={trade && trade.route.path[1].address}
-              inputAmount={formattedAmounts[Field.INPUT]}
-              hadaleGasModalEnable={hadaleGasModalEnable}
-              setGasTokenCallback={setGasTokenCallback}
-            />
-          </BottomGrouping>) : ('') }
+          {gasModalEnable ? (
+            <BottomGrouping>
+              <GasModal
+                handleDeposit={handleDeposit}
+                path0={trade && trade.route.path[0].address}
+                path1={trade && trade.route.path[1].address}
+                inputAmount={formattedAmounts[Field.INPUT]}
+                hadaleGasModalEnable={hadaleGasModalEnable}
+                setGasTokenCallback={setGasTokenCallback}
+              />
+            </BottomGrouping>
+          ) : (
+            ''
+          )}
         </Wrapper>
       </AppBody>
       {!swapIsUnsupported ? (
