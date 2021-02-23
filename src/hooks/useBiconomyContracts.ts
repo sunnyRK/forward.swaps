@@ -10,6 +10,7 @@ import Swal from 'sweetalert2'
 import { Biconomy } from '@biconomy/mexa'
 import { getEthersProvider, getBiconomySwappperContract } from '../utils'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
+// import { useTransactionAdder } from '../state/transactions/hooks'
 
 const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
 let ercForwarderClient: any
@@ -29,6 +30,8 @@ biconomy
 
 const useBiconomyContracts = () => {
   const { account, library } = useActiveWeb3React()
+  // const addTransaction = useTransactionAdder()
+
   const BICONOMY_CONTRACT = '0xf7972686B57a861D079A1477cbFF7B7B6A469A43'
   const erc20ForwarderAddress = '0xbc4de0Fa9734af8DB0fA70A24908Ab48F7c8D75d'
 
@@ -161,6 +164,10 @@ const useBiconomyContracts = () => {
     }
 
     if (permitTx.hash) {
+      // addTransaction(permitTx, {
+      //   summary: 'Approve ' + erc20token,
+      //   approval: { tokenAddress: erc20token, spender: erc20ForwarderAddress }
+      // })
       Swal.fire('Success!', 'Allowance Tx Submitted', 'success')
       return true
     } else {

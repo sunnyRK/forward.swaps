@@ -21,6 +21,7 @@ import { Biconomy } from '@biconomy/mexa'
 import { Version } from './useToggledVersion'
 import v1SwapArguments from '../utils/v1SwapArguments'
 import Swal from 'sweetalert2'
+// import { useTransactionAdder } from '../state/transactions/hooks'
 
 const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
 let _ercForwarderClient: any
@@ -190,22 +191,26 @@ export function useBiconomySwapper(
   trade: Trade | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
-): {
-  state: SwapCallbackState
+  // gasToken: string | null
+  ): {
+  state: SwapCallbackState  
   callback: any
   error: string | null
 } {
   const { account } = useActiveWeb3React()
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
+  // const addTransaction = useTransactionAdder()
+
   return useMemo(() => {
     // try {
 
     return {
       state: SwapCallbackState.VALID,
-      callback: async function onSwap() {
+      callback: async function onSwap(gasToken: string) {
         // : Promise<string> {
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
+          console.log('gasTokenValue+++45: ', gasToken)
           swapCalls.map(async call => {
             const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
 
@@ -240,10 +245,10 @@ export function useBiconomySwapper(
             // // // const options = !value || isZero(value) ? {} : { value }
             // // // console.log('methodName1:', methodName)
             const addr1 = account
-            const dai = swapMethod.args[2][0]
-            const path = [swapMethod.args[2][0], swapMethod.args[2][1]]
+            const token0 = swapMethod.args[2][0]
+            const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
 
-            const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, swapMethod.args[0])
+            const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, token0, path, swapMethod.args[0])
 
             const gasLimit = await ethersProvider.estimateGas({
               to: contract.address,
@@ -253,7 +258,7 @@ export function useBiconomySwapper(
 
             const builtTx = await ercForwarderClient.buildTx({
               to: contract.address,
-              token: swapMethod.args[2][0],
+              token: gasToken,
               txGas: Number(gasLimit),
               data: txResponse.data
             })
@@ -263,6 +268,9 @@ export function useBiconomySwapper(
             //returns an object containing code, log, message, txHash
 
             if (transaction && transaction.code == 200 && transaction.txHash) {
+
+              // addTransaction(transaction)
+
               //event emitter methods
               ethersProvider.once(transaction.txHash, result => {
                 // Emitted when the transaction has been mined

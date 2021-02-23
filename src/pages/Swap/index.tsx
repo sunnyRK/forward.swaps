@@ -6,7 +6,7 @@ import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import AddressInputPanel from '../../components/AddressInputPanel'
 import {
-  // ButtonError,
+  ButtonError,
   ButtonLight,
   ButtonPrimary,
   ButtonConfirmed
@@ -34,7 +34,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { useCurrency, useAllTokens } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
 // import useENSAddress from '../../hooks/useENSAddress'
-// import { useSwapCallback } from '../../hooks/useSwapCallback'
+import { useSwapCallback } from '../../hooks/useSwapCallback'
 import {
   useBiconomySwapper
   //  useSwapperForGas
@@ -63,7 +63,8 @@ import { isTradeBetter } from 'utils/trades'
 // import { getPermitClient } from '../../utils'
 
 export default function Swap() {
-  // const [fees, setFee] = useState('0')
+  const [gasModalEnable, setGasModalEnable] = useState(false)
+  const [gasToken, setGasToken] = useState('')
   const loadedUrlParams = useDefaultsFromURLSearch()
 
   // token warning stuff
@@ -140,7 +141,7 @@ export default function Swap() {
       }
 
   const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
-  // const isValid = !swapInputError
+  const isValid = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
   const handleTypeInput = useCallback(
@@ -201,17 +202,19 @@ export default function Swap() {
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
   const { callback } = useBiconomySwapper(trade, allowedSlippage, recipient)
-  console.log(
-    'tradetrade+++: ',
-    trade,
-    trade?.inputAmount.toString(),
-    trade && trade.route.path[0].address,
-    trade && trade.route.path[1].address
-  )
+  // console.log(
+  //   'tradetrade+++: ',
+  //   trade,
+  //   trade?.inputAmount.toString(),
+  //   trade && trade.route.path[0].address,
+  //   trade && trade.route.path[1].address
+  // )
   // const { fee } = useSwapperForGas(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
-  // const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient)
+  const { 
+    // callback: swapCallback, 
+    error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient)
 
   const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade)
 
@@ -272,14 +275,40 @@ export default function Swap() {
 
   const handleDeposit = useCallback(async () => {
     try {
+      console.log('gasTokenValue+1:', gasToken)
       if (!callback) {
         return
       }
-      callback()
+      // callback(gasToken)
     } catch (error) {
       console.log('Error: ', error)
     }
-  }, [callback])
+  }, [callback, gasToken])
+
+  const setGasTokenCallback = useCallback((gasTokenValue: any) => {
+    try {
+      console.log('gasTokenValue+2:', gasTokenValue)
+      setGasToken(gasTokenValue)
+      if(!callback) {
+        return
+      }
+      callback(gasTokenValue)
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }, [gasToken])
+
+  const hadaleGasModalEnable = useCallback(async () => {
+    try {
+      if(gasModalEnable) {
+        setGasModalEnable(false)
+      } else {
+        setGasModalEnable(true)
+      }
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }, [gasModalEnable])
 
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -438,7 +467,8 @@ export default function Swap() {
           </AutoColumn>
 
           {/* //Trial approve */}
-          <BottomGrouping>
+          
+          { approval !== 3 ? ( <BottomGrouping>
             {currencies[Field.INPUT]?.symbol == 'ETH' ? (
               <GreyCard style={{ textAlign: 'center' }}>
                 <TYPE.main mb="4px">ETH is not supported.</TYPE.main>
@@ -490,7 +520,26 @@ export default function Swap() {
             ) : toggledVersion !== DEFAULT_VERSION && defaultTrade ? (
               <DefaultVersionLink />
             ) : null}
-          </BottomGrouping>
+          </BottomGrouping> ) : (
+
+          <BottomGrouping>
+            <ButtonError
+              onClick={() => {
+                hadaleGasModalEnable()
+              }}
+              id="swap-button"
+              disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
+              error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
+              >
+              <Text fontSize={20} fontWeight={500}>
+                {swapInputError
+                  ? swapInputError
+                  : priceImpactSeverity > 3 && !isExpertMode
+                  ? `Price Impact Too High`
+                  : `Swap${priceImpactSeverity > 2 ? ' Anyway' : ''}`}
+              </Text>
+            </ButtonError>
+          </BottomGrouping>)}
 
           {/* // Original */}
           {/* <BottomGrouping>
@@ -627,14 +676,16 @@ export default function Swap() {
             ) : null}
           </BottomGrouping>
  */}
-          <BottomGrouping>
+          { gasModalEnable ? ( <BottomGrouping>
             <GasModal
               handleDeposit={handleDeposit}
               path0={trade && trade.route.path[0].address}
               path1={trade && trade.route.path[1].address}
               inputAmount={formattedAmounts[Field.INPUT]}
+              hadaleGasModalEnable={hadaleGasModalEnable}
+              setGasTokenCallback={setGasTokenCallback}
             />
-          </BottomGrouping>
+          </BottomGrouping>) : ('') }
         </Wrapper>
       </AppBody>
       {!swapIsUnsupported ? (

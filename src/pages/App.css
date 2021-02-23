@@ -258,6 +258,22 @@ p {
   text-align: center;
 }
 
+.alignRight {
+  text-align: right;
+  font-size: 1.2rem;
+}
+
+.alignLeft {
+  text-align: left;
+  font-size: 1.2rem;
+}
+
+.alignCenter {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 5rem;
+}
+
 .token-action > .pay-tx > .buttons {
   display: flex;
   justify-content: space-between;
