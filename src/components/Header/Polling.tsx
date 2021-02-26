@@ -38,10 +38,9 @@ const StyledCenter = styled.div`
 `}
 `
 
-
 const StyledPolling2 = styled(ExternalLink).attrs({
-    activeClassName
-  })<{ isActive?: boolean }>`
+  activeClassName
+})<{ isActive?: boolean }>`
   position: fixed;
   display: flex;
   right: 0;
@@ -146,10 +145,10 @@ export default function Polling() {
         </div>
       </StyledCenter>
       <StyledPolling2 id={`stake-nav-link`} href={'https://docs.biconomy.io'}>
-        Want such a smooth UX on your dApp? 
+        Want such a smooth UX on your dApp?
         <br></br>
         Integrate Biconomy Forward now!
-      <span style={{ fontSize: '11px' }}>↗</span>
+        <span style={{ fontSize: '11px' }}>↗</span>
       </StyledPolling2>
       <StyledPolling>
         <TYPE.small style={{ opacity: isMounted ? '0.2' : '0.6' }}>{blockNumber}</TYPE.small>

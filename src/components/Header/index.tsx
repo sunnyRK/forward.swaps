@@ -20,10 +20,7 @@ import {
 } from '../../state/wallet/hooks'
 import { CardNoise } from '../earn/styled'
 // import { CountUp } from 'use-count-up'
-import {
-  TYPE,
-  ExternalLink
-} from '../../theme'
+import { TYPE, ExternalLink } from '../../theme'
 
 import { YellowCard } from '../Card'
 import { Moon, Sun } from 'react-feather'
@@ -337,9 +334,9 @@ export default function Header() {
           <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
             {t('swap')}
           </StyledNavLink>
-          
+
           <StyledExternalLink id={`stake-nav-link`} href={'http://iwaste-eth.com'}>
-          See how much ETH you can save <span style={{ fontSize: '11px' }}>↗</span>
+            See how much ETH you can save <span style={{ fontSize: '11px' }}>↗</span>
           </StyledExternalLink>
 
           {/* <StyledNavLink

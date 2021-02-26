@@ -9,8 +9,11 @@ export interface SmallButtonsProps {
 
 const SmallButtons: React.FunctionComponent<SmallButtonsProps> = ({ name, active, onClick, marginPX }) => {
   return (
-    <div onClick={onClick} className={'small-button' + ' ' + `${active === true ? 'active-token' : ''}`}
-     style={{marginLeft: marginPX}}>
+    <div
+      onClick={onClick}
+      className={'small-button' + ' ' + `${active === true ? 'active-token' : ''}`}
+      style={{ marginLeft: marginPX }}
+    >
       <div
         className="icon"
         style={{
