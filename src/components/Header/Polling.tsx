@@ -1,10 +1,63 @@
 import React, { useState, useEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { TYPE, ExternalLink } from '../../theme'
+import { darken } from 'polished'
 
 import { useBlockNumber } from '../../state/application/hooks'
 import { getEtherscanLink } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
+
+const activeClassName = 'ACTIVE'
+
+const StyledCenter = styled.div`
+  ${({ theme }) => theme.flexRowNoWrap}
+  align-items: left;
+  border-radius: 3rem;
+  outline: none;
+  cursor: pointer;
+  text-decoration: none;
+  color: ${({ theme }) => theme.text2};
+  font-size: 1rem;
+  width: fit-content;
+  margin: 10px 12px;
+  font-weight: 600;
+
+  &.${activeClassName} {
+    border-radius: 12px;
+    font-weight: 600;
+    color: ${({ theme }) => theme.text1};
+  }
+
+  :hover,
+  :focus {
+    color: ${({ theme }) => darken(0.1, theme.text1)};
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      display: none;
+`}
+`
+
+
+const StyledPolling2 = styled(ExternalLink).attrs({
+    activeClassName
+  })<{ isActive?: boolean }>`
+  position: fixed;
+  display: flex;
+  right: 0;
+  bottom: 10px;
+  padding: 1rem;
+  color: white;
+  transition: opacity 0.25s ease;
+  color: ${({ theme }) => theme.text1};
+  :hover {
+    opacity: 1;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    display: none;
+  `}
+`
 
 const StyledPolling = styled.div`
   position: fixed;
@@ -85,6 +138,19 @@ export default function Polling() {
 
   return (
     <ExternalLink href={chainId && blockNumber ? getEtherscanLink(chainId, blockNumber.toString(), 'block') : ''}>
+      <StyledCenter>
+        <div>
+          <strong>Save your ETH by paying gas in Stablecoins!</strong>
+          <br></br>
+          Powered by Biconomy
+        </div>
+      </StyledCenter>
+      <StyledPolling2 id={`stake-nav-link`} href={'https://docs.biconomy.io'}>
+        Want such a smooth UX on your dApp? 
+        <br></br>
+        Integrate Biconomy Forward now!
+      <span style={{ fontSize: '11px' }}>↗</span>
+      </StyledPolling2>
       <StyledPolling>
         <TYPE.small style={{ opacity: isMounted ? '0.2' : '0.6' }}>{blockNumber}</TYPE.small>
         <StyledPollingDot>{!isMounted && <Spinner />}</StyledPollingDot>

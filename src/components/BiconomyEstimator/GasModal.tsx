@@ -188,22 +188,22 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         onClose={onCloseModal}
         center
         blockScroll={true}
-        classNames={{
-          modal: 'modal'
-        }}
+        // classNames={{
+        //   modal: 'modal'
+        // }}
       >
         <div className="header">
-          <div className="title">Select tokens to pay gas fees</div>
+          <div className="title" style={{textAlign: 'center', marginBottom: "20px"}}>Select tokens to pay gas fees</div>
           <div className="tabs">
-            <div className="tab active-tab">Stable Coins</div>
+            <div className="tab active-tab" style={{textAlign: 'center', marginBottom: "20px"}}>Stable Coins</div>
           </div>
         </div>
 
         <div className="body">
           <div className="token-container">
-            <SmallButtons name="USDC" active={selectedToken === 'USDC'} onClick={() => onTxFee('USDC')} />
-            <SmallButtons name="USDT" active={selectedToken === 'USDT'} onClick={() => onTxFee('USDT')} />
-            <SmallButtons name="DAI" active={selectedToken === 'DAI'} onClick={() => onTxFee('DAI')} />
+            <SmallButtons marginPX={'0px'} name="USDC" active={selectedToken === 'USDC'} onClick={() => onTxFee('USDC')} />
+            <SmallButtons marginPX={'15px'} name="USDT" active={selectedToken === 'USDT'} onClick={() => onTxFee('USDT')} />
+            <SmallButtons marginPX={'15px'} name="DAI" active={selectedToken === 'DAI'} onClick={() => onTxFee('DAI')} />
           </div>
 
           <div className="token-action">

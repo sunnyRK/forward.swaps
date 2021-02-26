@@ -4,11 +4,13 @@ export interface SmallButtonsProps {
   name: string
   active?: boolean
   onClick?: ((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void) | undefined
+  marginPX?: string
 }
 
-const SmallButtons: React.FunctionComponent<SmallButtonsProps> = ({ name, active, onClick }) => {
+const SmallButtons: React.FunctionComponent<SmallButtonsProps> = ({ name, active, onClick, marginPX }) => {
   return (
-    <div onClick={onClick} className={'small-button' + ' ' + `${active === true ? 'active-token' : ''}`}>
+    <div onClick={onClick} className={'small-button' + ' ' + `${active === true ? 'active-token' : ''}`}
+     style={{marginLeft: marginPX}}>
       <div
         className="icon"
         style={{
