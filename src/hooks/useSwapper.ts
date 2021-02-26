@@ -22,9 +22,7 @@ import { Biconomy } from '@biconomy/mexa'
 import v1SwapArguments from '../utils/v1SwapArguments'
 // import Swal from 'sweetalert2'
 import { useTransactionAdderBiconomy } from '../state/transactions/hooks'
-import {
-  useWaitActionHandlers
-} from '../state/waitmodal/hooks'
+import { useWaitActionHandlers } from '../state/waitmodal/hooks'
 
 const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
 let _ercForwarderClient: any
@@ -90,7 +88,7 @@ function useSwapCallArgumentsForBiconomy(
   recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): SwapCallBiconomy[] {
   const { account, chainId, library } = useActiveWeb3React()
-  
+
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null ? account : recipientAddress
   const deadline = useTransactionDeadline()
@@ -217,7 +215,7 @@ export function useBiconomySwapper(
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
           swapCalls.map(async call => {
-            onChangeWait("true")
+            onChangeWait('true')
             const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
 
             const addr1 = account
@@ -255,7 +253,7 @@ export function useBiconomySwapper(
             if (transaction && transaction.code == 200 && transaction.txHash) {
               //event emitter methods
               ethersProvider.once(transaction.txHash, result => {
-                onChangeWait("false")
+                onChangeWait('false')
                 onChangeTransaction(transaction.txHash)
                 // addBiconomyTransaction(transaction, {
                 //   summary: withVersion
@@ -312,7 +310,7 @@ export function useBiconomySwapper(
           })
           // )
         } catch (error) {
-          onChangeWait("false")
+          onChangeWait('false')
           onChangeTransaction('undefined')
           console.log('error:', error)
         }

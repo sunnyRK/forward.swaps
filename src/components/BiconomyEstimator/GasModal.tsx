@@ -17,12 +17,8 @@ import { ThemeContext } from 'styled-components'
 import DAI_kovan_contract from '../../contracts/DAI_kovan.json'
 import USDT_kovan_contract from '../../contracts/USDT_kovan.json'
 import USDC_kovan_contract from '../../contracts/USDC_kovan.json'
-import {
-  useWaitState
-} from '../../state/waitmodal/hooks'
-import {
-  useWaitActionHandlers
-} from '../../state/waitmodal/hooks'
+import { useWaitState } from '../../state/waitmodal/hooks'
+import { useWaitActionHandlers } from '../../state/waitmodal/hooks'
 
 interface GasModalProps {
   handleDeposit: () => void
@@ -62,8 +58,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   const onCloseModal = () => {
     hadaleGasModalEnable()
     setOpen(false)
-    onChangeWait("false")
-    onChangeTransaction("")
+    onChangeWait('false')
+    onChangeTransaction('')
   }
   const theme = useContext(ThemeContext)
 
@@ -215,26 +211,25 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
 
           <div className="token-action">
-          {wait == "true" ? (
+            {wait == 'true' ? (
               <div className="alignCenter">
                 <strong>Waiting for confirmation...</strong>
                 <br></br>
                 <strong>Biconomy performing transaction...</strong>
               </div>
-            ): tx != "" && tx != "undefined"? (
+            ) : tx != '' && tx != 'undefined' ? (
               <div className="alignCenter">
                 <strong>Transaction Submitted</strong>
                 <br></br>
-                <a href={"https://kovan.etherscan.io/tx/"+tx}>
-                  Etherscan
-                </a>
+                <a href={'https://kovan.etherscan.io/tx/' + tx}>Etherscan</a>
               </div>
-            ) : tx == "undefined" ? (
+            ) : tx == 'undefined' ? (
               <div className="alignCenter">
                 <strong>Transaction Failed</strong>
               </div>
-            ) : ('')
-          }
+            ) : (
+              ''
+            )}
             {checkingAllowance ? (
               <div className="alignCenter">
                 <strong>Checking Allowance Status...</strong>

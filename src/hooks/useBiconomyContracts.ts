@@ -22,8 +22,7 @@ biconomy
     ercForwarderClient = biconomy.erc20ForwarderClient
     permitClient = biconomy.permitClient
   })
-  .onEvent(biconomy.ERROR, () => {
-  })
+  .onEvent(biconomy.ERROR, () => {})
 
 const useBiconomyContracts = () => {
   const { account, library } = useActiveWeb3React()
