@@ -12,13 +12,13 @@ import { Contract } from '@ethersproject/contracts'
 import { getBiconomySwappperContract, getEthersProvider } from '../utils'
 import { Web3Provider } from '@ethersproject/providers'
 import { getTradeVersion, useV1TradeExchangeAddress } from '../data/V1'
+import { Version } from './useToggledVersion'
 import { useActiveWeb3React } from './index'
 import { useV1ExchangeContract } from './useContract'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { Biconomy } from '@biconomy/mexa'
-import { Version } from './useToggledVersion'
 import v1SwapArguments from '../utils/v1SwapArguments'
 // import Swal from 'sweetalert2'
 import { useTransactionAdderBiconomy } from '../state/transactions/hooks'
@@ -204,7 +204,8 @@ export function useBiconomySwapper(
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
   const { onChangeWait, onChangeTransaction } = useWaitActionHandlers()
-  
+  const tradeVersion = getTradeVersion(trade)
+
 
   return useMemo(() => {
     // try {
@@ -215,41 +216,10 @@ export function useBiconomySwapper(
         // : Promise<string> {
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
-          console.log('gasTokenValue+++45: ', gasToken)
           swapCalls.map(async call => {
             onChangeWait("true")
             const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
 
-            // const domainData = {
-            //   name: "Dai Stablecoin",
-            //   version: "1",
-            //   chainId: 42,
-            //   verifyingContract: swapMethod.args[2][0] // kovan
-            // };
-
-            // const tokenPermitOptions1 = { // contract
-            //   spender: contract.address,
-            //   domainData: domainData,
-            //   value: "100000000000000000000",
-            //   deadline: Math.floor(Date.now() / 1000 + 3600),
-            // }
-
-            // const tokenPermitOptions2 = { //forwarder
-            //   domainData: domainData,
-            //   value: "100000000000000000000",
-            //   deadline: Math.floor(Date.now() / 1000 + 3600),
-            // }
-
-            // let permitTx1 = await permitClient.daiPermit(tokenPermitOptions1);
-            // await permitTx1.wait(1)
-            // console.log('permitTx1++: ', permitTx1)
-
-            // let permitTx2 = await permitClient.daiPermit(tokenPermitOptions2);
-            // await permitTx2.wait(1)
-            // console.log('permitTx2++: ', permitTx2)
-
-            // // // const options = !value || isZero(value) ? {} : { value }
-            // // // console.log('methodName1:', methodName)
             const addr1 = account
             const token0 = swapMethod.args[2][0]
             const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
@@ -276,13 +246,20 @@ export function useBiconomySwapper(
             const tx = builtTx.request
 
             let transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
+            const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
+            
+            addBiconomyTransaction(transaction, {
+              summary: withVersion
+            })
 
             if (transaction && transaction.code == 200 && transaction.txHash) {
               //event emitter methods
               ethersProvider.once(transaction.txHash, result => {
                 onChangeWait("false")
                 onChangeTransaction(transaction.txHash)
-                addBiconomyTransaction(transaction)
+                // addBiconomyTransaction(transaction, {
+                //   summary: withVersion
+                // })
                 console.log('result: ', result)
 
                 // Swal.fire({
@@ -346,24 +323,8 @@ export function useBiconomySwapper(
     // } catch (error) {
     //  console.log(error)
     // }
-  }, [swapCalls, account])
+  }, [swapCalls, account, addBiconomyTransaction])
 }
-
-// const fetchMinedTransactionReceipt = (library: Web3Provider, transactionHash: any) => {
-  // return new Promise((resolve, reject) => {
-
-  //   var timer = setInterval(()=> {
-  //     library.getTransactionReceipt((transactionHash), (err: any, receipt: any) => {
-  //       if(!err && receipt){
-  //         clearInterval(timer);
-  //         addTransaction(transactionHash)
-  //         resolve(receipt);
-          
-  //       }
-  //     });
-  //   }, 3000)
-  // })
-// }
 
 export function useSwapperForGas(
   trade: Trade | undefined, // trade to execute, required

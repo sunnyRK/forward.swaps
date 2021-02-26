@@ -137,9 +137,7 @@ export default function Swap() {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
       }
 
-  const { 
-    // onSwitchTokens, 
-    onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
+  const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
   const isValid = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
@@ -201,13 +199,13 @@ export default function Swap() {
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
   const { callback } = useBiconomySwapper(trade, allowedSlippage, recipient)
-  console.log(
-    'tradetrade+++: ',
-    trade,
-    trade?.inputAmount.toString(),
-    trade && trade.route.path[0].address,
-    trade && trade.route.path[1].address
-  )
+  // console.log(
+  //   'tradetrade+++: ',
+  //   trade,
+  //   trade?.inputAmount.toString(),
+  //   trade && trade.route.path[0].address,
+  //   trade && trade.route.path[1].address
+  // )
   // const { fee } = useSwapperForGas(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
@@ -315,6 +313,16 @@ export default function Swap() {
     }
   }, [gasModalEnable])
 
+  
+  const wipeInput = useCallback(async () => {
+    try {
+        onUserInput(Field.INPUT, '')
+        onUserInput(Field.OUTPUT, '')
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }, [])
+
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
 
@@ -399,16 +407,17 @@ export default function Swap() {
             />
             <AutoColumn justify="space-between">
               <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
-                {/* <ArrowWrapper clickable>
+                <ArrowWrapper clickable>
                   <ArrowDown
                     size="16"
                     onClick={() => {
                       setApprovalSubmitted(false) // reset 2 step UI for approvals
                       onSwitchTokens()
+                      wipeInput()
                     }}
                     color={currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.primary1 : theme.text2}
                   />
-                </ArrowWrapper> */}
+                </ArrowWrapper>
                 {recipient === null && !showWrap && isExpertMode ? (
                   <LinkStyledButton id="add-recipient-button" onClick={() => onChangeRecipient('')}>
                     + Add a send (optional)

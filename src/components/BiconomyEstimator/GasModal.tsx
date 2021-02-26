@@ -57,11 +57,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   const [isApproved, setIsApproved] = useState(false)
   const [fees, setFees] = useState('0')
   const [selectedToken, setSelectedToken] = useState('')
-  
-
-  useEffect(() => {
-    console.log("wait:++heyyyy", wait, tx)
-  }, [wait, tx])
 
   // const onOpenModal = () => setOpen(true)
   const onCloseModal = () => {
@@ -74,23 +69,15 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   const onDeposit = async () => {
     try {
-      console.log('wait:++++', wait, tx)
+      // console.log('wait-tx:', wait, tx)
       if (inputAmount == '') {
         setInputError(true)
         return
       }
 
-      // let inputTokenIsGasToken: boolean = false
-      // if(path0 == DAI_kovan_contract.address || path0 == USDC_kovan_contract.address || path0 == USDT_kovan_contract.address) {
-      //   inputTokenIsGasToken = 
-      // }
-
-      // let gasTokenValue: string = selectedToken
-      // if (gasTokenValue == 'DAI' || gasTokenValue == 'USDC' || gasTokenValue == 'USDT') {
       if (inputToken == selectedToken) {
-        console.log("Hi333333333")
         const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
-        console.log('feesfees+:', totalExchangeVolume, inputAmount, fees, checkBal)
+        console.log('params:', totalExchangeVolume, inputAmount, fees, checkBal)
         if (totalExchangeVolume > parseFloat(checkBal)) {
           setError(true)
         } else {
@@ -107,7 +94,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           }
         }
       } else {
-        console.log("Hi3333333334")
         if (parseFloat(fees) > parseFloat(checkBal)) {
           setError(true)
         } else {
@@ -122,22 +108,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
             gasToken = DAI_kovan_contract.address
             return setGasTokenCallback(gasToken)
           }
-          // return handleDeposit()
         }
       }
-
-      // const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
-      // console.log('feesfees+:', totalExchangeVolume, inputAmount, fees, checkBal)
-      // if (totalExchangeVolume > parseFloat(checkBal)) {
-      //   setError(true)
-      // } else {
-      //   return handleDeposit()
-      // }
-      // if (fees > checkBal) {
-      //   setError(true)
-      // } else {
-      //   return handleDeposit()
-      // }
     } catch (error) {}
   }
 
@@ -146,7 +118,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     if (approvedResp) {
       setIsApproved(true)
       const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
-      console.log('TxFeeOnApprove', fee)
       setFees(fee)
     }
   }
@@ -157,7 +128,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   useEffect(() => {
     const process = async () => {
-      console.log('selectedToken: ', selectedToken)
       setCheckingAllowance(true)
       const isApproved = await checkAllowance(selectedToken)
       const balance = await checkBalance(selectedToken)
@@ -170,10 +140,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       setIsApproved(isApproved)
       setCheckingAllowance(false)
       setFees(fee)
-      console.log('TxFee: ', fee)
     }
     if (selectedToken != '' && path0 != '' && path1 != '') {
-      console.log('pathpath1++', path0, path1)
       process()
     }
   }, [selectedToken])
@@ -191,12 +159,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         }
       }
     }
-    // const feess : BigNumber =  BigNumber.from(inputAmount).add(4.75)
-    // console.log('pathpath0++', selectedToken, path0, path1, inputAmount,
-    //   parseFloat(inputAmount), parseInt(inputAmount), feess)
-    // (parseFloat(inputAmount)+parseFloat(feess)), (parseInt(inputAmount)+parseInt(feess)))
-    // BigNumber.from(inputAmount), BigNumber.from(feess), BigNumber.from(inputAmount).add(BigNumber.from(feess))
-    // )
     process()
   }, [open])
 
