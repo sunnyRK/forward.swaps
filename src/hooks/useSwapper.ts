@@ -204,7 +204,6 @@ export function useBiconomySwapper(
   const { onChangeWait, onChangeTransaction } = useWaitActionHandlers()
   const tradeVersion = getTradeVersion(trade)
 
-
   return useMemo(() => {
     // try {
 
@@ -243,9 +242,10 @@ export function useBiconomySwapper(
             })
             const tx = builtTx.request
 
-            let transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
-            const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
-            
+            const transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
+            const withVersion =
+              tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
+
             addBiconomyTransaction(transaction, {
               summary: withVersion
             })
