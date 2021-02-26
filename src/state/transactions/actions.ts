@@ -10,8 +10,17 @@ export interface SerializableTransactionReceipt {
   transactionHash: string
   blockNumber: number
   status?: number
+  txHash?: string
 }
 
+export const addBiconomyTransaction = createAction<{
+  chainId: ChainId
+  txHash: string
+  from: string
+  approval?: { tokenAddress: string; spender: string }
+  claim?: { recipient: string }
+  summary?: string
+}>('transactions/addBiconomyTransaction')
 export const addTransaction = createAction<{
   chainId: ChainId
   hash: string

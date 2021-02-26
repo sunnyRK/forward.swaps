@@ -44,6 +44,8 @@ import {
   useSwapActionHandlers,
   useSwapState
 } from '../../state/swap/hooks'
+
+
 import { useExpertModeManager, useUserSlippageTolerance, useUserSingleHopOnly } from '../../state/user/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
@@ -135,7 +137,9 @@ export default function Swap() {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
       }
 
-  const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
+  const { 
+    // onSwitchTokens, 
+    onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
   const isValid = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
@@ -197,13 +201,13 @@ export default function Swap() {
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
   const { callback } = useBiconomySwapper(trade, allowedSlippage, recipient)
-  // console.log(
-  //   'tradetrade+++: ',
-  //   trade,
-  //   trade?.inputAmount.toString(),
-  //   trade && trade.route.path[0].address,
-  //   trade && trade.route.path[1].address
-  // )
+  console.log(
+    'tradetrade+++: ',
+    trade,
+    trade?.inputAmount.toString(),
+    trade && trade.route.path[0].address,
+    trade && trade.route.path[1].address
+  )
   // const { fee } = useSwapperForGas(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
@@ -301,6 +305,8 @@ export default function Swap() {
     try {
       if (gasModalEnable) {
         setGasModalEnable(false)
+        onUserInput(Field.INPUT, '')
+        onUserInput(Field.OUTPUT, '')
       } else {
         setGasModalEnable(true)
       }
@@ -393,7 +399,7 @@ export default function Swap() {
             />
             <AutoColumn justify="space-between">
               <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
-                <ArrowWrapper clickable>
+                {/* <ArrowWrapper clickable>
                   <ArrowDown
                     size="16"
                     onClick={() => {
@@ -402,7 +408,7 @@ export default function Swap() {
                     }}
                     color={currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.primary1 : theme.text2}
                   />
-                </ArrowWrapper>
+                </ArrowWrapper> */}
                 {recipient === null && !showWrap && isExpertMode ? (
                   <LinkStyledButton id="add-recipient-button" onClick={() => onChangeRecipient('')}>
                     + Add a send (optional)
@@ -683,6 +689,7 @@ export default function Swap() {
                 handleDeposit={handleDeposit}
                 path0={trade && trade.route.path[0].address}
                 path1={trade && trade.route.path[1].address}
+                inputToken= {trade && trade.route.input.symbol}
                 inputAmount={formattedAmounts[Field.INPUT]}
                 hadaleGasModalEnable={hadaleGasModalEnable}
                 setGasTokenCallback={setGasTokenCallback}

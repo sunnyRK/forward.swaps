@@ -21,11 +21,8 @@ biconomy
     // Initialize your dapp here like getting user accounts etc
     ercForwarderClient = biconomy.erc20ForwarderClient
     permitClient = biconomy.permitClient
-    // console.log('permitClientOneventuseBiconomyContracts++', permitClient, ercForwarderClient)
   })
   .onEvent(biconomy.ERROR, () => {
-    // Handle error while initializing mexa
-    // console.log(error, message)
   })
 
 const useBiconomyContracts = () => {
@@ -67,10 +64,8 @@ const useBiconomyContracts = () => {
         } else if (tokenSymbol === 'DAI') {
           gasToken = DAI_kovan_contract.address
         }
-        console.log('pathpath2++', path0, path1, gasToken, inputAmount.toString())
-        // const path = ['0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '0xd0a1e359811322d97991e03f863a0c30c2cf029c']
+        // console.log('pathpath2++', path0, path1, gasToken, inputAmount.toString())
         const path = [path0, path1]
-        // debugger
         const contract: Contract | null = getBiconomySwappperContract(
           BICONOMY_CONTRACT,
           BICONOMYSWAPPER_ABI,
@@ -93,9 +88,7 @@ const useBiconomyContracts = () => {
           from: account?.toString(),
           data: txResponse.data
         })
-        console.log('gasLimit++', gasLimit.toString())
-        // console.log('gasPrice++', gasPrice.toString())
-        // console.log('txResponse++', txResponse)
+        // console.log('gasLimit++', gasLimit.toString())
 
         const builtTx = await ercForwarderClient.buildTx({
           to: contract.address,
@@ -194,10 +187,6 @@ const useBiconomyContracts = () => {
     const TokenContractInstance = getContractInstance(erc20token)
     console.log('TokenContractInstance', TokenContractInstance)
     const allowance = await TokenContractInstance.allowance(account, erc20ForwarderAddress)
-    // .call();
-    // let balance = await TokenContractInstance
-    //   .balanceOf(account)
-    // console.log('balance:::', balance)
     if (allowance > 0) {
       return true
     } else {
