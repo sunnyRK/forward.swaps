@@ -1,88 +1,85 @@
 // import { TransactionResponse } from '@ethersproject/providers'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber } from '@ethersproject/bignumber'
 
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch, AppState } from '../index'
 import { addTransaction, addBiconomyTransaction } from './actions'
 import { TransactionDetails } from './reducer'
 
-
 export interface Log {
-  blockNumber: number;
-  blockHash: string;
-  transactionIndex: number;
+  blockNumber: number
+  blockHash: string
+  transactionIndex: number
 
-  removed: boolean;
+  removed: boolean
 
-  address: string;
-  data: string;
+  address: string
+  data: string
 
-  topics: Array<string>;
+  topics: Array<string>
 
-  transactionHash: string;
-  logIndex: number;
+  transactionHash: string
+  logIndex: number
 }
 
 export interface TransactionReceipt {
-  to: string;
-  from: string;
-  contractAddress: string,
-  transactionIndex: number,
-  root?: string,
-  gasUsed: BigNumber,
-  logsBloom: string,
-  blockHash: string,
-  transactionHash: string,
-  logs: Array<Log>,
-  blockNumber: number,
-  confirmations: number,
-  cumulativeGasUsed: BigNumber,
-  byzantium: boolean,
+  to: string
+  from: string
+  contractAddress: string
+  transactionIndex: number
+  root?: string
+  gasUsed: BigNumber
+  logsBloom: string
+  blockHash: string
+  transactionHash: string
+  logs: Array<Log>
+  blockNumber: number
+  confirmations: number
+  cumulativeGasUsed: BigNumber
+  byzantium: boolean
   status?: number
-};
-
+}
 
 export interface Transaction {
-  hash?: string;
+  hash?: string
 
-  to?: string;
-  from?: string;
-  nonce: number;
+  to?: string
+  from?: string
+  nonce: number
 
-  gasLimit: BigNumber;
-  gasPrice: BigNumber;
+  gasLimit: BigNumber
+  gasPrice: BigNumber
 
-  data: string;
-  value: BigNumber;
-  chainId: number;
+  data: string
+  value: BigNumber
+  chainId: number
 
-  r?: string;
-  s?: string;
-  v?: number;
+  r?: string
+  s?: string
+  v?: number
 }
 
 export interface TransactionResponse extends Transaction {
-  hash?: string;
+  hash?: string
   txHash?: string
   // Only if a transaction has been mined
-  blockNumber?: number,
-  blockHash?: string,
-  timestamp?: number,
+  blockNumber?: number
+  blockHash?: string
+  timestamp?: number
 
-  confirmations: number,
+  confirmations: number
 
   // Not optional (as it is in Transaction)
-  from: string;
+  from: string
 
   // The raw transaction
-  raw?: string,
+  raw?: string
 
   // This function waits until the transaction has been mined
   wait: (confirmations?: number) => Promise<TransactionReceipt>
-};
-
+}
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (

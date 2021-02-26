@@ -17,12 +17,8 @@ import { ThemeContext } from 'styled-components'
 import DAI_kovan_contract from '../../contracts/DAI_kovan.json'
 import USDT_kovan_contract from '../../contracts/USDT_kovan.json'
 import USDC_kovan_contract from '../../contracts/USDC_kovan.json'
-import {
-  useWaitState
-} from '../../state/waitmodal/hooks'
-import {
-  useWaitActionHandlers
-} from '../../state/waitmodal/hooks'
+import { useWaitState } from '../../state/waitmodal/hooks'
+import { useWaitActionHandlers } from '../../state/waitmodal/hooks'
 
 interface GasModalProps {
   handleDeposit: () => void
@@ -57,18 +53,17 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   const [isApproved, setIsApproved] = useState(false)
   const [fees, setFees] = useState('0')
   const [selectedToken, setSelectedToken] = useState('')
-  
 
   useEffect(() => {
-    console.log("wait:++heyyyy", wait, tx)
+    console.log('wait:++heyyyy', wait, tx)
   }, [wait, tx])
 
   // const onOpenModal = () => setOpen(true)
   const onCloseModal = () => {
     hadaleGasModalEnable()
     setOpen(false)
-    onChangeWait("false")
-    onChangeTransaction("")
+    onChangeWait('false')
+    onChangeTransaction('')
   }
   const theme = useContext(ThemeContext)
 
@@ -82,13 +77,13 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
       // let inputTokenIsGasToken: boolean = false
       // if(path0 == DAI_kovan_contract.address || path0 == USDC_kovan_contract.address || path0 == USDT_kovan_contract.address) {
-      //   inputTokenIsGasToken = 
+      //   inputTokenIsGasToken =
       // }
 
       // let gasTokenValue: string = selectedToken
       // if (gasTokenValue == 'DAI' || gasTokenValue == 'USDC' || gasTokenValue == 'USDT') {
       if (inputToken == selectedToken) {
-        console.log("Hi333333333")
+        console.log('Hi333333333')
         const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
         console.log('feesfees+:', totalExchangeVolume, inputAmount, fees, checkBal)
         if (totalExchangeVolume > parseFloat(checkBal)) {
@@ -107,7 +102,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           }
         }
       } else {
-        console.log("Hi3333333334")
+        console.log('Hi3333333334')
         if (parseFloat(fees) > parseFloat(checkBal)) {
           setError(true)
         } else {
@@ -253,26 +248,25 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
 
           <div className="token-action">
-          {wait == "true" ? (
+            {wait == 'true' ? (
               <div className="alignCenter">
                 <strong>Waiting for confirmation...</strong>
                 <br></br>
                 <strong>Biconomy performing transaction...</strong>
               </div>
-            ): tx != "" && tx != "undefined"? (
+            ) : tx != '' && tx != 'undefined' ? (
               <div className="alignCenter">
                 <strong>Transaction Submitted</strong>
                 <br></br>
-                <a href={"https://kovan.etherscan.io/tx/"+tx}>
-                  Etherscan
-                </a>
+                <a href={'https://kovan.etherscan.io/tx/' + tx}>Etherscan</a>
               </div>
-            ) : tx == "undefined" ? (
+            ) : tx == 'undefined' ? (
               <div className="alignCenter">
                 <strong>Transaction Failed</strong>
               </div>
-            ) : ('')
-          }
+            ) : (
+              ''
+            )}
             {checkingAllowance ? (
               <div className="alignCenter">
                 <strong>Checking Allowance Status...</strong>
