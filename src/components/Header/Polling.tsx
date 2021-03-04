@@ -6,6 +6,7 @@ import { darken } from 'polished'
 import { useBlockNumber } from '../../state/application/hooks'
 import { getEtherscanLink } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
+import biconomy from "../../assets/images/biconomy.png";
 
 const activeClassName = 'ACTIVE'
 
@@ -141,7 +142,10 @@ export default function Polling() {
         <div>
           <strong>Save your ETH by paying gas in Stablecoins!</strong>
           <br></br>
-          Powered by Biconomy
+          <div style={{display: "flex"}}>
+            <span style={{textAlign: "center", marginLeft: "80px", marginBottom: "10px", marginRight: "5px"}}>Powered by </span> 
+            <img src={biconomy} style={{height: "25px"}}></img>
+          </div>
         </div>
       </StyledCenter>
       <StyledPolling2 id={`stake-nav-link`} href={'https://docs.biconomy.io'}>

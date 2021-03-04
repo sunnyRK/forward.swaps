@@ -24,6 +24,41 @@ biconomy
   })
   .onEvent(biconomy.ERROR, () => {})
 
+let daiDomainType = [
+  { name: "name", type: "string" },
+  { name: "version", type: "string" },
+  { name: "chainId", type: "uint256" },
+  { name: "verifyingContract", type: "address" },
+];
+
+let eip2612PermitType = [
+  { name: "owner", type: "address" },
+  { name: "spender", type: "address" },
+  { name: "value", type: "uint256" },
+  { name: "nonce", type: "uint256" },
+  { name: "deadline", type: "uint256" },
+];
+
+let daiPermitType = [
+  { name: "holder", type: "address" },
+  { name: "spender", type: "address" },
+  { name: "nonce", type: "uint256" },
+  { name: "expiry", type: "uint256" },
+  { name: "allowed", type: "bool" },
+];
+
+// interface PermitOptions {
+//   holder: string
+//   spender: string
+//   value: string
+//   nonce: string
+//   expiry: string
+//   allowed: boolean
+//   v: string
+//   r: string
+//   s: string
+// }
+
 const useBiconomyContracts = () => {
   const { account, library } = useActiveWeb3React()
   // const addTransaction = useTransactionAdder()
@@ -79,7 +114,7 @@ const useBiconomyContracts = () => {
           path,
           (inputAmount * 1e18).toString()
         )
-        console.log('pathpath3++', txResponse)
+        // console.log('pathpath3++', txResponse)
 
         // const gasPrice = await ethersProvider.getGasPrice()
         const gasLimit = await ethersProvider.estimateGas({
@@ -104,6 +139,259 @@ const useBiconomyContracts = () => {
       }
     } catch (error) {
       console.log('error: ', error)
+    }
+  }
+
+  const approveTokenAndSwap = async (erc20token: string, token0: string, token1: string, inputAmount: string) => {
+    const ethersProvider: Web3Provider | null = getEthersProvider()
+    const TokenContractInstance: Contract = getContractInstance(erc20token)
+
+    const contract: Contract | null = getBiconomySwappperContract(
+      '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
+      BICONOMYSWAPPER_ABI,
+      library as Web3Provider
+    )
+
+    let domainData
+    let tokenPermitOptions1
+    let permitTx
+
+    if (erc20token === 'USDC') {
+      domainData = {
+        name: 'USDC Coin',
+        version: '1',
+        chainId: 42,
+        verifyingContract: USDC_kovan_contract.address
+      }
+
+      tokenPermitOptions1 = {
+        domainData: domainData,
+        value: '100000000000000000000',
+        deadline: Math.floor(Date.now() / 1000 + 3600)
+      }
+      // let { data } = await contract.populateTransaction.setQuote(newQuote);
+
+      const data = await contract.populateTransaction.swapWithoutETH(
+        account,
+        token0,
+        token1,
+        inputAmount
+      )
+
+        let gasPrice = await ethersProvider.getGasPrice();
+        let gasLimit = await ethersProvider.estimateGas({
+          to: contract.address,
+          from: account?.toString(),
+          data: data.data,
+        });
+        console.log(gasLimit.toString());
+        console.log(gasPrice.toString());
+        console.log(data);
+
+        const builtTx = await ercForwarderClient.buildTx({
+          to: contract.address,
+          token: USDC_kovan_contract.address,
+          txGas:Number(gasLimit),
+          data,
+          permitType : "EIP2612_Permit"
+        });
+        const tx = builtTx.request;
+        const fee = builtTx.cost;
+        console.log(tx);
+        console.log(fee);
+
+        const nonce = await TokenContractInstance.nonces(USDC_kovan_contract.address);
+        console.log(`nonce is : ${nonce}`);
+
+        const permitDataToSign = {
+          types: {
+            EIP712Domain: daiDomainType,
+            Permit: eip2612PermitType,
+          },
+          domain: tokenPermitOptions1,
+          primaryType: "Permit",
+          message: {
+            owner: account,
+            spender: erc20ForwarderAddress,
+            nonce: parseInt(nonce),
+            value: tokenPermitOptions1.value,
+            deadline: parseInt(tokenPermitOptions1.deadline.toString()),
+          },
+        };
+
+        let result = await ethersProvider.send("eth_signTypedData_v3", [
+          account,
+          JSON.stringify(permitDataToSign),
+        ]);
+
+        console.log(result);
+          
+        let metaInfo: any = {};
+        let permitOptions: any = {};
+
+        const signature = result.substring(2);
+        const r = "0x" + signature.substring(0, 64);
+        const s = "0x" + signature.substring(64, 128);
+        const v = parseInt(signature.substring(128, 130), 16);
+
+        permitOptions.holder = account;
+        permitOptions.spender = erc20ForwarderAddress;
+        permitOptions.value = tokenPermitOptions1.value; 
+        permitOptions.nonce = parseInt(nonce.toString());
+        permitOptions.expiry = parseInt(tokenPermitOptions1.deadline.toString());
+        permitOptions.allowed = true;
+        permitOptions.v = v;
+        permitOptions.r = r;
+        permitOptions.s = s;
+
+        // validations of permit Type is needed for meta info and within buildTx
+
+        metaInfo.permitType = "EIP2612_Permit";
+        metaInfo.permitData = permitOptions;
+
+
+        //signature of this method is permitAndSendTxEIP712({req, signature = null, userAddress, metaInfo})
+        //signature param is optional. check network agnostics section for more details about this
+        //userAddress is must when your provider does not have a signer with accounts 
+        let transaction = await ercForwarderClient.permitAndSendTxEIP712({req:tx, metaInfo: metaInfo});
+        //returns an object containing code, log, message, txHash 
+        console.log(transaction);
+      
+        if(transaction && transaction.code == 200 && transaction.txHash) {
+          //event emitter methods
+          ethersProvider.once(transaction.txHash, (result) => {
+            // Emitted when the transaction has been mined
+            console.log(result);
+          });
+        } else {
+        }
+      console.log('permitTx1++: ', permitTx)
+    } else if (erc20token === 'DAI') {
+      domainData = {
+        name: 'Dai Stablecoin',
+        version: '1',
+        chainId: 42,
+        verifyingContract: DAI_kovan_contract.address // kovan
+      }
+
+      const daiPermitOptions = {
+        spender: erc20ForwarderAddress,
+        expiry: Math.floor(Date.now() / 1000 + 3600),
+        allowed: true
+      };
+
+      let userAddress = account;
+      // let functionSignature = contract.methods.setQuote(newQuote).encodeABI();
+      // console.log(functionSignature);
+      const data = await contract.populateTransaction.swapWithoutETH(
+        account,
+        token0,
+        token1,
+        inputAmount
+      )
+
+  
+      console.log("Sending meta transaction");
+      // showInfoMessage("Building transaction to forward");
+      // txGas should be calculated and passed here or calculate within the method
+      // let gasLimit = await contract.methods
+      // .setQuote(newQuote)
+      // .estimateGas({ from: userAddress });
+
+
+      // let gasPrice = await ethersProvider.getGasPrice();
+      let gasLimit = await ethersProvider.estimateGas({
+        to: contract.address,
+        from: account?.toString(),
+        data: data.data,
+      });
+
+      const builtTx = await ercForwarderClient.buildTx({
+        to: contract.address,
+        token: DAI_kovan_contract.address,
+        txGas: Number(gasLimit),
+        data: data.data,
+        permitType : "DAI_Permit"
+      });
+
+      debugger;
+
+      const tx = builtTx.request;
+      const fee = builtTx.cost; // only gets the cost of target method call
+      console.log(tx);
+      console.log(fee);
+      alert(`You will be charged ${fee} amount of DAI ${biconomy.daiTokenAddress} for this transaction`);
+
+      const nonce = await TokenContractInstance.nonces(account).call();
+      console.log(`nonce is : ${nonce}`);
+
+      const permitDataToSign = {
+        types: {
+          EIP712Domain: daiDomainType,
+          Permit: daiPermitType,
+        },
+        domain: domainData,
+        primaryType: "Permit",
+        message: {
+          holder: userAddress,
+          spender: daiPermitOptions.spender,
+          nonce: parseInt(nonce),
+          expiry: parseInt(daiPermitOptions.expiry.toString()),
+          allowed: daiPermitOptions.allowed,
+        },
+      };
+
+      let result = await ethersProvider.send("eth_signTypedData_v3", [
+        userAddress,
+        JSON.stringify(permitDataToSign),
+      ]);
+
+      console.log(result);
+        
+      let metaInfo: any = {};
+      let permitOptions: any = {};
+
+      
+      console.log("success:" + result);
+      const signature = result.substring(2);
+      const r = "0x" + signature.substring(0, 64);
+      const s = "0x" + signature.substring(64, 128);
+      const v = parseInt(signature.substring(128, 130), 16);
+
+      permitOptions.holder = account;
+      permitOptions.spender = daiPermitOptions.spender;
+      permitOptions.value = 0; //in case of DAI passing dummy value for the sake of struct (similar to token address in EIP2771)
+      permitOptions.nonce = parseInt(nonce.toString());
+      permitOptions.expiry = parseInt(daiPermitOptions.expiry.toString());
+      permitOptions.allowed = daiPermitOptions.allowed;
+      permitOptions.v = v;
+      permitOptions.r = r;
+      permitOptions.s = s;
+
+      metaInfo.permitType = "DAI_Permit";
+      metaInfo.permitData = permitOptions;
+    
+      //signature of this method is sendTxEIP712({req, signature = null, userAddress, metaInfo})
+      let transaction = await ercForwarderClient.permitAndSendTxEIP712({req:tx, metaInfo: metaInfo});
+
+      //returns an object containing code, log, message, txHash 
+      console.log(transaction);
+      if(transaction && transaction.txHash) {
+        if(transaction && transaction.code == 200 && transaction.txHash) {
+          //event emitter methods
+          ethersProvider.once(transaction.txHash, (result) => {
+            // Emitted when the transaction has been mined
+            console.log(result);
+          });
+        } else {
+        }
+        // const receipt = await fetchMinedTransactionReceipt(transaction.txHash);
+        // if(receipt)
+        // {
+        //   console.log(receipt);
+        // }
+        console.log('permitTx1++: ', permitTx)
+      }
     }
   }
 
@@ -202,6 +490,7 @@ const useBiconomyContracts = () => {
 
   return {
     approveToken,
+    approveTokenAndSwap,
     checkAllowance,
     checkBalance,
     calculateFees

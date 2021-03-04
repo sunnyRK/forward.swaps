@@ -272,7 +272,6 @@ export default function Swap() {
 
   const handleDeposit = useCallback(async () => {
     try {
-      console.log('gasTokenValue+1:', gasToken)
       if (!callback) {
         return
       }
@@ -285,17 +284,17 @@ export default function Swap() {
   const setGasTokenCallback = useCallback(
     (gasTokenValue: any) => {
       try {
-        console.log('gasTokenValue+2:', gasTokenValue)
         setGasToken(gasTokenValue)
         if (!callback) {
           return
+        } else {
         }
         callback(gasTokenValue)
       } catch (error) {
         console.log('Error: ', error)
       }
     },
-    [gasToken]
+    [gasToken, callback]
   )
 
   const hadaleGasModalEnable = useCallback(async () => {
@@ -691,7 +690,7 @@ export default function Swap() {
             ) : null}
           </BottomGrouping>
  */}
-          {gasModalEnable ? (
+          {/* {gasModalEnable ? ( */}
             <BottomGrouping>
               <GasModal
                 handleDeposit={handleDeposit}
@@ -703,9 +702,9 @@ export default function Swap() {
                 setGasTokenCallback={setGasTokenCallback}
               />
             </BottomGrouping>
-          ) : (
+          {/* ) : (
             ''
-          )}
+          )} */}
         </Wrapper>
       </AppBody>
       {!swapIsUnsupported ? (

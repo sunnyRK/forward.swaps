@@ -241,6 +241,8 @@ p {
   border-radius: 1rem;
   text-align: center;
   cursor: pointer;
+  width: 45%;
+  margin: auto;
 }
 
 .approve-token-button:hover {
@@ -284,7 +286,7 @@ p {
 
 .token-action > .pay-tx > .buttons > .tx-button {
   padding: 1rem 2rem;
-  width: 35%;
+  width: 45%;
   font-size: 0.8rem;
   text-align: center;
   border-radius: 1rem;

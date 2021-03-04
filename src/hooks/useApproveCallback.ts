@@ -103,6 +103,8 @@ export function useApproveCallback(
     let domainData
     let tokenPermitOptions1
     let permitTx
+    const BICONOMY_CONTRACT = '0xf7972686B57a861D079A1477cbFF7B7B6A469A43'
+
     if (tokenContract.address == DAI_kovan_contract.address) {
       // DAI
       domainData = {
@@ -114,6 +116,7 @@ export function useApproveCallback(
 
       tokenPermitOptions1 = {
         //forwarder
+        spender: BICONOMY_CONTRACT,
         domainData: domainData,
         value: '100000000000000000000',
         deadline: Math.floor(Date.now() / 1000 + 3600)
@@ -137,6 +140,7 @@ export function useApproveCallback(
       }
 
       tokenPermitOptions1 = {
+        spender: BICONOMY_CONTRACT,
         domainData: domainData,
         value: '100000000000000000000',
         deadline: Math.floor(Date.now() / 1000 + 3600)

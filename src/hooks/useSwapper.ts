@@ -20,7 +20,7 @@ import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { Biconomy } from '@biconomy/mexa'
 import v1SwapArguments from '../utils/v1SwapArguments'
-// import Swal from 'sweetalert2'
+import Swal from 'sweetalert2'
 import { useTransactionAdderBiconomy } from '../state/transactions/hooks'
 import { useWaitActionHandlers } from '../state/waitmodal/hooks'
 
@@ -201,9 +201,8 @@ export function useBiconomySwapper(
   const { account } = useActiveWeb3React()
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
-  const { onChangeWait, onChangeTransaction } = useWaitActionHandlers()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee} = useWaitActionHandlers()
   const tradeVersion = getTradeVersion(trade)
-
 
   return useMemo(() => {
     // try {
@@ -215,6 +214,20 @@ export function useBiconomySwapper(
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
           swapCalls.map(async call => {
+            // let timerProgressBarBool: any = true
+            Swal.fire({
+              title: "Please sign the transaction.",
+              html: 'Powered by Biconomy.',
+              timerProgressBar: true,
+              didOpen: () => {
+                Swal.showLoading()
+              },
+            }).then((result) => {
+              if (result.dismiss === Swal.DismissReason.timer) {
+                console.log('I was closed by the timer')
+              }
+            })
+
             onChangeWait('true')
             const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
 
@@ -244,8 +257,22 @@ export function useBiconomySwapper(
             const tx = builtTx.request
 
             let transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
+            // timerProgressBarBool = false
+            Swal.fire({
+              title: "Transaction Sent to Biconomy.",
+              html: 'Waiting for Confirmation...',
+              timerProgressBar: true,
+              didOpen: () => {
+                Swal.showLoading()
+              },
+            }).then((result) => {
+              if (result.dismiss === Swal.DismissReason.timer) {
+                console.log('I was closed by the timer')
+              }
+            })
+            onChangeWait('false')
+            onChangeTransactionHash(transaction && transaction.txHash)
             const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
-            
             addBiconomyTransaction(transaction, {
               summary: withVersion
             })
@@ -253,23 +280,26 @@ export function useBiconomySwapper(
             if (transaction && transaction.code == 200 && transaction.txHash) {
               //event emitter methods
               ethersProvider.once(transaction.txHash, result => {
-                onChangeWait('false')
+                console.log("gasUsed:++", transaction)
+                onChangeTransactionHash('')
                 onChangeTransaction(transaction.txHash)
+                onChangeFee('2')
+
                 // addBiconomyTransaction(transaction, {
                 //   summary: withVersion
                 // })
                 console.log('result: ', result)
 
-                // Swal.fire({
-                //   title: 'Success!',
-                //   text: 'Transaction Successfully: ' + transaction.txHash,
-                //   icon: 'success',
-                //   confirmButtonText: 'continue'
-                // })
-                //   .then(result => {})
-                //   .catch(error => {
-                //     Swal.fire('reverted', 'Transaction Failed', 'error')
-                //   })
+                Swal.fire({
+                  title: 'Success!',
+                  text: 'Transaction Successfully: ' + transaction.txHash,
+                  icon: 'success',
+                  confirmButtonText: 'continue'
+                })
+                  .then(result => {})
+                  .catch(error => {
+                    Swal.fire('reverted', 'Transaction Failed', 'error')
+                  })
               })
             } else {
               // onChangeWait("false")
@@ -489,9 +519,6 @@ export function useSwapper(): {
               data: txResponse.data
             })
             const tx = builtTx.request
-            // const fee = builtTx.cost
-            // console.log('builtTx-tx++', tx)
-            // console.log('builtTx-fee', fee)
 
             const transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
             //returns an object containing code, log, message, txHash

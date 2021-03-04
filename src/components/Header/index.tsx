@@ -332,7 +332,7 @@ export default function Header() {
         </Title>
         <HeaderLinks>
           <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
-            {t('swap')}
+            {t('Forward.Swap')}
           </StyledNavLink>
 
           <StyledExternalLink id={`stake-nav-link`} href={'http://iwaste-eth.com'}>
