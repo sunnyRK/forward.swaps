@@ -201,7 +201,7 @@ export function useBiconomySwapper(
   const { account } = useActiveWeb3React()
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee} = useWaitActionHandlers()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee } = useWaitActionHandlers()
   const tradeVersion = getTradeVersion(trade)
 
   return useMemo(() => {
@@ -216,13 +216,13 @@ export function useBiconomySwapper(
           swapCalls.map(async call => {
             // let timerProgressBarBool: any = true
             Swal.fire({
-              title: "Please sign the transaction.",
+              title: 'Please sign the transaction.',
               html: 'Powered by Biconomy.',
               timerProgressBar: true,
               didOpen: () => {
                 Swal.showLoading()
-              },
-            }).then((result) => {
+              }
+            }).then(result => {
               if (result.dismiss === Swal.DismissReason.timer) {
                 console.log('I was closed by the timer')
               }
@@ -256,23 +256,24 @@ export function useBiconomySwapper(
             })
             const tx = builtTx.request
 
-            let transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
+            const transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
             // timerProgressBarBool = false
             Swal.fire({
-              title: "Transaction Sent to Biconomy.",
+              title: 'Transaction Sent to Biconomy.',
               html: 'Waiting for Confirmation...',
               timerProgressBar: true,
               didOpen: () => {
                 Swal.showLoading()
-              },
-            }).then((result) => {
+              }
+            }).then(result => {
               if (result.dismiss === Swal.DismissReason.timer) {
                 console.log('I was closed by the timer')
               }
             })
             onChangeWait('false')
             onChangeTransactionHash(transaction && transaction.txHash)
-            const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
+            const withVersion =
+              tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
             addBiconomyTransaction(transaction, {
               summary: withVersion
             })
@@ -280,7 +281,7 @@ export function useBiconomySwapper(
             if (transaction && transaction.code == 200 && transaction.txHash) {
               //event emitter methods
               ethersProvider.once(transaction.txHash, result => {
-                console.log("gasUsed:++", transaction)
+                console.log('gasUsed:++', transaction)
                 onChangeTransactionHash('')
                 onChangeTransaction(transaction.txHash)
                 onChangeFee('2')

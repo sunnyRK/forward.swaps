@@ -690,17 +690,17 @@ export default function Swap() {
           </BottomGrouping>
  */}
           {/* {gasModalEnable ? ( */}
-            <BottomGrouping>
-              <GasModal
-                handleDeposit={handleDeposit}
-                path0={trade && trade.route.path[0].address}
-                path1={trade && trade.route.path[1].address}
-                inputToken={trade && trade.route.input.symbol}
-                inputAmount={formattedAmounts[Field.INPUT]}
-                hadaleGasModalEnable={hadaleGasModalEnable}
-                setGasTokenCallback={setGasTokenCallback}
-              />
-            </BottomGrouping>
+          <BottomGrouping>
+            <GasModal
+              handleDeposit={handleDeposit}
+              path0={trade && trade.route.path[0].address}
+              path1={trade && trade.route.path[1].address}
+              inputToken={trade && trade.route.input.symbol}
+              inputAmount={formattedAmounts[Field.INPUT]}
+              hadaleGasModalEnable={hadaleGasModalEnable}
+              setGasTokenCallback={setGasTokenCallback}
+            />
+          </BottomGrouping>
           {/* ) : (
             ''
           )} */}

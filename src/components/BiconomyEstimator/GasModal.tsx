@@ -37,15 +37,10 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   path0,
   path1,
   inputToken,
-  inputAmount,
+  inputAmount
 }) => {
-  const { 
-    wait, 
-    tx, 
-    txHash, gasFees } = useWaitState()
-  const { onChangeWait, onChangeTransaction,
-      onChangeTransactionHash, onChangeFee
-   } = useWaitActionHandlers()
+  const { wait, tx, txHash, gasFees } = useWaitState()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee } = useWaitActionHandlers()
 
   // const { connected } = useStoreState((state) => state);
   const { checkAllowance, checkBalance, approveToken, calculateFees, approveTokenAndSwap } = useBiconomyContracts()
@@ -81,7 +76,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   const onDeposit = async () => {
     try {
-      
       if (inputAmount == '') {
         setInputError(true)
         return
@@ -122,8 +116,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           }
         }
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   const onApprove = async (tokenSymbol: any) => {
@@ -207,7 +200,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         //   modal: 'modal'
         // }}
       >
-
         <div className="header">
           <div className="title" style={{ textAlign: 'center', marginBottom: '20px' }}>
             Select tokens to pay gas fees
@@ -325,7 +317,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                   </div>
                 </div>
               </div>
-            ) : selectedToken == "DAI" || selectedToken == "USDC" ? (
+            ) : selectedToken == 'DAI' || selectedToken == 'USDC' ? (
               <div className="pay-tx">
                 <div className="buttons">
                   <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
@@ -355,7 +347,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
         </div>
       </Modal>
-      
+
       {/* <div> */}
       {/* { signTx ? (
       txHash == '' && (tx == '' || tx == 'undefined') ? ( 
