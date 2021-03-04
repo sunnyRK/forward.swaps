@@ -311,11 +311,10 @@ export default function Swap() {
     }
   }, [gasModalEnable])
 
-  
   const wipeInput = useCallback(async () => {
     try {
-        onUserInput(Field.INPUT, '')
-        onUserInput(Field.OUTPUT, '')
+      onUserInput(Field.INPUT, '')
+      onUserInput(Field.OUTPUT, '')
     } catch (error) {
       console.log('Error: ', error)
     }
