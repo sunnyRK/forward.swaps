@@ -26,28 +26,28 @@ biconomy
   })
   .onEvent(biconomy.ERROR, () => {})
 
-let daiDomainType = [
-  { name: "name", type: "string" },
-  { name: "version", type: "string" },
-  { name: "chainId", type: "uint256" },
-  { name: "verifyingContract", type: "address" },
-];
+const daiDomainType = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' }
+]
 
-let eip2612PermitType = [
-  { name: "owner", type: "address" },
-  { name: "spender", type: "address" },
-  { name: "value", type: "uint256" },
-  { name: "nonce", type: "uint256" },
-  { name: "deadline", type: "uint256" },
-];
+const eip2612PermitType = [
+  { name: 'owner', type: 'address' },
+  { name: 'spender', type: 'address' },
+  { name: 'value', type: 'uint256' },
+  { name: 'nonce', type: 'uint256' },
+  { name: 'deadline', type: 'uint256' }
+]
 
-let daiPermitType = [
-  { name: "holder", type: "address" },
-  { name: "spender", type: "address" },
-  { name: "nonce", type: "uint256" },
-  { name: "expiry", type: "uint256" },
-  { name: "allowed", type: "bool" },
-];
+const daiPermitType = [
+  { name: 'holder', type: 'address' },
+  { name: 'spender', type: 'address' },
+  { name: 'nonce', type: 'uint256' },
+  { name: 'expiry', type: 'uint256' },
+  { name: 'allowed', type: 'bool' }
+]
 
 // interface PermitOptions {
 //   holder: string
@@ -273,6 +273,50 @@ const useBiconomyContracts = () => {
           });
         } else {
         }
+      }
+
+      const result = await ethersProvider.send('eth_signTypedData_v3', [account, JSON.stringify(permitDataToSign)])
+
+      console.log(result)
+
+      const metaInfo: any = {}
+      const permitOptions: any = {}
+
+      const signature = result.substring(2)
+      const r = '0x' + signature.substring(0, 64)
+      const s = '0x' + signature.substring(64, 128)
+      const v = parseInt(signature.substring(128, 130), 16)
+
+      permitOptions.holder = account
+      permitOptions.spender = erc20ForwarderAddress
+      permitOptions.value = tokenPermitOptions1.value
+      permitOptions.nonce = parseInt(nonce.toString())
+      permitOptions.expiry = parseInt(tokenPermitOptions1.deadline.toString())
+      permitOptions.allowed = true
+      permitOptions.v = v
+      permitOptions.r = r
+      permitOptions.s = s
+
+      // validations of permit Type is needed for meta info and within buildTx
+
+      metaInfo.permitType = 'EIP2612_Permit'
+      metaInfo.permitData = permitOptions
+
+      //signature of this method is permitAndSendTxEIP712({req, signature = null, userAddress, metaInfo})
+      //signature param is optional. check network agnostics section for more details about this
+      //userAddress is must when your provider does not have a signer with accounts
+      const transaction = await ercForwarderClient.permitAndSendTxEIP712({ req: tx, metaInfo: metaInfo })
+      //returns an object containing code, log, message, txHash
+      console.log(transaction)
+
+      if (transaction && transaction.code == 200 && transaction.txHash) {
+        //event emitter methods
+        ethersProvider.once(transaction.txHash, result => {
+          // Emitted when the transaction has been mined
+          console.log(result)
+        })
+      } else {
+      }
       console.log('permitTx1++: ', permitTx)
     } else if (erc20token === 'DAI') {
       domainData = {
@@ -286,9 +330,9 @@ const useBiconomyContracts = () => {
         spender: erc20ForwarderAddress,
         expiry: Math.floor(Date.now() / 1000 + 3600),
         allowed: true
-      };
+      }
 
-      let userAddress = account;
+      const userAddress = account
       // let functionSignature = contract.methods.setQuote(newQuote).encodeABI();
       // console.log(functionSignature);
       const path = [token0, token1]
@@ -299,17 +343,15 @@ const useBiconomyContracts = () => {
         inputAmount
       )
 
-  
-      console.log("Sending meta transaction");
+      console.log('Sending meta transaction')
       // showInfoMessage("Building transaction to forward");
       // txGas should be calculated and passed here or calculate within the method
       // let gasLimit = await contract.methods
       // .setQuote(newQuote)
       // .estimateGas({ from: userAddress });
 
-
       // let gasPrice = await ethersProvider.getGasPrice();
-      let gasLimit = await ethersProvider.estimateGas({
+      const gasLimit = await ethersProvider.estimateGas({
         to: contract.address,
         from: account?.toString(),
         data: data,
@@ -323,70 +365,66 @@ const useBiconomyContracts = () => {
         permitType : "DAI_Permit"
       });
 
-      debugger;
+      debugger
 
-      const tx = builtTx.request;
-      const fee = builtTx.cost; // only gets the cost of target method call
-      console.log(tx);
-      console.log(fee);
-      alert(`You will be charged ${fee} amount of DAI ${biconomy.daiTokenAddress} for this transaction`);
+      const tx = builtTx.request
+      const fee = builtTx.cost // only gets the cost of target method call
+      console.log(tx)
+      console.log(fee)
+      alert(`You will be charged ${fee} amount of DAI ${biconomy.daiTokenAddress} for this transaction`)
 
-      const nonce = await TokenContractInstance.nonces(account).call();
-      console.log(`nonce is : ${nonce}`);
+      const nonce = await TokenContractInstance.nonces(account).call()
+      console.log(`nonce is : ${nonce}`)
 
       const permitDataToSign = {
         types: {
           EIP712Domain: daiDomainType,
-          Permit: daiPermitType,
+          Permit: daiPermitType
         },
         domain: domainData,
-        primaryType: "Permit",
+        primaryType: 'Permit',
         message: {
           holder: userAddress,
           spender: daiPermitOptions.spender,
           nonce: parseInt(nonce),
           expiry: parseInt(daiPermitOptions.expiry.toString()),
-          allowed: daiPermitOptions.allowed,
-        },
-      };
+          allowed: daiPermitOptions.allowed
+        }
+      }
 
-      let result = await ethersProvider.send("eth_signTypedData_v3", [
-        userAddress,
-        JSON.stringify(permitDataToSign),
-      ]);
+      const result = await ethersProvider.send('eth_signTypedData_v3', [userAddress, JSON.stringify(permitDataToSign)])
 
-      console.log(result);
-        
-      let metaInfo: any = {};
-      let permitOptions: any = {};
+      console.log(result)
 
-      
-      console.log("success:" + result);
-      const signature = result.substring(2);
-      const r = "0x" + signature.substring(0, 64);
-      const s = "0x" + signature.substring(64, 128);
-      const v = parseInt(signature.substring(128, 130), 16);
+      const metaInfo: any = {}
+      const permitOptions: any = {}
 
-      permitOptions.holder = account;
-      permitOptions.spender = daiPermitOptions.spender;
-      permitOptions.value = 0; //in case of DAI passing dummy value for the sake of struct (similar to token address in EIP2771)
-      permitOptions.nonce = parseInt(nonce.toString());
-      permitOptions.expiry = parseInt(daiPermitOptions.expiry.toString());
-      permitOptions.allowed = daiPermitOptions.allowed;
-      permitOptions.v = v;
-      permitOptions.r = r;
-      permitOptions.s = s;
+      console.log('success:' + result)
+      const signature = result.substring(2)
+      const r = '0x' + signature.substring(0, 64)
+      const s = '0x' + signature.substring(64, 128)
+      const v = parseInt(signature.substring(128, 130), 16)
 
-      metaInfo.permitType = "DAI_Permit";
-      metaInfo.permitData = permitOptions;
-    
+      permitOptions.holder = account
+      permitOptions.spender = daiPermitOptions.spender
+      permitOptions.value = 0 //in case of DAI passing dummy value for the sake of struct (similar to token address in EIP2771)
+      permitOptions.nonce = parseInt(nonce.toString())
+      permitOptions.expiry = parseInt(daiPermitOptions.expiry.toString())
+      permitOptions.allowed = daiPermitOptions.allowed
+      permitOptions.v = v
+      permitOptions.r = r
+      permitOptions.s = s
+
+      metaInfo.permitType = 'DAI_Permit'
+      metaInfo.permitData = permitOptions
+
       //signature of this method is sendTxEIP712({req, signature = null, userAddress, metaInfo})
-      let transaction = await ercForwarderClient.permitAndSendTxEIP712({req:tx, metaInfo: metaInfo});
+      const transaction = await ercForwarderClient.permitAndSendTxEIP712({ req: tx, metaInfo: metaInfo })
 
-      //returns an object containing code, log, message, txHash 
-      console.log(transaction);
-      if(transaction && transaction.txHash) {
-        if(transaction && transaction.code == 200 && transaction.txHash) {
+      //returns an object containing code, log, message, txHash
+      console.log(transaction)
+      if (transaction && transaction.txHash) {
+        if (transaction && transaction.code == 200 && transaction.txHash) {
           //event emitter methods
           ethersProvider.once(transaction.txHash, (result: any) => {
             // Emitted when the transaction has been mined

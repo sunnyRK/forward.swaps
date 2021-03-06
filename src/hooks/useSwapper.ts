@@ -218,13 +218,13 @@ export function useBiconomySwapper(
             debugger
 
             Swal.fire({
-              title: "Please sign the transaction.",
+              title: 'Please sign the transaction.',
               html: 'Powered by Biconomy.',
               timerProgressBar: true,
               didOpen: () => {
                 Swal.showLoading()
-              },
-            }).then((result) => {
+              }
+            }).then(result => {
               if (result.dismiss === Swal.DismissReason.timer) {
                 console.log('I was closed by the timer')
               }
@@ -262,13 +262,13 @@ export function useBiconomySwapper(
 
             // timerProgressBarBool = false
             Swal.fire({
-              title: "Transaction Sent to Biconomy.",
+              title: 'Transaction Sent to Biconomy.',
               html: 'Waiting for Confirmation...',
               timerProgressBar: true,
               didOpen: () => {
                 Swal.showLoading()
-              },
-            }).then((result) => {
+              }
+            }).then(result => {
               if (result.dismiss === Swal.DismissReason.timer) {
                 console.log('I was closed by the timer')
               }
@@ -283,7 +283,7 @@ export function useBiconomySwapper(
             if (transaction && transaction.code == 200 && transaction.txHash) {
               //event emitter methods
               ethersProvider.once(transaction.txHash, result => {
-                console.log("gasUsed:++", transaction)
+                console.log('gasUsed:++', transaction)
                 onChangeTransactionHash('')
                 onChangeTransaction(transaction.txHash)
                 onChangeFee('2')

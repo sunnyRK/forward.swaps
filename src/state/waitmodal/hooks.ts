@@ -43,7 +43,7 @@ export function useWaitActionHandlers(): {
     },
     [dispatch]
   )
-  
+
   const onChangeFee = useCallback(
     (gasFees: string | null) => {
       dispatch(setFee({ gasFees }))
