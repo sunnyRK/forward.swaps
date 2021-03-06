@@ -1,7 +1,8 @@
 import DAI_kovan_contract from '../contracts/DAI_kovan.json'
 import USDT_kovan_contract from '../contracts/USDT_kovan.json'
 import USDC_kovan_contract from '../contracts/USDC_kovan.json'
-
+// import { BigNumber } from '@ethersproject/bignumber'
+// import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { getContract } from '../utils'
 import { useActiveWeb3React } from './index'
@@ -10,6 +11,7 @@ import Swal from 'sweetalert2'
 import { Biconomy } from '@biconomy/mexa'
 import { getEthersProvider, getBiconomySwappperContract } from '../utils'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
+import { parseEther } from '@ethersproject/units'
 // import { useTransactionAdder } from '../state/transactions/hooks'
 
 const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
@@ -157,6 +159,7 @@ const useBiconomyContracts = () => {
     let permitTx
 
     if (erc20token === 'USDC') {
+      debugger
       domainData = {
         name: 'USDC Coin',
         version: '1',
@@ -164,25 +167,22 @@ const useBiconomyContracts = () => {
         verifyingContract: USDC_kovan_contract.address
       }
 
-      tokenPermitOptions1 = {
-        domainData: domainData,
-        value: '100000000000000000000',
-        deadline: Math.floor(Date.now() / 1000 + 3600)
-      }
       // let { data } = await contract.populateTransaction.setQuote(newQuote);
+      const path = [token0, token1]
 
-      const data = await contract.populateTransaction.swapWithoutETH(
+      console.log("Params: +++", account, token0, path, parseEther(inputAmount))
+      const {data} = await contract.populateTransaction.swapWithoutETH(
         account,
         token0,
-        token1,
-        inputAmount
+        path,
+        parseEther(inputAmount)
       )
 
         let gasPrice = await ethersProvider.getGasPrice();
         let gasLimit = await ethersProvider.estimateGas({
           to: contract.address,
           from: account?.toString(),
-          data: data.data,
+          data: data,
         });
         console.log(gasLimit.toString());
         console.log(gasPrice.toString());
@@ -199,6 +199,14 @@ const useBiconomyContracts = () => {
         const fee = builtTx.cost;
         console.log(tx);
         console.log(fee);
+
+        
+      tokenPermitOptions1 = {
+        spender: erc20ForwarderAddress,
+        domainData: domainData,
+        value: '100000000000000000000', // To do 1
+        deadline: Math.floor(Date.now() / 1000 + 3600)
+      }
 
         const nonce = await TokenContractInstance.nonces(USDC_kovan_contract.address);
         console.log(`nonce is : ${nonce}`);
@@ -259,9 +267,9 @@ const useBiconomyContracts = () => {
       
         if(transaction && transaction.code == 200 && transaction.txHash) {
           //event emitter methods
-          ethersProvider.once(transaction.txHash, (result) => {
+          ethersProvider.once(transaction.txHash, (result: any) => {
             // Emitted when the transaction has been mined
-            console.log(result);
+            console.log('result++:', result);
           });
         } else {
         }
@@ -283,10 +291,11 @@ const useBiconomyContracts = () => {
       let userAddress = account;
       // let functionSignature = contract.methods.setQuote(newQuote).encodeABI();
       // console.log(functionSignature);
-      const data = await contract.populateTransaction.swapWithoutETH(
+      const path = [token0, token1]
+      const {data} = await contract.populateTransaction.swapWithoutETH(
         account,
         token0,
-        token1,
+        path,
         inputAmount
       )
 
@@ -303,14 +312,14 @@ const useBiconomyContracts = () => {
       let gasLimit = await ethersProvider.estimateGas({
         to: contract.address,
         from: account?.toString(),
-        data: data.data,
+        data: data,
       });
 
       const builtTx = await ercForwarderClient.buildTx({
         to: contract.address,
         token: DAI_kovan_contract.address,
         txGas: Number(gasLimit),
-        data: data.data,
+        data: data,
         permitType : "DAI_Permit"
       });
 
@@ -379,9 +388,9 @@ const useBiconomyContracts = () => {
       if(transaction && transaction.txHash) {
         if(transaction && transaction.code == 200 && transaction.txHash) {
           //event emitter methods
-          ethersProvider.once(transaction.txHash, (result) => {
+          ethersProvider.once(transaction.txHash, (result: any) => {
             // Emitted when the transaction has been mined
-            console.log(result);
+            console.log('result++:', result);
           });
         } else {
         }
@@ -414,6 +423,7 @@ const useBiconomyContracts = () => {
       tokenPermitOptions1 = {
         domainData: domainData,
         value: '100000000000000000000',
+        // value: BigNumber.from('100000000000000000000'),
         deadline: Math.floor(Date.now() / 1000 + 3600)
       }
       permitTx = await permitClient.eip2612Permit(tokenPermitOptions1)
@@ -435,6 +445,7 @@ const useBiconomyContracts = () => {
         //forwarder
         domainData: domainData,
         value: '100000000000000000000',
+        // value: BigNumber.from('100000000000000000000'),
         deadline: Math.floor(Date.now() / 1000 + 3600)
       }
 

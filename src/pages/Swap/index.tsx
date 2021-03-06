@@ -689,7 +689,7 @@ export default function Swap() {
             ) : null}
           </BottomGrouping>
  */}
-          {/* {gasModalEnable ? ( */}
+          {gasModalEnable ? (
             <BottomGrouping>
               <GasModal
                 handleDeposit={handleDeposit}
@@ -701,9 +701,9 @@ export default function Swap() {
                 setGasTokenCallback={setGasTokenCallback}
               />
             </BottomGrouping>
-          {/* ) : (
+          ) : (
             ''
-          )} */}
+          )}
         </Wrapper>
       </AppBody>
       {!swapIsUnsupported ? (

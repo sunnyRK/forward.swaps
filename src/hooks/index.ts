@@ -9,6 +9,7 @@ import { NetworkContextName } from '../constants'
 // import { Biconomy } from "@biconomy/mexa";
 
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
+  // m60yDrUs7.5c3b23fa-0b93-46ac-86f9-79e998d8f361 old key
   // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093', debug: true});
   // console.log(biconomy)
   // return biconomy

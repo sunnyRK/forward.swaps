@@ -202,7 +202,7 @@ export function useBiconomySwapper(
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
   const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee} = useWaitActionHandlers()
-  const tradeVersion = getTradeVersion(trade)
+  // const tradeVersion = getTradeVersion(trade)
 
   return useMemo(() => {
     // try {
@@ -215,6 +215,8 @@ export function useBiconomySwapper(
         try {
           swapCalls.map(async call => {
             // let timerProgressBarBool: any = true
+            debugger
+
             Swal.fire({
               title: "Please sign the transaction.",
               html: 'Powered by Biconomy.',
@@ -230,13 +232,12 @@ export function useBiconomySwapper(
 
             onChangeWait('true')
             const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
-
-            const addr1 = account
+            // const addr1 = account
             const token0 = swapMethod.args[2][0]
             const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
 
             const txResponse = await contract.populateTransaction.swapWithoutETH(
-              addr1,
+              account,
               token0,
               path,
               swapMethod.args[0]
@@ -257,6 +258,8 @@ export function useBiconomySwapper(
             const tx = builtTx.request
 
             let transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
+            console.log('transaction+++: ', transaction)
+
             // timerProgressBarBool = false
             Swal.fire({
               title: "Transaction Sent to Biconomy.",
@@ -272,10 +275,10 @@ export function useBiconomySwapper(
             })
             onChangeWait('false')
             onChangeTransactionHash(transaction && transaction.txHash)
-            const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
-            addBiconomyTransaction(transaction, {
-              summary: withVersion
-            })
+            // const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
+            // addBiconomyTransaction(transaction, {
+            //   summary: withVersion
+            // })
 
             if (transaction && transaction.code == 200 && transaction.txHash) {
               //event emitter methods

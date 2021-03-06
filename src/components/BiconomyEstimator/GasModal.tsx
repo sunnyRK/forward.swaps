@@ -101,6 +101,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
             gasToken = USDT_kovan_contract.address
             return setGasTokenCallback(gasToken)
           } else if (selectedToken == 'DAI') {
+            debugger
             gasToken = DAI_kovan_contract.address
             return setGasTokenCallback(gasToken)
           }
@@ -266,7 +267,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               <div className="alignCenter">
                 <strong>Checking Allowance Status...</strong>
               </div>
-            ) : !isApproved ? (
+            ) : isApproved ? (
               <div className="pay-tx">
                 {balanceError && (
                   <div className="gas-amount">
