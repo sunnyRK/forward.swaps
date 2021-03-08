@@ -29,7 +29,7 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
 }
 
 const biconomy = new Biconomy(window.ethereum, {
-  apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093',
+  apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119',
   debug: true
 })
 let ercForwarderClient: any
@@ -123,7 +123,7 @@ export function getBiconomySwappperContract(
   library: Web3Provider,
   account?: string
 ): Contract {
-  const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+  const biconomy = new Biconomy(window.ethereum, { apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119' })
   const ethersProvider = new ethers.providers.Web3Provider(biconomy)
   const signer = ethersProvider.getSigner()
   const contract = new ethers.Contract(address, ABI, signer.connectUnchecked())
@@ -131,19 +131,19 @@ export function getBiconomySwappperContract(
 }
 
 export function getEthersProvider(): Web3Provider {
-  const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+  const biconomy = new Biconomy(window.ethereum, { apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119' })
   const ethersProvider = new ethers.providers.Web3Provider(biconomy)
   return ethersProvider
 }
 
 export function getErcForwarderClient(): any {
-  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
+  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119'})
   // let ercForwarderClient = biconomy.erc20ForwarderClient
   return ercForwarderClient
 }
 
 export function getPermitClient(): any {
-  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093'})
+  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119'})
   // let permitClient = biconomy.permitClient
   return permitClient
 }

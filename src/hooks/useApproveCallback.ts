@@ -24,7 +24,7 @@ export enum ApprovalState {
   APPROVED
 }
 
-const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+const biconomy = new Biconomy(window.ethereum, { apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119' })
 // let ercForwarderClient: any
 let permitClient: any
 

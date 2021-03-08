@@ -24,7 +24,7 @@ import Swal from 'sweetalert2'
 import { useTransactionAdderBiconomy } from '../state/transactions/hooks'
 import { useWaitActionHandlers } from '../state/waitmodal/hooks'
 
-const biconomy = new Biconomy(window.ethereum, { apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093' })
+const biconomy = new Biconomy(window.ethereum, { apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119' })
 let _ercForwarderClient: any
 let _permitClient: any
 
@@ -219,7 +219,7 @@ export function useBiconomySwapper(
 
             Swal.fire({
               title: 'Please sign the transaction.',
-              html: 'Powered by Biconomy.',
+              html: '',
               timerProgressBar: true,
               didOpen: () => {
                 Swal.showLoading()
@@ -236,6 +236,7 @@ export function useBiconomySwapper(
             const token0 = swapMethod.args[2][0]
             const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
 
+            console.log('swapMethod.args[0]+++', swapMethod.args[0])
             const txResponse = await contract.populateTransaction.swapWithoutETH(
               account,
               token0,
@@ -262,7 +263,7 @@ export function useBiconomySwapper(
 
             // timerProgressBarBool = false
             Swal.fire({
-              title: 'Transaction Sent to Biconomy.',
+              title: 'Transaction Sent.',
               html: 'Waiting for Confirmation...',
               timerProgressBar: true,
               didOpen: () => {

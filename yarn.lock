@@ -1246,10 +1246,8 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@biconomy/mexa@^2.0.4":
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/@biconomy/mexa/-/mexa-2.0.4.tgz#1c387408a4a6c52d0703f579f6b6188624bb992d"
-  integrity sha512-EDnd3xA4aMO6HrQkb1uVEPNr8nx6IBKkl758vJsOJruMqMHbGy+1aJxepZMazFdxbOz3AnhDERLPNxZshXCRUg==
+"@biconomy/mexa@file:../../../open-source-repo/mexa-sdk":
+  version "2.0.5"
   dependencies:
     "@babel/core" "^7.12.13"
     "@babel/runtime" "^7.12.13"
