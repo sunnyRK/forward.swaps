@@ -16,6 +16,7 @@ import { Biconomy } from '@biconomy/mexa'
 
 import DAI_kovan_contract from '../contracts/DAI_kovan.json'
 import USDC_kovan_contract from '../contracts/USDC_kovan.json'
+import { BICONOMY_API_KEY, BICONOMY_CONTRACT } from "../constants/config";
 
 export enum ApprovalState {
   UNKNOWN,
@@ -24,7 +25,7 @@ export enum ApprovalState {
   APPROVED
 }
 
-const biconomy = new Biconomy(window.ethereum, { apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119' })
+const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
 // let ercForwarderClient: any
 let permitClient: any
 
@@ -103,7 +104,6 @@ export function useApproveCallback(
     let domainData
     let tokenPermitOptions1
     let permitTx
-    const BICONOMY_CONTRACT = '0xf7972686B57a861D079A1477cbFF7B7B6A469A43'
 
     if (tokenContract.address == DAI_kovan_contract.address) {
       // DAI
@@ -179,6 +179,6 @@ export function useApproveCallbackFromTrade(trade?: Trade, allowedSlippage = 0) 
   )
   // const tradeIsV1 = getTradeVersion(trade) === Version.v1
   // const v1ExchangeAddress = useV1TradeExchangeAddress(trade)
-  return useApproveCallback(amountToApprove, '0xf7972686B57a861D079A1477cbFF7B7B6A469A43')
+  return useApproveCallback(amountToApprove, BICONOMY_CONTRACT)
   // return useApproveCallback(amountToApprove, tradeIsV1 ? v1ExchangeAddress : ROUTER_ADDRESS)
 }

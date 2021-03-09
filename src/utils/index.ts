@@ -10,6 +10,7 @@ import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '
 import { TokenAddressMap } from '../state/lists/hooks'
 // import CHILL_ABI  from "../constants/abis/chill.json";
 import { Biconomy } from '@biconomy/mexa'
+import { BICONOMY_API_KEY } from "../constants/config";
 // import { useActiveWeb3React } from "../hooks/";
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -29,9 +30,7 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
 }
 
 const biconomy = new Biconomy(window.ethereum, {
-  apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119',
-  debug: true
-})
+  apiKey: BICONOMY_API_KEY})
 let ercForwarderClient: any
 let permitClient: any
 
@@ -123,7 +122,7 @@ export function getBiconomySwappperContract(
   library: Web3Provider,
   account?: string
 ): Contract {
-  const biconomy = new Biconomy(window.ethereum, { apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119' })
+  const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
   const ethersProvider = new ethers.providers.Web3Provider(biconomy)
   const signer = ethersProvider.getSigner()
   const contract = new ethers.Contract(address, ABI, signer.connectUnchecked())
@@ -131,20 +130,16 @@ export function getBiconomySwappperContract(
 }
 
 export function getEthersProvider(): Web3Provider {
-  const biconomy = new Biconomy(window.ethereum, { apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119' })
+  const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
   const ethersProvider = new ethers.providers.Web3Provider(biconomy)
   return ethersProvider
 }
 
 export function getErcForwarderClient(): any {
-  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119'})
-  // let ercForwarderClient = biconomy.erc20ForwarderClient
   return ercForwarderClient
 }
 
 export function getPermitClient(): any {
-  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119'})
-  // let permitClient = biconomy.permitClient
   return permitClient
 }
 /////////////////////////////////////////

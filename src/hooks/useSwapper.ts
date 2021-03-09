@@ -23,8 +23,9 @@ import v1SwapArguments from '../utils/v1SwapArguments'
 import Swal from 'sweetalert2'
 import { useTransactionAdderBiconomy } from '../state/transactions/hooks'
 import { useWaitActionHandlers } from '../state/waitmodal/hooks'
+import { BICONOMY_API_KEY, BICONOMY_CONTRACT } from "../constants/config";
 
-const biconomy = new Biconomy(window.ethereum, { apiKey: 'cNWqZcoBb.4e4c0990-26a8-4a45-b98e-08101f754119' })
+const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
 let _ercForwarderClient: any
 let _permitClient: any
 
@@ -118,7 +119,7 @@ function useSwapCallArgumentsForBiconomy(
       return []
 
     const contract: Contract | null = getBiconomySwappperContract(
-      '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
+      BICONOMY_CONTRACT,
       BICONOMYSWAPPER_ABI,
       library,
       account
@@ -214,9 +215,6 @@ export function useBiconomySwapper(
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
           swapCalls.map(async call => {
-            // let timerProgressBarBool: any = true
-            debugger
-
             Swal.fire({
               title: 'Please sign the transaction.',
               html: '',
@@ -261,7 +259,6 @@ export function useBiconomySwapper(
             let transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
             console.log('transaction+++: ', transaction)
 
-            // timerProgressBarBool = false
             Swal.fire({
               title: 'Transaction Sent.',
               html: 'Waiting for Confirmation...',
@@ -347,6 +344,11 @@ export function useBiconomySwapper(
           onChangeWait('false')
           onChangeTransaction('undefined')
           console.log('error:', error)
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Transaction Failed!'
+          })
         }
       },
       error: null
@@ -422,7 +424,7 @@ function useSwapCallArguments(): SwapCall[] {
     // const contract3: Contract | null = getContract('0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3', BICONOMYSWAPPER_ABI, library, account)
 
     const _contract: Contract | null = getBiconomySwappperContract(
-      '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
+      BICONOMY_CONTRACT,
       BICONOMYSWAPPER_ABI,
       library,
       account
@@ -479,7 +481,7 @@ export function useSwapper(): {
 
             const tokenPermitOptions1 = {
               //contract
-              spender: '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
+              spender: BICONOMY_CONTRACT,
               domainData: domainData,
               value: '100000000000000000000',
               deadline: Math.floor(Date.now() / 1000 + 3600)
@@ -508,7 +510,7 @@ export function useSwapper(): {
 
             // const gasPrice = await ethersProvider.getGasPrice()
             const gasLimit = await ethersProvider.estimateGas({
-              to: '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
+              to: BICONOMY_CONTRACT,
               from: account,
               data: txResponse.data
             })
@@ -517,7 +519,7 @@ export function useSwapper(): {
             // console.log('txResponse++', txResponse)
 
             const builtTx = await ercForwarderClient.buildTx({
-              to: '0xf7972686B57a861D079A1477cbFF7B7B6A469A43',
+              to: BICONOMY_CONTRACT,
               token: '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa',
               txGas: Number(gasLimit),
               data: txResponse.data

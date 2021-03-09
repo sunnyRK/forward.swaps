@@ -28,7 +28,7 @@ import { INITIAL_ALLOWED_SLIPPAGE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency, useAllTokens } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
-// import useENSAddress from '../../hooks/useENSAddress'
+import useENSAddress from '../../hooks/useENSAddress'
 import { useSwapCallback } from '../../hooks/useSwapCallback'
 import {
   useBiconomySwapper
@@ -114,7 +114,7 @@ export default function Swap() {
     typedValue
   )
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  // const { address: recipientAddress } = useENSAddress(recipient)
+  const { address: recipientAddress } = useENSAddress(recipient)
   const toggledVersion = useToggledVersion()
   const tradesByVersion = {
     [Version.v1]: v1Trade,
@@ -148,7 +148,7 @@ export default function Swap() {
   )
   const handleTypeOutput = useCallback(
     (value: string) => {
-      onUserInput(Field.OUTPUT, value)
+      onUserInput(Field.OUTPUT, '')
     },
     [onUserInput]
   )
@@ -294,15 +294,26 @@ export default function Swap() {
         console.log('Error: ', error)
       }
     },
-    [gasToken, callback]
+    [
+      gasToken, 
+      callback,
+      priceImpactWithoutFee,
+      tradeToConfirm,
+      showConfirm,
+      recipient,
+      recipientAddress,
+      account,
+      trade,
+      singleHopOnly
+    ]
   )
 
   const hadaleGasModalEnable = useCallback(async () => {
     try {
       if (gasModalEnable) {
         setGasModalEnable(false)
-        onUserInput(Field.INPUT, '')
-        onUserInput(Field.OUTPUT, '')
+        // onUserInput(Field.INPUT, '')
+        // onUserInput(Field.OUTPUT, '')
       } else {
         setGasModalEnable(true)
       }
@@ -311,14 +322,14 @@ export default function Swap() {
     }
   }, [gasModalEnable])
 
-  const wipeInput = useCallback(async () => {
-    try {
-      onUserInput(Field.INPUT, '')
-      onUserInput(Field.OUTPUT, '')
-    } catch (error) {
-      console.log('Error: ', error)
-    }
-  }, [])
+  // const wipeInput = useCallback(async () => {
+  //   try {
+  //     onUserInput(Field.INPUT, '')
+  //     onUserInput(Field.OUTPUT, '')
+  //   } catch (error) {
+  //     console.log('Error: ', error)
+  //   }
+  // }, [])
 
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -348,7 +359,8 @@ export default function Swap() {
   }, [attemptingTxn, showConfirm, swapErrorMessage, trade, txHash])
 
   const handleInputSelect = useCallback(
-    inputCurrency => {
+    (inputCurrency: any) => {
+      console.log('handleInputSelecthandleInputSelect')
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
     },
@@ -359,12 +371,14 @@ export default function Swap() {
     maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
   }, [maxAmountInput, onUserInput])
 
-  const handleOutputSelect = useCallback(outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency), [
+  const handleOutputSelect = useCallback((outputCurrency: any) => { 
+      console.log("handleOutputSelecthandleOutputSelect")
+      onCurrencySelection(Field.OUTPUT, outputCurrency)
+    }, [
     onCurrencySelection
   ])
 
   const swapIsUnsupported = useIsTransactionUnsupported(currencies?.INPUT, currencies?.OUTPUT)
-
   return (
     <>
       <TokenWarningModal
@@ -410,7 +424,7 @@ export default function Swap() {
                     onClick={() => {
                       setApprovalSubmitted(false) // reset 2 step UI for approvals
                       onSwitchTokens()
-                      wipeInput()
+                      // wipeInput()
                     }}
                     color={currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.primary1 : theme.text2}
                   />

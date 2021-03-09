@@ -24,14 +24,10 @@ import { getContract } from '../utils'
 import { useActiveWeb3React } from './index'
 import CHILL_ABI from '../constants/abis/chill.json'
 // import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
-// import { Biconomy } from "@biconomy/mexa";
 
 // returns null on errors
 function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { library, account } = useActiveWeb3React()
-  // const biconomy = new Biconomy(window.ethereum,{apiKey: 'bUQKf_h8-.52c2bd85-4147-41b0-bd8e-1a36ed039093', debug: true});
-
-  // console.log('biconomy:', biconomy)
   return useMemo(() => {
     if (!address || !ABI || !library) return null
     try {

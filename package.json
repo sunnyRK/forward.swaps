@@ -126,6 +126,7 @@
     "@types/node": "^14.14.28",
     "@uniswap/default-token-list": "^2.0.0",
     "authereum": "^0.1.0",
+    "bn.js": "^5.2.0",
     "easy-peasy": "^4.0.1",
     "react-responsive-modal": "^6.0.1",
     "sweetalert2": "^10.15.2",
