@@ -135,98 +135,29 @@ const useBiconomyContracts = () => {
   }
 
   const approveTokenAndSwap = async (erc20token: string, token0: string, token1: string, inputAmount: string) => {
-    const ethersProvider: Web3Provider | null = getEthersProvider()
-    const TokenContractInstance: Contract = getContractInstance(erc20token)
+    try {
+      const ethersProvider: Web3Provider | null = getEthersProvider()
+      const TokenContractInstance: Contract = getContractInstance(erc20token)
 
-    const contract: Contract | null = getBiconomySwappperContract(
-      BICONOMY_CONTRACT,
-      BICONOMYSWAPPER_ABI,
-      library as Web3Provider
-    )
+      const contract: Contract | null = getBiconomySwappperContract(
+        BICONOMY_CONTRACT,
+        BICONOMYSWAPPER_ABI,
+        library as Web3Provider
+      )
 
-    const path = [token0, token1]
-    console.log("Params+++:", account, token0, path, parseEther(inputAmount))
-    const txResponse = await contract.populateTransaction.swapWithoutETH(
-      account,
-      token0,
-      path,
-      parseEther(inputAmount)
-    )
-
-    let domainData
-    let tokenPermitOptions1
-    Swal.fire({
-      title: 'Please sign the approve transaction.',
-      html: '',
-      timerProgressBar: true,
-      didOpen: () => {
-        Swal.showLoading()
-      }
-    }).then(result => {
-      if (result.dismiss === Swal.DismissReason.timer) {
-        console.log('I was closed by the timer')
-      }
-    })
-
-    if (erc20token === 'USDC') {
-      domainData = {
-        name: 'USDC Coin',
-        version: '1',
-        chainId: 42,
-        verifyingContract: USDC_kovan_contract.address
-      }
-
-      let gasLimit = await ethersProvider.estimateGas({
-        to: contract.address,
-        from: account?.toString(),
-        data: txResponse.data,
-      });
-      console.log(gasLimit.toString());
-
-      const builtTx = await ercForwarderClient.buildTx({
-        to: contract.address,
-        token: USDC_kovan_contract.address,
-        txGas:Number(gasLimit),
-        data: txResponse.data,
-        permitType : "EIP2612_Permit"
-      });
-      const tx = builtTx.request;
-      // const fee = builtTx.cost;
-        
-      tokenPermitOptions1 = {
-        spender: ERC20_FORWARDER_ADDRESS,
-        domainData: domainData,
-        value: '100000000000000000000', 
-        deadline: Math.floor(Date.now() / 1000 + 3600)
-      }
-
-      const nonce = await TokenContractInstance.nonces(account);
-      console.log(`nonce is : ${nonce}`);
-
-      const permitDataToSign = {
-        types: {
-          EIP712Domain: domainType,
-          Permit: eip2612PermitType,
-        },
-        domain: tokenPermitOptions1,
-        primaryType: "Permit",
-        message: {
-          owner: account,
-          spender: ERC20_FORWARDER_ADDRESS,
-          nonce: parseInt(nonce),
-          value: tokenPermitOptions1.value,
-          deadline: parseInt(tokenPermitOptions1.deadline.toString()),
-        },
-      };
-
-      let result = await ethersProvider.send("eth_signTypedData_v3", [
+      const path = [token0, token1]
+      console.log("Params+++:", account, token0, path, parseEther(inputAmount))
+      const txResponse = await contract.populateTransaction.swapWithoutETH(
         account,
-        JSON.stringify(permitDataToSign),
-      ]);
-      console.log('ApproveResult: ', result);
+        token0,
+        path,
+        parseEther(inputAmount)
+      )
 
+      let domainData
+      let tokenPermitOptions1
       Swal.fire({
-        title: 'Please sign the swap transaction.',
+        title: 'Please sign the approve transaction.',
         html: '',
         timerProgressBar: true,
         didOpen: () => {
@@ -237,171 +168,117 @@ const useBiconomyContracts = () => {
           console.log('I was closed by the timer')
         }
       })
-        
-      let metaInfo: any = {};
-      let permitOptions: any = {};
 
-      const signature = result.substring(2);
-      const r = "0x" + signature.substring(0, 64);
-      const s = "0x" + signature.substring(64, 128);
-      const v = parseInt(signature.substring(128, 130), 16);
-
-      permitOptions.holder = account;
-      permitOptions.spender = ERC20_FORWARDER_ADDRESS;
-      permitOptions.value = tokenPermitOptions1.value; 
-      permitOptions.nonce = parseInt(nonce.toString());
-      permitOptions.expiry = tokenPermitOptions1.deadline;
-      permitOptions.allowed = true;
-      permitOptions.v = v;
-      permitOptions.r = r;
-      permitOptions.s = s;
-
-      metaInfo.permitType = "EIP2612_Permit";
-      metaInfo.permitData = permitOptions;
-
-      let transaction = await ercForwarderClient.permitAndSendTxEIP712({req:tx, metaInfo: metaInfo});
-      console.log(transaction);
-
-      Swal.fire({
-        title: 'Transaction Sent.',
-        html: 'Waiting for Confirmation...',
-        timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading()
+      if (erc20token === 'USDC') {
+        domainData = {
+          name: 'USDC Coin',
+          version: '1',
+          chainId: 42,
+          verifyingContract: USDC_kovan_contract.address
         }
-      }).then(result => {
-        if (result.dismiss === Swal.DismissReason.timer) {
-          console.log('I was closed by the timer')
-        }
-      })
-    
-      if(transaction && transaction.code == 200 && transaction.txHash) {
-        ethersProvider.once(transaction.txHash, (result: any) => {
-          console.log('result++:', result);
-          Swal.fire({
-            title: 'Success!',
-            text: 'Transaction Successfully: ' + transaction.txHash,
-            icon: 'success',
-            confirmButtonText: 'continue'
-          })
-            .then(result => {})
-            .catch(error => {
-              Swal.fire('reverted', 'Transaction Failed', 'error')
-            })
+
+        let gasLimit = await ethersProvider.estimateGas({
+          to: contract.address,
+          from: account?.toString(),
+          data: txResponse.data,
         });
-      }
-    } else if (erc20token === 'DAI') {
-      domainData = {
-        name: 'Dai Stablecoin',
-        version: '1',
-        chainId: 42,
-        verifyingContract: DAI_kovan_contract.address // kovan
-      }
+        console.log(gasLimit.toString());
 
-      const daiPermitOptions = {
-        spender: ERC20_FORWARDER_ADDRESS,
-        expiry: Math.floor(Date.now() / 1000 + 3600),
-        allowed: true
-      }
-
-      const userAddress = account
-      const gasLimit = await ethersProvider.estimateGas({
-        to: contract.address,
-        from: account?.toString(),
-        data: txResponse.data,
-      });
-
-      const builtTx = await ercForwarderClient.buildTx({
-        to: contract.address,
-        token: DAI_kovan_contract.address,
-        txGas: Number(gasLimit),
-        data: txResponse.data,
-        permitType : "DAI_Permit"
-      });
-
-      const tx = builtTx.request
-      // const fee = builtTx.cost // only gets the cost of target method call
-      const nonce = await TokenContractInstance.nonces(account)
-
-      const permitDataToSign = {
-        types: {
-          EIP712Domain: domainType,
-          Permit: daiPermitType,
-        },
-        domain: domainData,
-        primaryType: "Permit",
-        message: {
-          holder: account,
-          spender: daiPermitOptions.spender,
-          nonce: parseInt(nonce),
-          expiry: parseInt(daiPermitOptions.expiry.toString()),
-          allowed: daiPermitOptions.allowed,
-        },
-      };
-
-      const result = await ethersProvider.send('eth_signTypedData_v3', 
-        [userAddress, JSON.stringify(permitDataToSign)])
-
-      console.log(result)
-
-      Swal.fire({
-        title: 'Please sign the swap transaction.',
-        html: '',
-        timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading()
+        const builtTx = await ercForwarderClient.buildTx({
+          to: contract.address,
+          token: USDC_kovan_contract.address,
+          txGas:Number(gasLimit),
+          data: txResponse.data,
+          permitType : "EIP2612_Permit"
+        });
+        const tx = builtTx.request;
+        // const fee = builtTx.cost;
+          
+        tokenPermitOptions1 = {
+          spender: ERC20_FORWARDER_ADDRESS,
+          domainData: domainData,
+          value: '100000000000000000000', 
+          deadline: Math.floor(Date.now() / 1000 + 3600)
         }
-      }).then(result => {
-        if (result.dismiss === Swal.DismissReason.timer) {
-          console.log('I was closed by the timer')
-        }
-      })
 
-      const metaInfo: any = {}
-      const permitOptions: any = {}
+        const nonce = await TokenContractInstance.nonces(account);
+        console.log(`nonce is : ${nonce}`);
 
-      console.log('success:' + result)
-      const signature = result.substring(2)
-      const r = '0x' + signature.substring(0, 64)
-      const s = '0x' + signature.substring(64, 128)
-      const v = parseInt(signature.substring(128, 130), 16)
+        const permitDataToSign = {
+          types: {
+            EIP712Domain: domainType,
+            Permit: eip2612PermitType,
+          },
+          domain: tokenPermitOptions1,
+          primaryType: "Permit",
+          message: {
+            owner: account,
+            spender: ERC20_FORWARDER_ADDRESS,
+            nonce: parseInt(nonce),
+            value: tokenPermitOptions1.value,
+            deadline: parseInt(tokenPermitOptions1.deadline.toString()),
+          },
+        };
 
-      permitOptions.holder = account
-      permitOptions.spender = daiPermitOptions.spender
-      permitOptions.value = 0 //in case of DAI passing dummy value for the sake of struct (similar to token address in EIP2771)
-      permitOptions.nonce = parseInt(nonce.toString())
-      permitOptions.expiry = parseInt(daiPermitOptions.expiry.toString())
-      permitOptions.allowed = daiPermitOptions.allowed
-      permitOptions.v = v
-      permitOptions.r = r
-      permitOptions.s = s
+        let result = await ethersProvider.send("eth_signTypedData_v3", [
+          account,
+          JSON.stringify(permitDataToSign),
+        ]);
+        console.log('ApproveResult: ', result);
 
-      metaInfo.permitType = 'DAI_Permit'
-      metaInfo.permitData = permitOptions
+        Swal.fire({
+          title: 'Please sign the swap transaction.',
+          html: '',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then(result => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+          }
+        })
+          
+        let metaInfo: any = {};
+        let permitOptions: any = {};
 
-      const transaction = await ercForwarderClient.permitAndSendTxEIP712({ req: tx, metaInfo: metaInfo })
-      console.log('transaction++', transaction)
+        const signature = result.substring(2);
+        const r = "0x" + signature.substring(0, 64);
+        const s = "0x" + signature.substring(64, 128);
+        const v = parseInt(signature.substring(128, 130), 16);
 
-      Swal.fire({
-        title: 'Transaction Sent.',
-        html: 'Waiting for Confirmation...',
-        timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading()
-        }
-      }).then(result => {
-        if (result.dismiss === Swal.DismissReason.timer) {
-          console.log('I was closed by the timer')
-        }
-      })
+        permitOptions.holder = account;
+        permitOptions.spender = ERC20_FORWARDER_ADDRESS;
+        permitOptions.value = tokenPermitOptions1.value; 
+        permitOptions.nonce = parseInt(nonce.toString());
+        permitOptions.expiry = tokenPermitOptions1.deadline;
+        permitOptions.allowed = true;
+        permitOptions.v = v;
+        permitOptions.r = r;
+        permitOptions.s = s;
 
-      if (transaction && transaction.txHash) {
-        if (transaction && transaction.code == 200 && transaction.txHash) {
-          //event emitter methods
+        metaInfo.permitType = "EIP2612_Permit";
+        metaInfo.permitData = permitOptions;
+
+        let transaction = await ercForwarderClient.permitAndSendTxEIP712({req:tx, metaInfo: metaInfo});
+        console.log(transaction);
+
+        Swal.fire({
+          title: 'Transaction Sent.',
+          html: 'Waiting for Confirmation...',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then(result => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+          }
+        })
+      
+        if(transaction && transaction.code == 200 && transaction.txHash) {
           ethersProvider.once(transaction.txHash, (result: any) => {
-            // Emitted when the transaction has been mined
             console.log('result++:', result);
-            
             Swal.fire({
               title: 'Success!',
               text: 'Transaction Successfully: ' + transaction.txHash,
@@ -414,7 +291,135 @@ const useBiconomyContracts = () => {
               })
           });
         }
+      } else if (erc20token === 'DAI') {
+        domainData = {
+          name: 'Dai Stablecoin',
+          version: '1',
+          chainId: 42,
+          verifyingContract: DAI_kovan_contract.address // kovan
+        }
+
+        const daiPermitOptions = {
+          spender: ERC20_FORWARDER_ADDRESS,
+          expiry: Math.floor(Date.now() / 1000 + 3600),
+          allowed: true
+        }
+
+        const userAddress = account
+        const gasLimit = await ethersProvider.estimateGas({
+          to: contract.address,
+          from: account?.toString(),
+          data: txResponse.data,
+        });
+
+        const builtTx = await ercForwarderClient.buildTx({
+          to: contract.address,
+          token: DAI_kovan_contract.address,
+          txGas: Number(gasLimit),
+          data: txResponse.data,
+          permitType : "DAI_Permit"
+        });
+
+        const tx = builtTx.request
+        // const fee = builtTx.cost // only gets the cost of target method call
+        const nonce = await TokenContractInstance.nonces(account)
+
+        const permitDataToSign = {
+          types: {
+            EIP712Domain: domainType,
+            Permit: daiPermitType,
+          },
+          domain: domainData,
+          primaryType: "Permit",
+          message: {
+            holder: account,
+            spender: daiPermitOptions.spender,
+            nonce: parseInt(nonce),
+            expiry: parseInt(daiPermitOptions.expiry.toString()),
+            allowed: daiPermitOptions.allowed,
+          },
+        };
+
+        const result = await ethersProvider.send('eth_signTypedData_v3', 
+          [userAddress, JSON.stringify(permitDataToSign)])
+
+        console.log(result)
+
+        Swal.fire({
+          title: 'Please sign the swap transaction.',
+          html: '',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then(result => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+          }
+        })
+
+        const metaInfo: any = {}
+        const permitOptions: any = {}
+
+        console.log('success:' + result)
+        const signature = result.substring(2)
+        const r = '0x' + signature.substring(0, 64)
+        const s = '0x' + signature.substring(64, 128)
+        const v = parseInt(signature.substring(128, 130), 16)
+
+        permitOptions.holder = account
+        permitOptions.spender = daiPermitOptions.spender
+        permitOptions.value = 0 //in case of DAI passing dummy value for the sake of struct (similar to token address in EIP2771)
+        permitOptions.nonce = parseInt(nonce.toString())
+        permitOptions.expiry = parseInt(daiPermitOptions.expiry.toString())
+        permitOptions.allowed = daiPermitOptions.allowed
+        permitOptions.v = v
+        permitOptions.r = r
+        permitOptions.s = s
+
+        metaInfo.permitType = 'DAI_Permit'
+        metaInfo.permitData = permitOptions
+
+        const transaction = await ercForwarderClient.permitAndSendTxEIP712({ req: tx, metaInfo: metaInfo })
+        console.log('transaction++', transaction)
+
+        Swal.fire({
+          title: 'Transaction Sent.',
+          html: 'Waiting for Confirmation...',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then(result => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+          }
+        })
+
+        if (transaction && transaction.txHash) {
+          if (transaction && transaction.code == 200 && transaction.txHash) {
+            //event emitter methods
+            ethersProvider.once(transaction.txHash, (result: any) => {
+              // Emitted when the transaction has been mined
+              console.log('result++:', result);
+              
+              Swal.fire({
+                title: 'Success!',
+                text: 'Transaction Successfully: ' + transaction.txHash,
+                icon: 'success',
+                confirmButtonText: 'continue'
+              })
+                .then(result => {})
+                .catch(error => {
+                  Swal.fire('reverted', 'Transaction Failed', 'error')
+                })
+            });
+          }
+        }
       }
+    } catch (error) {
+      Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
+      console.log("error+++1: ", error)
     }
   }
 
@@ -489,94 +494,103 @@ const useBiconomyContracts = () => {
   }
 
   const approveToken = async (erc20token: string) => {
-    const maxValue = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
-    const TokenContractInstance: Contract = getContractInstance(erc20token)
-    let domainData
-    let tokenPermitOptions1
-    let permitTx
+    try {
+      const maxValue = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+      const TokenContractInstance: Contract = getContractInstance(erc20token)
+      let domainData
+      let tokenPermitOptions1
+      let permitTx
 
-    Swal.fire({
-      title: 'Please sign the approve transaction.',
-      html: '',
-      timerProgressBar: true,
-      didOpen: () => {
-        Swal.showLoading()
-      }
-    }).then(result => {
-      if (result.dismiss === Swal.DismissReason.timer) {
-      }
-    })
-
-    if (erc20token === 'USDC') {
-      domainData = {
-        name: 'USDC Coin',
-        version: '1',
-        chainId: 42,
-        verifyingContract: USDC_kovan_contract.address
-      }
-      tokenPermitOptions1 = {
-        domainData: domainData,
-        value: parseEther("100"),
-        deadline: Math.floor(Date.now() / 1000 + 3600) 
-      }
-      permitTx = await permitClient.eip2612Permit(tokenPermitOptions1)
       Swal.fire({
-        title: 'Transaction Sent.',
-        html: 'Waiting for Confirmation...',
+        title: 'Please sign the approve transaction.',
+        html: '',
         timerProgressBar: true,
         didOpen: () => {
           Swal.showLoading()
         }
       }).then(result => {
         if (result.dismiss === Swal.DismissReason.timer) {
-          console.log('I was closed by the timer')
         }
       })
-      await permitTx.wait(1)
-      console.log('permitTx: ', permitTx)
-    } else if (erc20token === 'USDT') {
-      permitTx = await TokenContractInstance.approve(ERC20_FORWARDER_ADDRESS, maxValue)
-      await permitTx.wait(1)
-      console.log('permitTx: ', permitTx)
-    } else if (erc20token === 'DAI') {
-      domainData = {
-        name: 'Dai Stablecoin',
-        version: '1',
-        chainId: 42,
-        verifyingContract: DAI_kovan_contract.address // kovan
+
+      if (erc20token === 'USDC') {
+        domainData = {
+          name: 'USDC Coin',
+          version: '1',
+          chainId: 42,
+          verifyingContract: USDC_kovan_contract.address
+        }
+        tokenPermitOptions1 = {
+          domainData: domainData,
+          value: parseEther("100"),
+          deadline: Math.floor(Date.now() / 1000 + 3600) 
+        }
+        permitTx = await permitClient.eip2612Permit(tokenPermitOptions1)
+        console.log("permitTx+1", permitTx)
+        Swal.fire({
+          title: 'Transaction Sent.',
+          html: 'Waiting for Confirmation...',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then(result => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+          }
+        })
+        await permitTx.wait(1)
+        console.log('permitTx: ', permitTx)
+      } else if (erc20token === 'USDT') {
+        permitTx = await TokenContractInstance.approve(ERC20_FORWARDER_ADDRESS, maxValue)
+        await permitTx.wait(1)
+        console.log('permitTx: ', permitTx)
+      } else if (erc20token === 'DAI') {
+          domainData = {
+            name: 'Dai Stablecoin',
+            version: '1',
+            chainId: 42,
+            verifyingContract: DAI_kovan_contract.address // kovan
+          }
+
+          tokenPermitOptions1 = {
+            domainData: domainData,
+            value: '100000000000000000000',
+            deadline: Math.floor(Date.now() / 1000 + 3600)
+          }
+          permitTx = await permitClient.daiPermit(tokenPermitOptions1)
+          console.log("permitTx+1", permitTx)
+          Swal.fire({
+            title: 'Transaction Sent.',
+            html: 'Waiting for Confirmation...',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then(result => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              console.log('I was closed by the timer')
+            }
+          })
+          await permitTx.wait(1)
+          console.log('permitTx++: ', permitTx) 
+        
       }
 
-      tokenPermitOptions1 = {
-        domainData: domainData,
-        value: '100000000000000000000',
-        deadline: Math.floor(Date.now() / 1000 + 3600)
+      if (permitTx.hash) {
+        // addTransaction(permitTx, {
+        //   summary: 'Approve ' + erc20token,
+        //   approval: { tokenAddress: erc20token, spender: erc20ForwarderAddress }
+        // })
+        Swal.fire('Success!', 'Allowance Tx Submitted', 'success')
+        return true
+      } else {
+        Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
+        return false
       }
-      permitTx = await permitClient.daiPermit(tokenPermitOptions1)
-      Swal.fire({
-        title: 'Transaction Sent.',
-        html: 'Waiting for Confirmation...',
-        timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading()
-        }
-      }).then(result => {
-        if (result.dismiss === Swal.DismissReason.timer) {
-          console.log('I was closed by the timer')
-        }
-      })
-      await permitTx.wait(1)
-      console.log('permitTx++: ', permitTx)
-    }
-
-    if (permitTx.hash) {
-      // addTransaction(permitTx, {
-      //   summary: 'Approve ' + erc20token,
-      //   approval: { tokenAddress: erc20token, spender: erc20ForwarderAddress }
-      // })
-      Swal.fire('Success!', 'Allowance Tx Submitted', 'success')
-      return true
-    } else {
+    } catch (error) {
       Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
+      console.log("error: ", error)
       return false
     }
   }

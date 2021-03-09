@@ -256,8 +256,15 @@ export function useBiconomySwapper(
             })
             const tx = builtTx.request
 
-            let transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
-            console.log('transaction+++: ', transaction)
+            let transaction: any
+            try {
+              transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
+              console.log('transaction+++: ', transaction) 
+            } catch (error) {
+              onChangeWait('false')
+              onChangeTransaction('undefined')
+              Swal.fire('reverted', 'Transaction Failed', 'error')
+            }
 
             Swal.fire({
               title: 'Transaction Sent.',
@@ -305,6 +312,11 @@ export function useBiconomySwapper(
             } else {
               // onChangeWait("false")
               onChangeTransaction('undefined')
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Transaction Failed!'
+              })
             }
 
             // const txReciept = await txResponse.wait()
