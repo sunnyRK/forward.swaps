@@ -32,7 +32,6 @@ import useENSAddress from '../../hooks/useENSAddress'
 import { useSwapCallback } from '../../hooks/useSwapCallback'
 import {
   useBiconomySwapper
-  //  useSwapperForGas
 } from '../../hooks/useSwapper'
 import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
 import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
@@ -56,7 +55,6 @@ import { useIsTransactionUnsupported } from 'hooks/Trades'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import { isTradeBetter } from 'utils/trades'
 // import { useChill, useSocksController } from "../../hooks/useContract";
-// import { getPermitClient } from '../../utils'
 
 export default function Swap() {
   const [gasModalEnable, setGasModalEnable] = useState(false)
@@ -198,14 +196,6 @@ export default function Swap() {
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
   const { callback } = useBiconomySwapper(trade, allowedSlippage, recipient)
-  // console.log(
-  //   'tradetrade+++: ',
-  //   trade,
-  //   trade?.inputAmount.toString(),
-  //   trade && trade.route.path[0].address,
-  //   trade && trade.route.path[1].address
-  // )
-  // const { fee } = useSwapperForGas(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
   const {
@@ -275,13 +265,12 @@ export default function Swap() {
       if (!callback) {
         return
       }
-      // callback(gasToken)
     } catch (error) {
       console.log('Error: ', error)
     }
   }, [callback, gasToken])
 
-  const setGasTokenCallback = useCallback(
+  const setGasTokenAndSwapCallback = useCallback(
     (gasTokenValue: any) => {
       try {
         setGasToken(gasTokenValue)
@@ -712,7 +701,7 @@ export default function Swap() {
                 inputToken={trade && trade.route.input.symbol}
                 inputAmount={formattedAmounts[Field.INPUT]}
                 hadaleGasModalEnable={hadaleGasModalEnable}
-                setGasTokenCallback={setGasTokenCallback}
+                setGasTokenAndSwapCallback={setGasTokenAndSwapCallback}
               />
             </BottomGrouping>
           ) : (

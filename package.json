@@ -118,8 +118,7 @@
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@atlantum/feather-react-ts": "^2.0.2",
-    "@biconomy/mexa": "C:\\Blockchain\\Projects\\open-source-repo\\mexa-sdk",
+    "@biconomy/mexa": "2.0.4",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.7.1",

@@ -8,10 +8,9 @@ import { abi as IUniswapV2Router02ABI } from '@uniswap/v2-periphery/build/IUnisw
 import { ROUTER_ADDRESS } from '../constants'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@uniswap/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
-// import CHILL_ABI  from "../constants/abis/chill.json";
-import { Biconomy } from '@biconomy/mexa'
-import { BICONOMY_API_KEY } from "../constants/config";
 // import { useActiveWeb3React } from "../hooks/";
+import { getBiconomy } from "../biconomy/biconomy";
+
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
   try {
@@ -28,21 +27,6 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   5: 'goerli.',
   42: 'kovan.'
 }
-
-const biconomy = new Biconomy(window.ethereum, {
-  apiKey: BICONOMY_API_KEY})
-let ercForwarderClient: any
-let permitClient: any
-
-biconomy
-  .onEvent(biconomy.READY, () => {
-    // Initialize your dapp here like getting user accounts etc
-    ercForwarderClient = biconomy.erc20ForwarderClient
-    permitClient = biconomy.permitClient
-  })
-  .onEvent(biconomy.ERROR, () => {
-    // Handle error while initializing mexa
-  })
 
 export function getEtherscanLink(
   chainId: ChainId,
@@ -122,27 +106,15 @@ export function getBiconomySwappperContract(
   library: Web3Provider,
   account?: string
 ): Contract {
-  const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
-  const ethersProvider = new ethers.providers.Web3Provider(biconomy)
-  const signer = ethersProvider.getSigner()
+  const signer = getEthersProvider().getSigner()
   const contract = new ethers.Contract(address, ABI, signer.connectUnchecked())
   return contract
 }
 
 export function getEthersProvider(): Web3Provider {
-  const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
-  const ethersProvider = new ethers.providers.Web3Provider(biconomy)
+  const ethersProvider = new ethers.providers.Web3Provider(getBiconomy())
   return ethersProvider
 }
-
-export function getErcForwarderClient(): any {
-  return ercForwarderClient
-}
-
-export function getPermitClient(): any {
-  return permitClient
-}
-/////////////////////////////////////////
 
 // account is optional
 export function getRouterContract(_: number, library: Web3Provider, account?: string): Contract {

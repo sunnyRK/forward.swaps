@@ -12,11 +12,11 @@ import { calculateGasMargin } from '../utils'
 import { useTokenContract } from './useContract'
 import { useActiveWeb3React } from './index'
 // import { Version } from './useToggledVersion'
-import { Biconomy } from '@biconomy/mexa'
 
 import DAI_kovan_contract from '../contracts/DAI_kovan.json'
 import USDC_kovan_contract from '../contracts/USDC_kovan.json'
-import { BICONOMY_API_KEY, BICONOMY_CONTRACT } from "../constants/config";
+import { BICONOMY_CONTRACT } from "../constants/config";
+import { getPermitClient } from "../biconomy/biconomy";
 
 export enum ApprovalState {
   UNKNOWN,
@@ -24,22 +24,6 @@ export enum ApprovalState {
   PENDING,
   APPROVED
 }
-
-const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
-// let ercForwarderClient: any
-let permitClient: any
-
-biconomy
-  .onEvent(biconomy.READY, () => {
-    // Initialize your dapp here like getting user accounts etc
-    // ercForwarderClient = biconomy.erc20ForwarderClient
-    permitClient = biconomy.permitClient
-    // console.log('permitClientOneventuseBiconomyContracts++', permitClient, ercForwarderClient)
-  })
-  .onEvent(biconomy.ERROR, () => {
-    // Handle error while initializing mexa
-    // console.log(error, message)
-  })
 
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
 export function useApproveCallback(
@@ -106,7 +90,6 @@ export function useApproveCallback(
     let permitTx
 
     if (tokenContract.address == DAI_kovan_contract.address) {
-      // DAI
       domainData = {
         name: 'Dai Stablecoin',
         version: '1',
@@ -115,23 +98,21 @@ export function useApproveCallback(
       }
 
       tokenPermitOptions1 = {
-        //forwarder
         spender: BICONOMY_CONTRACT,
         domainData: domainData,
         value: '100000000000000000000',
         deadline: Math.floor(Date.now() / 1000 + 3600)
       }
 
-      permitTx = await permitClient.daiPermit(tokenPermitOptions1)
+      permitTx = await getPermitClient().daiPermit(tokenPermitOptions1)
       await permitTx.wait(1)
       addTransaction(permitTx, {
         summary: 'Approve ' + amountToApprove.currency.symbol,
         approval: { tokenAddress: token.address, spender: spender }
       })
-      console.log('permitTx3++: ', permitTx)
+      console.log('permitTx: ', permitTx)
       return permitTx
     } else if (tokenContract.address == USDC_kovan_contract.address) {
-      // USDC
       domainData = {
         name: 'USDC Coin',
         version: '1',
@@ -145,12 +126,11 @@ export function useApproveCallback(
         value: '100000000000000000000',
         deadline: Math.floor(Date.now() / 1000 + 3600)
       }
-      permitTx = await permitClient.eip2612Permit(tokenPermitOptions1)
+      permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions1)
       await permitTx.wait(1)
-      console.log('permitTx3++: ', permitTx)
+      console.log('permitTx: ', permitTx)
       return permitTx
     } else {
-      // OtherTokens
       return tokenContract
         .approve(spender, useExact ? amountToApprove.raw.toString() : MaxUint256, {
           gasLimit: calculateGasMargin(estimatedGas)
@@ -167,7 +147,6 @@ export function useApproveCallback(
         })
     }
   }, [approvalState, token, tokenContract, amountToApprove, spender, addTransaction])
-
   return [approvalState, approve]
 }
 
@@ -179,6 +158,6 @@ export function useApproveCallbackFromTrade(trade?: Trade, allowedSlippage = 0) 
   )
   // const tradeIsV1 = getTradeVersion(trade) === Version.v1
   // const v1ExchangeAddress = useV1TradeExchangeAddress(trade)
-  return useApproveCallback(amountToApprove, BICONOMY_CONTRACT)
   // return useApproveCallback(amountToApprove, tradeIsV1 ? v1ExchangeAddress : ROUTER_ADDRESS)
+  return useApproveCallback(amountToApprove, BICONOMY_CONTRACT)
 }

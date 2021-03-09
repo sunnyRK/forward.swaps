@@ -1,12 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react'
 import 'react-responsive-modal/styles.css'
-// import { BigNumber } from '@ethersproject/bignumber'
-// import { BigNumber } from 'ethers'
 import { Modal } from 'react-responsive-modal'
-// import CustomButton from './CustomButton'
 import SmallButtons from './SmallButtons'
 import useBiconomyContracts from '../../hooks/useBiconomyContracts'
-// import ApproveButton from "./ApproveButton";
 // import { useStoreState } from "../../store/globalStore";
 // import Swal from "sweetalert2";
 import { AutoColumn } from '../Column'
@@ -23,7 +19,7 @@ import { useWaitActionHandlers } from '../../state/waitmodal/hooks'
 interface GasModalProps {
   handleDeposit: () => void
   hadaleGasModalEnable: () => void
-  setGasTokenCallback: (gas: any) => void
+  setGasTokenAndSwapCallback: (gas: any) => void
   path0: any
   path1: any
   inputToken: any
@@ -33,13 +29,13 @@ interface GasModalProps {
 const GasModal: React.FunctionComponent<GasModalProps> = ({
   handleDeposit,
   hadaleGasModalEnable,
-  setGasTokenCallback,
+  setGasTokenAndSwapCallback,
   path0,
   path1,
   inputToken,
   inputAmount
 }) => {
-  const { wait, tx, txHash, gasFees } = useWaitState()
+  const { wait, tx } = useWaitState()
   const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee } = useWaitActionHandlers()
 
   // const { connected } = useStoreState((state) => state);
@@ -69,12 +65,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   const theme = useContext(ThemeContext)
 
-  useEffect(() => {
-    console.log('Track+++1', txHash)
-    console.log('Track+++2', tx)
-    console.log(gasFees)
-  }, [txHash, tx])
-
   const onDeposit = async () => {
     try {
       if (inputAmount == '') {
@@ -91,13 +81,13 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           let gasToken: string
           if (selectedToken == 'USDC') {
             gasToken = USDC_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           } else if (selectedToken == 'USDT') {
             gasToken = USDT_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           } else if (selectedToken == 'DAI') {
             gasToken = DAI_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           }
         }
       } else {
@@ -107,13 +97,13 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           let gasToken: string
           if (selectedToken == 'USDC') {
             gasToken = USDC_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           } else if (selectedToken == 'USDT') {
             gasToken = USDT_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           } else if (selectedToken == 'DAI') {
             gasToken = DAI_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           }
         }
       }
@@ -164,7 +154,11 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     }
   }
 
-  const onTxFee = async (tokenSymbol: any) => {
+  const onSelectGasToken = async (tokenSymbol: any) => {
+    onChangeWait('false')
+    onChangeTransaction('')
+    onChangeTransactionHash('')
+    onChangeFee('')
     setSelectedToken(tokenSymbol)
   }
 
@@ -183,7 +177,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       setIsApproved(isApproved)
       setCheckingAllowance(false)
       setFees(fee)
-      // setApproveAndSwapFees(approveAndSwapfee)
     }
     if (selectedToken != '' && path0 != '' && path1 != '') {
       process()
@@ -214,22 +207,11 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   return (
     <>
-      {/* <CustomButton
-        color="green"
-        title="Pay Gas"
-        description="Checkout estimated gas prices and pay"
-        icon="dollar-sign"
-        onClick={onOpenModal}
-        disabled={false}
-      /> */}
       <Modal
         open={true}
         onClose={onCloseModal}
         center
         blockScroll={true}
-        // classNames={{
-        //   modal: 'modal'
-        // }}
       >
         <div className="header">
           <div className="title" style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -248,19 +230,19 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               marginPX={'0px'}
               name="USDC"
               active={selectedToken === 'USDC'}
-              onClick={() => onTxFee('USDC')}
+              onClick={() => onSelectGasToken('USDC')}
             />
             <SmallButtons
               marginPX={'15px'}
               name="USDT"
               active={selectedToken === 'USDT'}
-              onClick={() => onTxFee('USDT')}
+              onClick={() => onSelectGasToken('USDT')}
             />
             <SmallButtons
               marginPX={'15px'}
               name="DAI"
               active={selectedToken === 'DAI'}
-              onClick={() => onTxFee('DAI')}
+              onClick={() => onSelectGasToken('DAI')}
             />
           </div>
 
@@ -347,23 +329,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                     Swap
                   </div>
                 </div>
-
-                {/* <div className="pay-tx">
-                <div className="buttons">
-                  <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
-                    Approve
-                  </div>
-                  <div
-                    className="tx-button proceed"
-                    onClick={() => {
-                      onApproveAndSwap(selectedToken)
-                    }}
-                  >
-                    Approve and Swap
-                  </div>
-                </div>
-              </div> */}
-
               </div>
             ) : selectedToken == 'DAI' || selectedToken == 'USDC' ? (
               <div className="pay-tx">
@@ -386,7 +351,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                 <div className="note">
                   Note: Give approval to Biconomy ERC-20 Forwarder Contract, so it can deduct fee in selected token.
                 </div>
-                {/* <ApproveButton tokenName={selectedToken} /> */}
                 <div className="approve-token-button" onClick={() => onApprove(selectedToken)}>
                   Approve {selectedToken}
                 </div>
@@ -395,51 +359,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
         </div>
       </Modal>
-
-
-      {/* <div> */}
-      {/* { signTx ? (
-      txHash == '' && (tx == '' || tx == 'undefined') ? ( 
-        <div>
-          { 
-          Swal.fire({
-            title: 'Success!',
-            text: 'Transaction Successfully: ',
-            icon: 'success',
-            confirmButtonText: 'continue'
-          })
-            .then(result => {})
-            .catch(error => {
-              Swal.fire('reverted', 'Transaction Failed', 'error')
-            })
-          }
-        </div>
-      ) : txHash != "" ? (
-        <div>
-          { 
-            Swal.fire({
-              title: 'Transaction Sent to Biconomy Relayer.',
-              html: 'Waiting for confirmation...',
-              // timer: 2000,
-              timerProgressBar: true,
-              didOpen: () => {
-                Swal.showLoading()
-              },
-          })}
-        </div>
-        ) : tx ? (
-          Swal.fire({
-            title: 'Success!',
-            text: 'Transaction Successfully: ' + tx,
-            icon: 'success',
-            confirmButtonText: 'continue'
-          })
-            .then(result => {})
-            .catch(error => {
-              Swal.fire('reverted', 'Transaction Failed', 'error')
-            })
-        ) : ('')) : ('') }
-        </div> */}
     </>
   )
 }
