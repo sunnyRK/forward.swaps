@@ -201,7 +201,7 @@ export function useBiconomySwapper(
                 console.log('I was closed by the timer')
               }
             })
-
+            debugger
             onChangeWait('true')
             const { account, contract, ethersProvider, swapMethod } = call
             const token0 = swapMethod.args[2][0]
@@ -282,7 +282,7 @@ export function useBiconomySwapper(
               onChangeTransaction('undefined')
               Swal.fire({
                 icon: 'error',
-                title: 'Oops...',
+                title: 'Something Went Wrong!',
                 text: 'Transaction Failed!'
               })
             }
@@ -326,7 +326,7 @@ export function useBiconomySwapper(
           console.log('error:', error)
           Swal.fire({
             icon: 'error',
-            title: 'Oops...',
+            title: 'Used Denied Transaction!',
             text: 'Transaction Failed!'
           })
         }

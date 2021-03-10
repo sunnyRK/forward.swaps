@@ -311,14 +311,14 @@ export default function Swap() {
     }
   }, [gasModalEnable])
 
-  // const wipeInput = useCallback(async () => {
-  //   try {
-  //     onUserInput(Field.INPUT, '')
-  //     onUserInput(Field.OUTPUT, '')
-  //   } catch (error) {
-  //     console.log('Error: ', error)
-  //   }
-  // }, [])
+  const wipeInput = useCallback(async () => {
+    try {
+      onUserInput(Field.INPUT, '')
+      onUserInput(Field.OUTPUT, '')
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }, [])
 
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -413,7 +413,7 @@ export default function Swap() {
                     onClick={() => {
                       setApprovalSubmitted(false) // reset 2 step UI for approvals
                       onSwitchTokens()
-                      // wipeInput()
+                      wipeInput()
                     }}
                     color={currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.primary1 : theme.text2}
                   />

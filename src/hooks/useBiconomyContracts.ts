@@ -6,23 +6,12 @@ import { getContract } from '../utils'
 import { useActiveWeb3React } from './index'
 import { Web3Provider } from '@ethersproject/providers'
 import Swal from 'sweetalert2'
+// import { ethers } from "ethers";
 import { getEthersProvider, getBiconomySwappperContract } from '../utils'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
 import { parseEther } from '@ethersproject/units'
 import { BICONOMY_CONTRACT, ERC20_FORWARDER_ADDRESS } from "../constants/config";
 import { getPermitClient, getErcForwarderClient } from "../biconomy/biconomy";
-// import { Biconomy } from '@biconomy/mexa'
-
-// const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
-// let ercForwarderClient: any
-// let permitClient: any
-
-// biconomy
-//   .onEvent(biconomy.READY, () => {
-//     ercForwarderClient = biconomy.erc20ForwarderClient
-//     permitClient = biconomy.permitClient
-//   })
-//   .onEvent(biconomy.ERROR, () => {})
 
 const domainType = [
   { name: 'name', type: 'string' },
@@ -134,7 +123,7 @@ const useBiconomyContracts = () => {
       )
 
       const path = [token0, token1]
-      console.log("Params:", account, token0, path, parseEther(inputAmount))
+      console.log("Params:", account, token0, path, inputAmount, parseEther(inputAmount))
       const txResponse = await contract.populateTransaction.swapWithoutETH(
         account,
         token0,
@@ -143,7 +132,7 @@ const useBiconomyContracts = () => {
       )
 
       let domainData
-      let tokenPermitOptions1
+      let tokenPermitOptions
       Swal.fire({
         title: 'Please sign the approve transaction.',
         html: '',
@@ -158,6 +147,7 @@ const useBiconomyContracts = () => {
       })
 
       if (erc20token === 'USDC') {
+        debugger
         domainData = {
           name: 'USDC Coin',
           version: '1',
@@ -181,7 +171,7 @@ const useBiconomyContracts = () => {
         });
         const tx = builtTx.request;
           
-        tokenPermitOptions1 = {
+        tokenPermitOptions = {
           spender: ERC20_FORWARDER_ADDRESS,
           domainData: domainData,
           value: '100000000000000000000', 
@@ -196,14 +186,14 @@ const useBiconomyContracts = () => {
             EIP712Domain: domainType,
             Permit: eip2612PermitType,
           },
-          domain: tokenPermitOptions1,
+          domain: domainData,
           primaryType: "Permit",
           message: {
             owner: account,
             spender: ERC20_FORWARDER_ADDRESS,
             nonce: parseInt(nonce),
-            value: tokenPermitOptions1.value,
-            deadline: parseInt(tokenPermitOptions1.deadline.toString()),
+            value: tokenPermitOptions.value,
+            deadline: parseInt(tokenPermitOptions.deadline.toString()),
           },
         };
 
@@ -235,9 +225,9 @@ const useBiconomyContracts = () => {
 
         permitOptions.holder = account;
         permitOptions.spender = ERC20_FORWARDER_ADDRESS;
-        permitOptions.value = tokenPermitOptions1.value; 
+        permitOptions.value = tokenPermitOptions.value; 
         permitOptions.nonce = parseInt(nonce.toString());
-        permitOptions.expiry = tokenPermitOptions1.deadline;
+        permitOptions.expiry = tokenPermitOptions.deadline;
         permitOptions.allowed = true;
         permitOptions.v = v;
         permitOptions.r = r;
@@ -479,10 +469,11 @@ const useBiconomyContracts = () => {
 
   const approveToken = async (erc20token: string) => {
     try {
+      debugger
       const maxValue = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
       const TokenContractInstance: Contract = getContractInstance(erc20token)
       let domainData
-      let tokenPermitOptions1
+      let tokenPermitOptions
       let permitTx
 
       Swal.fire({
@@ -504,13 +495,15 @@ const useBiconomyContracts = () => {
           chainId: 42,
           verifyingContract: USDC_kovan_contract.address
         }
-        tokenPermitOptions1 = {
+        tokenPermitOptions = {
           domainData: domainData,
-          value: parseEther("100"),
+          // value: ethers.utils.parseEther('100.0').toString(),
+          value: '100000000000000000000',
           deadline: Math.floor(Date.now() / 1000 + 3600) 
         }
-        permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions1)
+        permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions)
         console.log("permitTx", permitTx)
+
         Swal.fire({
           title: 'Transaction Sent.',
           html: 'Waiting for Confirmation...',
@@ -522,8 +515,9 @@ const useBiconomyContracts = () => {
           if (result.dismiss === Swal.DismissReason.timer) {
           }
         })
+
         await permitTx.wait(1)
-        console.log('permitTx: ', permitTx)
+        console.log('permitTxConfirm: ', permitTx)
       } else if (erc20token === 'USDT') {
         permitTx = await TokenContractInstance.approve(ERC20_FORWARDER_ADDRESS, maxValue)
         await permitTx.wait(1)
@@ -536,13 +530,13 @@ const useBiconomyContracts = () => {
             verifyingContract: DAI_kovan_contract.address // kovan
           }
 
-          tokenPermitOptions1 = {
+          tokenPermitOptions = {
             domainData: domainData,
             value: '100000000000000000000',
             deadline: Math.floor(Date.now() / 1000 + 3600)
           }
-          permitTx = await getPermitClient().daiPermit(tokenPermitOptions1)
-          console.log("permitTx+1", permitTx)
+          permitTx = await getPermitClient().daiPermit(tokenPermitOptions)
+          console.log("permitTx+", permitTx)
           Swal.fire({
             title: 'Transaction Sent.',
             html: 'Waiting for Confirmation...',
@@ -555,19 +549,18 @@ const useBiconomyContracts = () => {
             }
           })
           await permitTx.wait(1)
-          console.log('permitTx: ', permitTx) 
-        
+          console.log('permitTxConfirm: ', permitTx) 
       }
 
       if (permitTx.hash) {
-        Swal.fire('Success!', 'Allowance Tx Submitted', 'success')
+        Swal.fire('Success!', 'Allowance Tx Submitted: ' + permitTx.hash, 'success')
         return true
       } else {
-        Swal.fire('reverted', 'Tx has been cancelled or failed1', 'error')
+        Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
         return false
       }
     } catch (error) {
-      Swal.fire('reverted', 'Tx has been cancelled or failed2', 'error')
+      Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
       console.log("error: ", error)
       return false
     }
