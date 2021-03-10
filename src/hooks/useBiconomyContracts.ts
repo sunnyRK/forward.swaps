@@ -12,6 +12,7 @@ import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
 import { parseEther } from '@ethersproject/units'
 import { BICONOMY_CONTRACT, ERC20_FORWARDER_ADDRESS } from "../constants/config";
 import { getPermitClient, getErcForwarderClient } from "../biconomy/biconomy";
+import { useWaitActionHandlers } from '../state/waitmodal/hooks'
 
 const domainType = [
   { name: 'name', type: 'string' },
@@ -38,6 +39,8 @@ const daiPermitType = [
 
 const useBiconomyContracts = () => {
   const { account, library } = useActiveWeb3React()
+  const { onChangeApproved } = useWaitActionHandlers()
+
 
   function getContractInstance(erc20token: string): any {
     if (erc20token === 'USDC') {
@@ -147,7 +150,6 @@ const useBiconomyContracts = () => {
       })
 
       if (erc20token === 'USDC') {
-        debugger
         domainData = {
           name: 'USDC Coin',
           version: '1',
@@ -261,7 +263,9 @@ const useBiconomyContracts = () => {
               icon: 'success',
               confirmButtonText: 'continue'
             })
-              .then((result: any) => {})
+              .then((result: any) => {
+                onChangeApproved(true)
+              })
               .catch((error: any) => {
                 Swal.fire('reverted', 'Transaction Failed', 'error')
               })
@@ -383,7 +387,9 @@ const useBiconomyContracts = () => {
                 icon: 'success',
                 confirmButtonText: 'continue'
               })
-                .then((result: any) => {})
+                .then((result: any) => {
+                  onChangeApproved(true)
+                })
                 .catch((error: any) => {
                   Swal.fire('reverted', 'Transaction Failed', 'error')
                 })
@@ -469,7 +475,6 @@ const useBiconomyContracts = () => {
 
   const approveToken = async (erc20token: string) => {
     try {
-      debugger
       const maxValue = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
       const TokenContractInstance: Contract = getContractInstance(erc20token)
       let domainData
@@ -554,6 +559,7 @@ const useBiconomyContracts = () => {
 
       if (permitTx.hash) {
         Swal.fire('Success!', 'Allowance Tx Submitted: ' + permitTx.hash, 'success')
+        onChangeApproved(true)
         return true
       } else {
         Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
