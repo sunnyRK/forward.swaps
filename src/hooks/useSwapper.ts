@@ -268,7 +268,7 @@ export function useBiconomySwapper(
 
                 Swal.fire({
                   title: 'Success!',
-                  text: 'Transaction Successfully: ' + transaction.txHash,
+                  text: 'Transaction Successfull: ' + transaction.txHash,
                   icon: 'success',
                   confirmButtonText: 'continue'
                 })

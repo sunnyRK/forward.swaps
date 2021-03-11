@@ -64,7 +64,7 @@ const useBiconomyContracts = () => {
 
   const calculateFees = async (tokenSymbol: string, path0: string, path1: string, inputAmount: any) => {
     try {
-      const allowance = await checkAllowance(tokenSymbol)
+      const allowance = await checkAllowance(tokenSymbol, inputAmount)
       if (allowance) {
         let gasToken
         if (tokenSymbol === 'USDC') {
@@ -572,14 +572,15 @@ const useBiconomyContracts = () => {
     }
   }
 
-  const checkAllowance = async (erc20token: string) => {
+  const checkAllowance = async (erc20token: string, inputAmount: string) => {
     const TokenContractInstance = getContractInstance(erc20token)
     const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
-    if (allowance > 0) {
-      console.log("AllowanceT: ", allowance, account, ERC20_FORWARDER_ADDRESS)
+    console.log('checkAllowance+++: ', allowance, (parseInt(inputAmount) * 1e18), inputAmount)
+    if (allowance > (parseInt(inputAmount) * 1e18)) {
+      console.log("checkAllowanceT: ", allowance, account, ERC20_FORWARDER_ADDRESS)
       return true
     } else {
-      console.log("AllowanceF: ", allowance, account, ERC20_FORWARDER_ADDRESS)
+      console.log("checkAllowanceF: ", allowance, account, ERC20_FORWARDER_ADDRESS)
       return false
     }
   }

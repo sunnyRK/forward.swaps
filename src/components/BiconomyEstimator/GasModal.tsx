@@ -147,20 +147,17 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         // }
         // await onApproveAndSwap(selectedToken)
         setApproveAndSwap(true)
+        // from here It will call use effect of isApproveAndSwap
       }
     })
   }
 
   const onApproveAndSwap = async (tokenSymbol: any) => {
-    console.log('onApproveAndSwap1')
     const approvedResp: any = await approveTokenAndSwap(tokenSymbol, path0, path1, inputAmount)
     if (approvedResp) {
-      console.log('approvedRespIf: ', approvedResp)
       // setIsApproved(true)
       const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
       setFees(fee)
-    } else {
-      console.log('approvedRespElse: ', approvedResp)
     }
   }
 
@@ -175,7 +172,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   useEffect(() => {
     const process = async () => {
       setCheckingAllowance(true)
-      const isApproved = await checkAllowance(selectedToken)
+      // const isApproved = await checkAllowance(selectedToken)
+      const isApproved = await checkAllowance(selectedToken, inputAmount)
+
       const balance = await checkBalance(selectedToken)
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
       if (selectedToken == 'USDT') {
@@ -206,13 +205,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
       setFees(fee)
       // setIsApproved(true)
-      console.log('onApproveAndSwapSWAP+++++++++++++++++')
     }
     if(isApproveAndSwap) {
-      console.log('onApproveAndSwapIf')
       process()
-    } else {
-      console.log('onApproveAndSwapElse')
     }
   }, [isApproveAndSwap])
 
@@ -300,7 +295,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               <div className="alignCenter">
                 <strong>Checking Allowance Status...</strong>
               </div>
-            ) : isApproved ? (
+            ) : !isApproved ? (
               <div className="pay-tx">
                 {balanceError && (
                   <div className="gas-amount">
