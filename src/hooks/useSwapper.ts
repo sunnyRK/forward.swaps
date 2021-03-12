@@ -176,7 +176,7 @@ export function useBiconomySwapper(
   const { account } = useActiveWeb3React()
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee} = useWaitActionHandlers()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee, onChangeOpen} = useWaitActionHandlers()
   // const tradeVersion = getTradeVersion(trade)
 
   return useMemo(() => {
@@ -201,7 +201,6 @@ export function useBiconomySwapper(
                 console.log('I was closed by the timer')
               }
             })
-            debugger
             onChangeWait('true')
             const { account, contract, ethersProvider, swapMethod } = call
             const token0 = swapMethod.args[2][0]
@@ -272,9 +271,11 @@ export function useBiconomySwapper(
                   icon: 'success',
                   confirmButtonText: 'continue'
                 })
-                  .then(result => {})
+                  .then(result => {
+                    onChangeOpen(false)
+                  })
                   .catch(error => {
-                    Swal.fire('reverted', 'Transaction Failed', 'error')
+                    Swal.fire('reverted', 'Transaction Failed!', 'error')
                   })
               })
             } else {
@@ -282,8 +283,8 @@ export function useBiconomySwapper(
               onChangeTransaction('undefined')
               Swal.fire({
                 icon: 'error',
-                title: 'Something Went Wrong!',
-                text: 'Transaction Failed!'
+                title: 'User denied message signature or something went wrong!',
+                text: 'Transaction Failed.'
               })
             }
 

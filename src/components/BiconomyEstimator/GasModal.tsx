@@ -35,8 +35,10 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   inputToken,
   inputAmount
 }) => {
-  const { wait, tx, isApproved } = useWaitState()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee, onChangeApproved } = useWaitActionHandlers()
+  const { 
+    // wait, 
+    tx, isApproved, isOpen } = useWaitState()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee, onChangeApproved, onChangeOpen } = useWaitActionHandlers()
 
   // const { connected } = useStoreState((state) => state);
   const { checkAllowance, checkBalance, approveToken, calculateFees, approveTokenAndSwap, calculateGasFeesForApproveAndSwap } = useBiconomyContracts()
@@ -61,8 +63,15 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     onChangeTransaction('')
     onChangeTransactionHash('')
     onChangeFee('')
+    onChangeOpen(false)
     // setSignTx(false)
   }
+
+  useEffect(() => {
+    if(tx != '' && tx != 'undefined') {
+      onCloseModal()
+    }
+  }, [tx])
 
   const theme = useContext(ThemeContext)
 
@@ -90,6 +99,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
             gasToken = DAI_kovan_contract.address
             return setGasTokenAndSwapCallback(gasToken)
           }
+          // onCloseModal()
         }
       } else {
         if (parseFloat(fees) > parseFloat(checkBal)) {
@@ -106,35 +116,51 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
             gasToken = DAI_kovan_contract.address
             return setGasTokenAndSwapCallback(gasToken)
           }
+          // onCloseModal()
         }
       }
     } catch (error) {}
   }
 
   const onApprove = async (tokenSymbol: any) => {
-    const approvedResp: any = await approveToken(tokenSymbol)
-    if (approvedResp) {
-      // setIsApproved(true)
-      const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
-      setFees(fee)
-    }
+    // console.log('calculateFees+++++', tokenSymbol, path0, path1, inputAmount)
+    // const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
+    // setFees(fee)
+    // console.log('OnApprove+++++', parseFloat(fee), parseFloat(checkBal))
+    // if (parseFloat(fee) > parseFloat(checkBal)) {
+    //   console.log('OnApprove+++++1', parseFloat(fee), parseFloat(checkBal))
+    //   setError(true)
+    // } else {
+      const approvedResp: any = await approveToken(tokenSymbol)
+      if (approvedResp) {
+        // console.log('OnApprove+++++2', parseFloat(fee), parseFloat(checkBal))
+        // setIsApproved(true)
+        const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
+        setFees(fee)
+      }
+    // }
   }
 
   const onApproveAndSwapAlert = async (tokenSymbol: any) => {
-    Swal.fire({
-      title: 'Approve and Swap Gas fees in '+ tokenSymbol,
-      text: approveAndSwapFees + " " + tokenSymbol,
-      // icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Approve And Swap'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        setApproveAndSwap(true)
-        // from here It will call use effect of isApproveAndSwap
-      }
-    })
+    // const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
+    // if (totalExchangeVolume > parseFloat(checkBal)) {
+    //   setError(true)
+    // } else {
+      Swal.fire({
+        title: 'Total Estimated gas fees of permit and Swap '+ tokenSymbol,
+        text: approveAndSwapFees + " " + tokenSymbol,
+        // icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Permit And Swap'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          setApproveAndSwap(true)
+          // from here It will call use effect of isApproveAndSwap
+        }
+      })
+    // }
   }
 
   const onApproveAndSwap = async (tokenSymbol: any) => {
@@ -180,6 +206,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   }, [selectedToken])
 
   useEffect(() => {
+    onChangeOpen(true)
     setSelectedToken('USDC')
   }, [])
   
@@ -189,6 +216,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       setApproveAndSwap(false)
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
       setFees(fee)
+      // onCloseModal()
       // setIsApproved(true)
     }
     if(isApproveAndSwap) {
@@ -217,7 +245,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   return (
     <>
       <Modal
-        open={true}
+        open={isOpen != null ? (isOpen) : (false)}
         onClose={onCloseModal}
         center
         blockScroll={true}
@@ -256,7 +284,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
 
           <div className="token-action">
-            {wait == 'true' ? (
+            
+            {/* {wait == 'true' ? (
               <div className="alignCenter">
                 <strong>Waiting for confirmation...</strong>
                 <br></br>
@@ -267,7 +296,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                 <strong>Transaction Submitted</strong>
                 <br></br>
                 <a href={'https://kovan.etherscan.io/tx/' + tx}>Etherscan</a>
-                {/* <span>You saved {gasFees} ETH, which could be worth x*5K when ETH reaches 5K!</span> */}
               </div>
             ) : tx == 'undefined' ? (
               <div className="alignCenter">
@@ -275,7 +303,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               </div>
             ) : (
               ''
-            )}
+            )} */}
+
             {checkingAllowance ? (
               <div className="alignCenter">
                 <strong>Checking Allowance Status...</strong>

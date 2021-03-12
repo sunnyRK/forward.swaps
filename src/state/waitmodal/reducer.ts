@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { setWait, setTransaction, setTransactionHash, setTimer, setFee, setApproved } from './actions'
+import { setWait, setTransaction, setTransactionHash, setTimer, setFee, setApproved, setOpen } from './actions'
 
 export interface WaitState {
   readonly wait: string | null
@@ -8,6 +8,7 @@ export interface WaitState {
   readonly timerBool: any | null
   readonly gasFees: string | null
   readonly isApproved: boolean | null
+  readonly isOpen: boolean | null
 }
 
 const initialState: WaitState = {
@@ -16,7 +17,8 @@ const initialState: WaitState = {
   txHash: '',
   timerBool: true,
   gasFees: '',
-  isApproved: false
+  isApproved: false,
+  isOpen: false
 }
 
 export default createReducer<WaitState>(initialState, builder =>
@@ -43,5 +45,9 @@ export default createReducer<WaitState>(initialState, builder =>
 
     .addCase(setApproved, (state, { payload: { isApproved } }) => {
       state.isApproved = isApproved
+    })
+
+    .addCase(setOpen, (state, { payload: { isOpen } }) => {
+      state.isOpen = isOpen
     })
 )

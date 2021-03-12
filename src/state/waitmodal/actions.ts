@@ -6,3 +6,4 @@ export const setTransactionHash = createAction<{ txHash: string | null }>('swap/
 export const setTimer = createAction<{ timerBool: any | null }>('swap/setTimer')
 export const setFee = createAction<{ gasFees: string | null }>('swap/setFee')
 export const setApproved = createAction<{ isApproved: boolean | null }>('swap/setApproved')
+export const setOpen = createAction<{ isOpen: boolean | null }>('swap/setOpen')

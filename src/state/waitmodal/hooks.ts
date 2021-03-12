@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
-import { setWait, setTransaction, setTransactionHash, setTimer, setFee, setApproved } from './actions'
+import { setWait, setTransaction, setTransactionHash, setTimer, setFee, setApproved, setOpen } from './actions'
 
 export function useWaitState(): AppState['waitmodal'] {
   return useSelector<AppState, AppState['waitmodal']>(state => state.waitmodal)
@@ -14,6 +14,7 @@ export function useWaitActionHandlers(): {
   onChangeSetTimerBool: (timerBool: any | null) => void
   onChangeFee: (gasFees: string | null) => void
   onChangeApproved: (isApproved: boolean | null) => void
+  onChangeOpen: (isOpen: boolean) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
 
@@ -59,12 +60,20 @@ export function useWaitActionHandlers(): {
     [dispatch]
   )
 
+  const onChangeOpen = useCallback(
+    (isOpen: boolean | null) => {
+      dispatch(setOpen({ isOpen }))
+    },
+    [dispatch]
+  )
+
   return {
     onChangeWait,
     onChangeTransaction,
     onChangeTransactionHash,
     onChangeSetTimerBool,
     onChangeFee,
-    onChangeApproved
+    onChangeApproved,
+    onChangeOpen
   }
 }

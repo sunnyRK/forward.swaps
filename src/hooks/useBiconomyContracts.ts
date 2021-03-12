@@ -39,7 +39,7 @@ const daiPermitType = [
 
 const useBiconomyContracts = () => {
   const { account, library } = useActiveWeb3React()
-  const { onChangeApproved } = useWaitActionHandlers()
+  const { onChangeApproved, onChangeOpen } = useWaitActionHandlers()
 
 
   function getContractInstance(erc20token: string): any {
@@ -266,6 +266,7 @@ const useBiconomyContracts = () => {
             })
               .then((result: any) => {
                 onChangeApproved(true)
+                onChangeOpen(false)
               })
               .catch((error: any) => {
                 Swal.fire('reverted', 'Transaction Failed', 'error')
@@ -359,7 +360,7 @@ const useBiconomyContracts = () => {
 
         metaInfo.permitType = 'DAI_Permit'
         metaInfo.permitData = permitOptions
-
+        
         const transaction = await getErcForwarderClient().permitAndSendTxEIP712({ req: tx, metaInfo: metaInfo })
         console.log('transaction++', transaction)
 
@@ -390,6 +391,7 @@ const useBiconomyContracts = () => {
               })
                 .then((result: any) => {
                   onChangeApproved(true)
+                  onChangeOpen(false)
                 })
                 .catch((error: any) => {
                   Swal.fire('reverted', 'Transaction Failed', 'error')
@@ -399,7 +401,7 @@ const useBiconomyContracts = () => {
         }
       }
     } catch (error) {
-      Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
+      Swal.fire('reverted', 'User denied message signature or something went wrong!', 'error')
       console.log("error: ", error)
     }
   }
@@ -482,19 +484,19 @@ const useBiconomyContracts = () => {
       let tokenPermitOptions
       let permitTx
 
-      Swal.fire({
-        title: 'Please sign the permit transaction.',
-        html: '',
-        timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading()
-        }
-      }).then((result: any) => {
-        if (result.dismiss === Swal.DismissReason.timer) {
-        }
-      })
-
       if (erc20token === 'USDC') {
+        Swal.fire({
+          title: 'Please sign the permit transaction.',
+          html: '',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then((result: any) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+          }
+        })
+
         domainData = {
           name: 'USDC Coin',
           version: '1',
@@ -525,10 +527,34 @@ const useBiconomyContracts = () => {
         await permitTx.wait(1)
         console.log('permitTxConfirm: ', permitTx)
       } else if (erc20token === 'USDT') {
+        Swal.fire({
+          title: 'Please sign the Approve transaction.',
+          html: '',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then((result: any) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+          }
+        })
+
         permitTx = await TokenContractInstance.approve(ERC20_FORWARDER_ADDRESS, maxValue)
         await permitTx.wait(1)
         console.log('permitTx: ', permitTx)
       } else if (erc20token === 'DAI') {
+          Swal.fire({
+            title: 'Please sign the permit transaction.',
+            html: '',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+            }
+          })
+
           domainData = {
             name: 'Dai Stablecoin',
             version: '1',
@@ -567,7 +593,7 @@ const useBiconomyContracts = () => {
         return false
       }
     } catch (error) {
-      Swal.fire('reverted', 'Tx has been cancelled or failed', 'error')
+      Swal.fire('reverted', 'User denied message signature or something went wrong!', 'error')
       console.log("error: ", error)
       return false
     }

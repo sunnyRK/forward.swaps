@@ -276,7 +276,6 @@ export default function Swap() {
         setGasToken(gasTokenValue)
         if (!callback) {
           return
-        } else {
         }
         callback(gasTokenValue)
       } catch (error) {
@@ -301,8 +300,8 @@ export default function Swap() {
     try {
       if (gasModalEnable) {
         setGasModalEnable(false)
-        // onUserInput(Field.INPUT, '')
-        // onUserInput(Field.OUTPUT, '')
+        onUserInput(Field.INPUT, '')
+        onUserInput(Field.OUTPUT, '')
       } else {
         setGasModalEnable(true)
       }
