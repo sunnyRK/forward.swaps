@@ -207,7 +207,7 @@ export function useBiconomySwapper(
             const token0 = swapMethod.args[2][0]
             const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
 
-            console.log('swapMethod.args[0]+++', swapMethod.args[0])
+            // console.log('swapMethod.args[0]', swapMethod.args[0])
             const txResponse = await contract.populateTransaction.swapWithoutETH(
               account,
               token0,
@@ -232,7 +232,7 @@ export function useBiconomySwapper(
             let transaction: any
             try {
               transaction = await getErcForwarderClient().sendTxEIP712({ req: tx })
-              console.log('transaction+++: ', transaction) 
+              console.log('transaction: ', transaction) 
             } catch (error) {
               onChangeWait('false')
               onChangeTransaction('undefined')
@@ -260,7 +260,7 @@ export function useBiconomySwapper(
 
             if (transaction && transaction.code == 200 && transaction.txHash) {
               ethersProvider.once(transaction.txHash, result => {
-                console.log('gasUsed:++', transaction)
+                console.log('gasUsed:', transaction)
                 onChangeTransactionHash('')
                 onChangeTransaction(transaction.txHash)
                 onChangeFee('2')

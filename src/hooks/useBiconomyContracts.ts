@@ -137,7 +137,7 @@ const useBiconomyContracts = () => {
       let domainData
       let tokenPermitOptions
       Swal.fire({
-        title: 'Please sign the approve transaction.',
+        title: 'Please sign the permit transaction.',
         html: '',
         timerProgressBar: true,
         didOpen: () => {
@@ -216,6 +216,7 @@ const useBiconomyContracts = () => {
           if (result.dismiss === Swal.DismissReason.timer) {
           }
         })
+        // result.wait(1)
           
         let metaInfo: any = {};
         let permitOptions: any = {};
@@ -259,7 +260,7 @@ const useBiconomyContracts = () => {
             console.log('result++:', result);
             Swal.fire({
               title: 'Success!',
-              text: 'Transaction Successfully: ' + transaction.txHash,
+              text: 'Transaction Successfull: ' + transaction.txHash,
               icon: 'success',
               confirmButtonText: 'continue'
             })
@@ -321,7 +322,6 @@ const useBiconomyContracts = () => {
 
         const result = await ethersProvider.send('eth_signTypedData_v3', 
           [userAddress, JSON.stringify(permitDataToSign)])
-
         console.log(result)
 
         Swal.fire({
@@ -336,6 +336,7 @@ const useBiconomyContracts = () => {
             
           }
         })
+        // result.wait(1)
 
         const metaInfo: any = {}
         const permitOptions: any = {}
@@ -383,7 +384,7 @@ const useBiconomyContracts = () => {
               
               Swal.fire({
                 title: 'Success!',
-                text: 'Transaction Successfully: ' + transaction.txHash,
+                text: 'Transaction Successfull: ' + transaction.txHash,
                 icon: 'success',
                 confirmButtonText: 'continue'
               })
@@ -482,7 +483,7 @@ const useBiconomyContracts = () => {
       let permitTx
 
       Swal.fire({
-        title: 'Please sign the approve transaction.',
+        title: 'Please sign the permit transaction.',
         html: '',
         timerProgressBar: true,
         didOpen: () => {
@@ -575,12 +576,9 @@ const useBiconomyContracts = () => {
   const checkAllowance = async (erc20token: string, inputAmount: string) => {
     const TokenContractInstance = getContractInstance(erc20token)
     const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
-    console.log('checkAllowance+++: ', allowance, (parseInt(inputAmount) * 1e18), inputAmount)
     if (allowance > (parseInt(inputAmount) * 1e18)) {
-      console.log("checkAllowanceT: ", allowance, account, ERC20_FORWARDER_ADDRESS)
       return true
     } else {
-      console.log("checkAllowanceF: ", allowance, account, ERC20_FORWARDER_ADDRESS)
       return false
     }
   }

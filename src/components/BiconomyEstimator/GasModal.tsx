@@ -131,21 +131,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       confirmButtonText: 'Approve And Swap'
     }).then(async (result) => {
       if (result.isConfirmed) {
-        // Swal.fire(
-        //   'Deleted!',
-        //   'Your file has been deleted.',
-        //   'success'
-        // )
-        // const approvedResp: any = await approveTokenAndSwap(tokenSymbol, path0, path1, inputAmount)
-        // if (approvedResp) {
-        //   console.log('approvedResp: ', approvedResp)
-        //   setIsApproved(true)
-        //   const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
-        //   setFees(fee)
-        // } else {
-        //   console.log('approvedRespElse: ', approvedResp)
-        // }
-        // await onApproveAndSwap(selectedToken)
         setApproveAndSwap(true)
         // from here It will call use effect of isApproveAndSwap
       }
@@ -358,7 +343,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               <div className="pay-tx">
                 <div className="buttons">
                   <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
-                    Approve
+                  Permit
                   </div>
                   <div
                     className="tx-button proceed"
@@ -366,7 +351,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                       onApproveAndSwapAlert(selectedToken)
                     }}
                   >
-                    Approve and Swap
+                    Permit and Swap
                   </div>
                 </div>
               </div>
