@@ -602,6 +602,7 @@ const useBiconomyContracts = () => {
   const checkAllowance = async (erc20token: string, inputAmount: string) => {
     const TokenContractInstance = getContractInstance(erc20token)
     const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
+    console.log('Allowance', erc20token, allowance.toString(), parseInt(inputAmount) * 1e18)
     if (allowance > (parseInt(inputAmount) * 1e18)) {
       return true
     } else {

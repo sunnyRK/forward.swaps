@@ -37,7 +37,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 }) => {
   const { 
     // wait, 
-    tx, isApproved, isOpen } = useWaitState()
+    // isOpen,
+    tx, isApproved } = useWaitState()
   const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee, onChangeApproved, onChangeOpen } = useWaitActionHandlers()
 
   // const { connected } = useStoreState((state) => state);
@@ -168,6 +169,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     onChangeTransactionHash('')
     onChangeFee('')
     setSelectedToken(tokenSymbol)
+    setError(false)
+    setInputError(false)
   }
 
   useEffect(() => {
@@ -185,7 +188,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
         setApproveAndSwapFees(approveAndSwapfee)
       }
-      console.log('isApproved: +++', isApproved)
       onChangeApproved(isApproved)
       // setIsApproved(isApproved)
       setCheckingAllowance(false)
@@ -237,7 +239,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   return (
     <>
       <Modal
-        open={isOpen != null ? (isOpen) : (false)}
+        // open={isOpen != null ? (isOpen) : (false)}
+        open={true}
         onClose={onCloseModal}
         center
         blockScroll={true}
