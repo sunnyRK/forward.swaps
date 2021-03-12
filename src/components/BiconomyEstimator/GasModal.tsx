@@ -280,7 +280,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               <div className="alignCenter">
                 <strong>Checking Allowance Status...</strong>
               </div>
-            ) : !isApproved ? (
+            ) : isApproved ? (
               <div className="pay-tx">
                 {balanceError && (
                   <div className="gas-amount">
