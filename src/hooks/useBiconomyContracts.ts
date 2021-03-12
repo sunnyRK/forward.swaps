@@ -137,7 +137,7 @@ const useBiconomyContracts = () => {
       let domainData
       let tokenPermitOptions
       Swal.fire({
-        title: 'Please sign the permit transaction.',
+        title: 'Please sign the permit message.',
         html: '',
         timerProgressBar: true,
         didOpen: () => {
@@ -206,7 +206,7 @@ const useBiconomyContracts = () => {
         console.log('ApproveResult: ', result);
 
         Swal.fire({
-          title: 'Please sign the swap transaction.',
+          title: 'Please sign the swap message.',
           html: '',
           timerProgressBar: true,
           didOpen: () => {
@@ -326,7 +326,7 @@ const useBiconomyContracts = () => {
         console.log(result)
 
         Swal.fire({
-          title: 'Please sign the swap transaction.',
+          title: 'Please sign the swap message.',
           html: '',
           timerProgressBar: true,
           didOpen: () => {
@@ -486,7 +486,7 @@ const useBiconomyContracts = () => {
 
       if (erc20token === 'USDC') {
         Swal.fire({
-          title: 'Please sign the permit transaction.',
+          title: 'Please sign the permit message.',
           html: '',
           timerProgressBar: true,
           didOpen: () => {
@@ -528,7 +528,7 @@ const useBiconomyContracts = () => {
         console.log('permitTxConfirm: ', permitTx)
       } else if (erc20token === 'USDT') {
         Swal.fire({
-          title: 'Please sign the Approve transaction.',
+          title: 'Please sign the Approve message.',
           html: '',
           timerProgressBar: true,
           didOpen: () => {
@@ -544,7 +544,7 @@ const useBiconomyContracts = () => {
         console.log('permitTx: ', permitTx)
       } else if (erc20token === 'DAI') {
           Swal.fire({
-            title: 'Please sign the permit transaction.',
+            title: 'Please sign the permit message.',
             html: '',
             timerProgressBar: true,
             didOpen: () => {

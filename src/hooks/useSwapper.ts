@@ -190,7 +190,7 @@ export function useBiconomySwapper(
         try {
           swapCalls.map(async call => {
             Swal.fire({
-              title: 'Please sign the transaction.',
+              title: 'Please sign the message.',
               html: '',
               timerProgressBar: true,
               didOpen: () => {
@@ -198,7 +198,6 @@ export function useBiconomySwapper(
               }
             }).then(result => {
               if (result.dismiss === Swal.DismissReason.timer) {
-                console.log('I was closed by the timer')
               }
             })
             onChangeWait('true')

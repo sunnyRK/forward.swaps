@@ -133,7 +133,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   const onApproveAndSwapAlert = async (tokenSymbol: any) => {
     const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(approveAndSwapFees)
-    console.log("onApproveAndSwapAlert+++", inputAmount.toString(), approveAndSwapFees.toString(), checkBal.toString())
     if (parseFloat(totalExchangeVolume) > parseFloat(checkBal)) {
       setError(true)
     } else {
@@ -178,7 +177,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       const isApproved = await checkAllowance(selectedToken, inputAmount)
 
       const balance = await checkBalance(selectedToken)
-      console.log('balance++++1', balance)
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
       if (selectedToken == 'USDT') {
         setBalance((balance / 1e6).toString())
@@ -186,8 +184,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         setBalance((balance / 1e18).toString())
         const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
         setApproveAndSwapFees(approveAndSwapfee)
-        console.log("FEESSS++++1", fee, approveAndSwapfee)
       }
+      console.log('isApproved: +++', isApproved)
       onChangeApproved(isApproved)
       // setIsApproved(isApproved)
       setCheckingAllowance(false)
