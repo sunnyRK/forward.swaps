@@ -64,8 +64,8 @@ const useBiconomyContracts = () => {
 
   const calculateFees = async (tokenSymbol: string, path0: string, path1: string, inputAmount: any) => {
     try {
-      const allowance = await checkAllowance(tokenSymbol, inputAmount)
-      if (allowance) {
+      // const allowance = await checkAllowance(tokenSymbol, inputAmount)
+      // if (allowance) {
         let gasToken
         if (tokenSymbol === 'USDC') {
           gasToken = USDC_kovan_contract.address
@@ -106,9 +106,9 @@ const useBiconomyContracts = () => {
         const TxFess: any = builtTx.cost
         console.log('Modal-builtTx-tx: ', TxFess)
         return TxFess
-      } else {
-        return 0
-      }
+      // } else {
+      //   return 0
+      // }
     } catch (error) {
       console.log('error: ', error)
     }

@@ -123,29 +123,20 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   }
 
   const onApprove = async (tokenSymbol: any) => {
-    // console.log('calculateFees+++++', tokenSymbol, path0, path1, inputAmount)
-    // const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
-    // setFees(fee)
-    // console.log('OnApprove+++++', parseFloat(fee), parseFloat(checkBal))
-    // if (parseFloat(fee) > parseFloat(checkBal)) {
-    //   console.log('OnApprove+++++1', parseFloat(fee), parseFloat(checkBal))
-    //   setError(true)
-    // } else {
-      const approvedResp: any = await approveToken(tokenSymbol)
-      if (approvedResp) {
-        // console.log('OnApprove+++++2', parseFloat(fee), parseFloat(checkBal))
-        // setIsApproved(true)
-        const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
-        setFees(fee)
-      }
-    // }
+    const approvedResp: any = await approveToken(tokenSymbol)
+    if (approvedResp) {
+      // setIsApproved(true)
+      const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
+      setFees(fee)
+    }
   }
 
   const onApproveAndSwapAlert = async (tokenSymbol: any) => {
-    // const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
-    // if (totalExchangeVolume > parseFloat(checkBal)) {
-    //   setError(true)
-    // } else {
+    const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(approveAndSwapFees)
+    console.log("onApproveAndSwapAlert+++", inputAmount.toString(), approveAndSwapFees.toString(), checkBal.toString())
+    if (parseFloat(totalExchangeVolume) > parseFloat(checkBal)) {
+      setError(true)
+    } else {
       Swal.fire({
         title: 'Total Estimated gas fees of permit and Swap '+ tokenSymbol,
         text: approveAndSwapFees + " " + tokenSymbol,
@@ -160,7 +151,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           // from here It will call use effect of isApproveAndSwap
         }
       })
-    // }
+    }
   }
 
   const onApproveAndSwap = async (tokenSymbol: any) => {
@@ -187,6 +178,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       const isApproved = await checkAllowance(selectedToken, inputAmount)
 
       const balance = await checkBalance(selectedToken)
+      console.log('balance++++1', balance)
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
       if (selectedToken == 'USDT') {
         setBalance((balance / 1e6).toString())
@@ -194,6 +186,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         setBalance((balance / 1e18).toString())
         const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
         setApproveAndSwapFees(approveAndSwapfee)
+        console.log("FEESSS++++1", fee, approveAndSwapfee)
       }
       onChangeApproved(isApproved)
       // setIsApproved(isApproved)
@@ -236,6 +229,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
           setFees(fee)
           setApproveAndSwapFees(approveAndSwapfee)
+          console.log("FEESSS++++", fee, approveAndSwapfee)
         }
       }
     }
@@ -313,13 +307,13 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               <div className="pay-tx">
                 {balanceError && (
                   <div className="gas-amount">
-                    <strong>You have not enough transaction fees!!</strong>
+                    <strong>You have not enough transaction fees!</strong>
                   </div>
                 )}
 
                 {inputError && (
                   <div className="gas-amount">
-                    <strong>You have not selected input amount or token!!</strong>
+                    <strong>You have not selected input amount or token!</strong>
                   </div>
                 )}
 
@@ -370,6 +364,19 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               </div>
             ) : selectedToken == 'DAI' || selectedToken == 'USDC' ? (
               <div className="pay-tx">
+
+                {balanceError && (
+                  <div className="gas-amount">
+                    <strong>You have not enough transaction fees and input amount!</strong>
+                  </div>
+                )}
+
+                {inputError && (
+                  <div className="gas-amount">
+                    <strong>You have not selected input amount or token!</strong>
+                  </div>
+                )}
+
                 <div className="buttons">
                   <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
                   Permit
