@@ -307,7 +307,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               <div className="pay-tx">
                 {balanceError && (
                   <div className="gas-amount">
-                    <strong>You have not enough transaction fees!</strong>
+                    <strong>Not enough balance to perform the swap and pay the fees!</strong>
                   </div>
                 )}
 
@@ -367,7 +367,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
                 {balanceError && (
                   <div className="gas-amount">
-                    <strong>You have not enough transaction fees and input amount!</strong>
+                    <strong>Not enough balance to perform the swap and pay the fees!</strong>
                   </div>
                 )}
 
