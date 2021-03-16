@@ -88,6 +88,7 @@ export default function App() {
         </HeaderWrapper>
         <BodyWrapper>
           <Popups />
+          <Polling />
           <TopLevelModals />
           <Web3ReactManager>
             <Switch>
@@ -117,7 +118,6 @@ export default function App() {
             </Switch>
           </Web3ReactManager>
           <Marginer />
-          <Polling />
         </BodyWrapper>
       </AppWrapper>
     </Suspense>

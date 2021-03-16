@@ -1,8 +1,8 @@
 import { CurrencyAmount, JSBI, Token, Trade } from '@uniswap/sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
-import styled from 'styled-components'
-import { darken } from 'polished'
+// import styled from 'styled-components'
+// import { darken } from 'polished'
 
 import { ArrowDown } from 'react-feather'
 // import ReactGA from 'react-ga'
@@ -59,39 +59,37 @@ import { useIsTransactionUnsupported } from 'hooks/Trades'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import { isTradeBetter } from 'utils/trades'
 // import { useChill, useSocksController } from "../../hooks/useContract";
-import biconomy from '../../assets/images/biconomy.png'
+// import biconomy from '../../assets/images/biconomy.png'
 
+// const activeClassName = 'ACTIVE'
 
+// const StyledCenter = styled.div`
+//   align-items: left;
+//   border-radius: 3rem;
+//   outline: none;
+//   cursor: pointer;
+//   text-decoration: none;
+//   color: ${({ theme }) => theme.text2};
+//   font-size: 1rem;
+//   width: fit-content;
+//   margin: 10px 12px;
+//   font-weight: 600;
 
-const activeClassName = 'ACTIVE'
+//   &.${activeClassName} {
+//     border-radius: 12px;
+//     font-weight: 600;
+//     color: ${({ theme }) => theme.text1};
+//   }
 
-const StyledCenter = styled.div`
-  align-items: left;
-  border-radius: 3rem;
-  outline: none;
-  cursor: pointer;
-  text-decoration: none;
-  color: ${({ theme }) => theme.text2};
-  font-size: 1rem;
-  width: fit-content;
-  margin: 10px 12px;
-  font-weight: 600;
+//   :hover,
+//   :focus {
+//     color: ${({ theme }) => darken(0.1, theme.text1)};
+//   }
 
-  &.${activeClassName} {
-    border-radius: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.text1};
-  }
-
-  :hover,
-  :focus {
-    color: ${({ theme }) => darken(0.1, theme.text1)};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      display: none;
-`}
-`
+//   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+//       display: none;
+// `}
+// `
 
 export default function Swap() {
   const [gasModalEnable, setGasModalEnable] = useState(false)
@@ -745,19 +743,7 @@ export default function Swap() {
           )}
         </Wrapper>
       </AppBody>
-      <StyledCenter>
-        <div>
-          <strong>Save your ETH by paying gas in Stablecoins!</strong>
-          <br></br>
-          <div style={{ display: 'flex' }}>
-            <span style={{ textAlign: 'center', marginLeft: '80px', marginBottom: '10px', marginRight: '5px' }}>
-              Powered by{' '}
-            </span>
-            <img src={biconomy} style={{ height: '25px' }}></img>
-          </div>
-        </div>
-      </StyledCenter>
-
+      
       {!swapIsUnsupported ? (
         <AdvancedSwapDetailsDropdown trade={trade} />
       ) : (

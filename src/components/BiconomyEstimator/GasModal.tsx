@@ -3,7 +3,6 @@ import 'react-responsive-modal/styles.css'
 import { Modal } from 'react-responsive-modal'
 import SmallButtons from './SmallButtons'
 import useBiconomyContracts from '../../hooks/useBiconomyContracts'
-// import { useStoreState } from "../../store/globalStore";
 import Swal from "sweetalert2";
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
@@ -15,6 +14,7 @@ import USDT_kovan_contract from '../../contracts/USDT_kovan.json'
 import USDC_kovan_contract from '../../contracts/USDC_kovan.json'
 import { useWaitState } from '../../state/waitmodal/hooks'
 import { useWaitActionHandlers } from '../../state/waitmodal/hooks'
+// import { useStoreState } from "../../store/globalStore";
 
 interface GasModalProps {
   handleDeposit: () => void
@@ -37,9 +37,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 }) => {
   const { 
     // wait, 
-    // isOpen,
+    isOpen,
     tx, isApproved } = useWaitState()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee, onChangeApproved, onChangeOpen } = useWaitActionHandlers()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeApproved, onChangeOpen } = useWaitActionHandlers()
 
   // const { connected } = useStoreState((state) => state);
   const { checkAllowance, checkBalance, approveToken, calculateFees, approveTokenAndSwap, calculateGasFeesForApproveAndSwap } = useBiconomyContracts()
@@ -47,7 +47,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   const [open, setOpen] = useState(false)
   const [balanceError, setError] = useState(false)
   const [inputError, setInputError] = useState(false)
-  // const [signTx, setSignTx] = useState(false)
   const [checkingAllowance, setCheckingAllowance] = useState(true)
   const [checkBal, setBalance] = useState('0')
   // const [isApproved, setIsApproved] = useState(false)
@@ -63,9 +62,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     onChangeWait('false')
     onChangeTransaction('')
     onChangeTransactionHash('')
-    onChangeFee('')
     onChangeOpen(false)
-    // setSignTx(false)
+    // onChangeFee('')
   }
 
   useEffect(() => {
@@ -82,7 +80,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         setInputError(true)
         return
       }
-      // setSignTx(true)
 
       if (inputToken == selectedToken) {
         const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
@@ -100,7 +97,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
             gasToken = DAI_kovan_contract.address
             return setGasTokenAndSwapCallback(gasToken)
           }
-          // onCloseModal()
         }
       } else {
         if (parseFloat(fees) > parseFloat(checkBal)) {
@@ -117,7 +113,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
             gasToken = DAI_kovan_contract.address
             return setGasTokenAndSwapCallback(gasToken)
           }
-          // onCloseModal()
         }
       }
     } catch (error) {}
@@ -140,7 +135,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       Swal.fire({
         title: 'Total Estimated gas fees of permit and Swap '+ tokenSymbol,
         text: approveAndSwapFees + " " + tokenSymbol,
-        // icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
@@ -167,7 +161,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     onChangeWait('false')
     onChangeTransaction('')
     onChangeTransactionHash('')
-    onChangeFee('')
+    // onChangeFee('')
     setSelectedToken(tokenSymbol)
     setError(false)
     setInputError(false)
@@ -229,7 +223,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
           setFees(fee)
           setApproveAndSwapFees(approveAndSwapfee)
-          console.log("FEESSS++++", fee, approveAndSwapfee)
         }
       }
     }
@@ -239,8 +232,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   return (
     <>
       <Modal
-        // open={isOpen != null ? (isOpen) : (false)}
-        open={true}
+        open={isOpen != null ? (isOpen) : (false)}
+        // open={true}
         onClose={onCloseModal}
         center
         blockScroll={true}

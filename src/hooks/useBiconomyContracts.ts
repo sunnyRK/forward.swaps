@@ -136,6 +136,7 @@ const useBiconomyContracts = () => {
 
       let domainData
       let tokenPermitOptions
+      onChangeOpen(false)
       Swal.fire({
         title: 'Please sign the permit message.',
         html: '',
@@ -257,10 +258,13 @@ const useBiconomyContracts = () => {
       
         if(transaction && transaction.code == 200 && transaction.txHash) {
           ethersProvider.once(transaction.txHash, (result: any) => {
+            const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
             console.log('result++:', result);
             Swal.fire({
-              title: 'Success!',
-              text: 'Transaction Successfull: ' + transaction.txHash,
+              title: 'Transaction Successfull',
+              text: 'Transaction Successfull',
+              html:
+                `<a href=${hashLink} target="_blank">Etherscan</a>`,
               icon: 'success',
               confirmButtonText: 'continue'
             })
@@ -382,11 +386,14 @@ const useBiconomyContracts = () => {
             ethersProvider.once(transaction.txHash, (result: any) => {
               // Emitted when the transaction has been mined
               console.log('result++:', result);
-              
+              const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
+
               Swal.fire({
-                title: 'Success!',
-                text: 'Transaction Successfull: ' + transaction.txHash,
+                title: 'Transaction Successfull',
+                text: 'Transaction Successfull',
                 icon: 'success',
+                html:
+                `<a href=${hashLink} target="_blank">Etherscan</a>`,
                 confirmButtonText: 'continue'
               })
                 .then((result: any) => {
@@ -401,79 +408,88 @@ const useBiconomyContracts = () => {
         }
       }
     } catch (error) {
-      Swal.fire('reverted', 'User denied message signature or something went wrong!', 'error')
       console.log("error: ", error)
+      if(error.code == 4001) {
+        Swal.fire('reverted', 'User denied message signature!', 'error')
+      } else {
+        Swal.fire('reverted', 'Transaction Failed!', 'error')
+      }
     }
   }
 
   const calculateGasFeesForApproveAndSwap = async (erc20token: string, token0: string, token1: string, inputAmount: string) => {
-    const ethersProvider: Web3Provider | null = getEthersProvider()
+    try {
+      const ethersProvider: Web3Provider | null = getEthersProvider()
 
-    const contract: Contract | null = getBiconomySwappperContract(
-      BICONOMY_CONTRACT,
-      BICONOMYSWAPPER_ABI,
-      library as Web3Provider
-    )
-
-    let fee
-    if (erc20token === 'USDC') {
-      const path = [token0, token1]
-      console.log("Params:", account, token0, path, parseEther(inputAmount))
-      const data = await contract.populateTransaction.swapWithoutETH(
-        account,
-        token0,
-        path,
-        parseEther(inputAmount)
+      const contract: Contract | null = getBiconomySwappperContract(
+        BICONOMY_CONTRACT,
+        BICONOMYSWAPPER_ABI,
+        library as Web3Provider
       )
 
-      let gasLimit = await ethersProvider.estimateGas({
-        to: contract.address,
-        from: account?.toString(),
-        data: data.data,
-      });
-      console.log(gasLimit.toString());
-      console.log(data.data);
+      let fee
+      if (erc20token === 'USDC') {
+        const path = [token0, token1]
+        console.log("Params:", account, token0, path, parseEther(inputAmount))
+        const data = await contract.populateTransaction.swapWithoutETH(
+          account,
+          token0,
+          path,
+          parseEther(inputAmount)
+        )
 
-      const builtTx = await getErcForwarderClient().buildTx({
-        to: contract.address,
-        token: USDC_kovan_contract.address,
-        txGas:Number(gasLimit),
-        data: data.data,
-        permitType : "EIP2612_Permit"
-      });
-      const tx = builtTx.request;
-      fee = builtTx.cost;
-      console.log(tx);
-      console.log(fee);
-    
-    } else if (erc20token === 'DAI') {
-      const path = [token0, token1]
-      const data = await contract.populateTransaction.swapWithoutETH(
-        account,
-        token0,
-        path,
-        parseEther(inputAmount)
-      )
+        let gasLimit = await ethersProvider.estimateGas({
+          to: contract.address,
+          from: account?.toString(),
+          data: data.data,
+        });
+        console.log(gasLimit.toString());
+        console.log(data.data);
 
-      const gasLimit = await ethersProvider.estimateGas({
-        to: contract.address,
-        from: account?.toString(),
-        data: data.data,
-      });
+        const builtTx = await getErcForwarderClient().buildTx({
+          to: contract.address,
+          token: USDC_kovan_contract.address,
+          txGas:Number(gasLimit),
+          data: data.data,
+          permitType : "EIP2612_Permit"
+        });
+        const tx = builtTx.request;
+        fee = builtTx.cost;
+        console.log(tx);
+        console.log(fee);
+      
+      } else if (erc20token === 'DAI') {
+        const path = [token0, token1]
+        const data = await contract.populateTransaction.swapWithoutETH(
+          account,
+          token0,
+          path,
+          parseEther(inputAmount)
+        )
 
-      const builtTx = await getErcForwarderClient().buildTx({
-        to: contract.address,
-        token: DAI_kovan_contract.address,
-        txGas: Number(gasLimit),
-        data: data.data,
-        permitType : "DAI_Permit"
-      });
-      const tx = builtTx.request
-      fee = builtTx.cost // only gets the cost of target method call
-      console.log(tx)
-      console.log(fee)
+        const gasLimit = await ethersProvider.estimateGas({
+          to: contract.address,
+          from: account?.toString(),
+          data: data.data,
+        });
+
+        const builtTx = await getErcForwarderClient().buildTx({
+          to: contract.address,
+          token: DAI_kovan_contract.address,
+          txGas: Number(gasLimit),
+          data: data.data,
+          permitType : "DAI_Permit"
+        });
+        const tx = builtTx.request
+        fee = builtTx.cost // only gets the cost of target method call
+        console.log(tx)
+        console.log(fee)
+      }
+      return fee.toString() 
+    } catch (error) {
+      console.log(error)
+      return 0
     }
-    return fee.toString()
   }
 
   const approveToken = async (erc20token: string) => {
@@ -585,7 +601,23 @@ const useBiconomyContracts = () => {
       }
 
       if (permitTx.hash) {
-        Swal.fire('Success!', 'Allowance Tx Submitted: ' + permitTx.hash, 'success')
+        const hashLink = "https://kovan.etherscan.io/tx/"+permitTx.txHash
+        // Swal.fire('Success!', 'Allowance Tx Submitted: ' + permitTx.hash, 'success')
+        Swal.fire({
+          title: 'Transaction Successfull',
+          text: 'Transaction Successfull',
+          icon: 'success',
+          html:
+          `<a href=${hashLink} target="_blank">Etherscan</a>`,
+          confirmButtonText: 'continue'
+        })
+          .then((result: any) => {
+            onChangeApproved(true)
+            onChangeOpen(false)
+          })
+          .catch((error: any) => {
+            Swal.fire('reverted', 'Transaction Failed', 'error')
+          })
         onChangeApproved(true)
         return true
       } else {
@@ -593,8 +625,12 @@ const useBiconomyContracts = () => {
         return false
       }
     } catch (error) {
-      Swal.fire('reverted', 'User denied message signature or something went wrong!', 'error')
       console.log("error: ", error)
+      if(error.code == 4001) {
+        Swal.fire('reverted', 'User denied message signature!', 'error')
+      } else {
+        Swal.fire('reverted', 'Transaction Failed!', 'error')
+      }
       return false
     }
   }

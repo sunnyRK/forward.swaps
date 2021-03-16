@@ -176,7 +176,7 @@ export function useBiconomySwapper(
   const { account } = useActiveWeb3React()
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee, onChangeOpen} = useWaitActionHandlers()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeOpen} = useWaitActionHandlers()
   // const tradeVersion = getTradeVersion(trade)
 
   return useMemo(() => {
@@ -188,7 +188,9 @@ export function useBiconomySwapper(
         // : Promise<string> {
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
+          onChangeOpen(false)
           swapCalls.map(async call => {
+
             Swal.fire({
               title: 'Please sign the message.',
               html: '',
@@ -200,12 +202,12 @@ export function useBiconomySwapper(
               if (result.dismiss === Swal.DismissReason.timer) {
               }
             })
+
             onChangeWait('true')
             const { account, contract, ethersProvider, swapMethod } = call
             const token0 = swapMethod.args[2][0]
             const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
 
-            // console.log('swapMethod.args[0]', swapMethod.args[0])
             const txResponse = await contract.populateTransaction.swapWithoutETH(
               account,
               token0,
@@ -234,7 +236,13 @@ export function useBiconomySwapper(
             } catch (error) {
               onChangeWait('false')
               onChangeTransaction('undefined')
-              Swal.fire('reverted', 'Transaction Failed', 'error')
+              Swal.fire({
+                icon: 'error',
+                title: 'Transaction Failed.!',
+                didOpen: () => {
+                  Swal.hideLoading()
+                }
+              })
             }
 
             Swal.fire({
@@ -258,16 +266,17 @@ export function useBiconomySwapper(
 
             if (transaction && transaction.code == 200 && transaction.txHash) {
               ethersProvider.once(transaction.txHash, result => {
-                console.log('gasUsed:', transaction)
+                const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
                 onChangeTransactionHash('')
                 onChangeTransaction(transaction.txHash)
-                onChangeFee('2')
                 console.log('result: ', result)
 
                 Swal.fire({
-                  title: 'Success!',
-                  text: 'Transaction Successfull: ' + transaction.txHash,
+                  title: 'Transaction Successfull',
+                  text: 'Transaction Successfull',
                   icon: 'success',
+                  html:
+                  `<a href=${hashLink} target="_blank">Etherscan</a>`,
                   confirmButtonText: 'continue'
                 })
                   .then(result => {
@@ -282,8 +291,11 @@ export function useBiconomySwapper(
               onChangeTransaction('undefined')
               Swal.fire({
                 icon: 'error',
-                title: 'User denied message signature or something went wrong!',
-                text: 'Transaction Failed.'
+                title: 'User denied message signature!',
+                text: 'Transaction Failed.',
+                didOpen: () => {
+                  Swal.hideLoading()
+                }
               })
             }
 
@@ -327,7 +339,10 @@ export function useBiconomySwapper(
           Swal.fire({
             icon: 'error',
             title: 'Used Denied Transaction!',
-            text: 'Transaction Failed!'
+            text: 'Transaction Failed!',
+            didOpen: () => {
+              Swal.hideLoading()
+            }
           })
         }
       },
@@ -384,6 +399,7 @@ export function useSwapperForGas(
   }, [swapCalls, account])
 }
 
+// For demo
 function useSwapCallArguments(): SwapCall[] {
   const { account, chainId, library } = useActiveWeb3React()
 
@@ -418,6 +434,7 @@ function useSwapCallArguments(): SwapCall[] {
   }, [account, chainId, library])
 }
 
+// For demo
 export function useSwapper(): {
   state: SwapCallbackState
   callback: any
