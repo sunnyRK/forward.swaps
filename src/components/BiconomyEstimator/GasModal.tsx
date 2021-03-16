@@ -135,6 +135,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     } else {
       approvedResp = await approveToken(tokenSymbol)
     }
+    // hadaleGasModalEnable()
 
     if (approvedResp) {
       // setIsApproved(true)
@@ -217,6 +218,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     async function process() {
       await onApproveAndSwap(selectedToken)
       setApproveAndSwap(false)
+      hadaleGasModalEnable()
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
       setFees(fee)
       // onCloseModal()

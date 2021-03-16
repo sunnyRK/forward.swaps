@@ -190,146 +190,151 @@ export function useBiconomySwapper(
         try {
           onChangeOpen(false)
           swapCalls.map(async call => {
-
-            Swal.fire({
-              title: 'Please sign the message.',
-              html: '',
-              timerProgressBar: true,
-              didOpen: () => {
-                Swal.showLoading()
-              }
-            }).then(result => {
-              if (result.dismiss === Swal.DismissReason.timer) {
-              }
-            })
-
-            onChangeWait('true')
-            const { account, contract, ethersProvider, swapMethod } = call
-            const token0 = swapMethod.args[2][0]
-            const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
-
-            const txResponse = await contract.populateTransaction.swapWithoutETH(
-              account,
-              token0,
-              path,
-              swapMethod.args[0]
-            )
-
-            const gasLimit = await ethersProvider.estimateGas({
-              to: contract.address,
-              from: account,
-              data: txResponse.data
-            })
-
-            const builtTx = await getErcForwarderClient().buildTx({
-              to: contract.address,
-              token: gasToken,
-              txGas: Number(gasLimit),
-              data: txResponse.data
-            })
-            const tx = builtTx.request
-
-            let transaction: any
-            try {
-              transaction = await getErcForwarderClient().sendTxEIP712({ req: tx })
-              console.log('transaction: ', transaction) 
-            } catch (error) {
-              onChangeWait('false')
-              onChangeTransaction('undefined')
-              Swal.fire({
-                icon: 'error',
-                title: 'Transaction Failed.!',
-                didOpen: () => {
-                  Swal.hideLoading()
-                }
-              })
-            }
-
-            Swal.fire({
-              title: 'Transaction Sent.',
-              html: 'Waiting for Confirmation...',
-              timerProgressBar: true,
-              didOpen: () => {
-                Swal.showLoading()
-              }
-            }).then(result => {
-              if (result.dismiss === Swal.DismissReason.timer) {
-                console.log('I was closed by the timer')
-              }
-            })
-            onChangeWait('false')
-            onChangeTransactionHash(transaction && transaction.txHash)
-            // const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
-            // addBiconomyTransaction(transaction, {
-            //   summary: withVersion
-            // })
-
-            if (transaction && transaction.code == 200 && transaction.txHash) {
-              ethersProvider.once(transaction.txHash, result => {
-                const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
-                onChangeTransactionHash('')
-                onChangeTransaction(transaction.txHash)
-                console.log('result: ', result)
-
-                Swal.fire({
-                  title: 'Transaction Successfull',
-                  text: 'Transaction Successfull',
-                  icon: 'success',
-                  html:
-                  `<a href=${hashLink} target="_blank">Etherscan</a>`,
-                  confirmButtonText: 'continue'
-                })
-                  .then(result => {
-                    onChangeOpen(false)
-                  })
-                  .catch(error => {
-                    Swal.fire('reverted', 'Transaction Failed!', 'error')
-                  })
-              })
+            if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
+              Swal.fire('Something went wrong!')
+              onChangeOpen(false)
+              return
             } else {
-              // onChangeWait("false")
-              onChangeTransaction('undefined')
               Swal.fire({
-                icon: 'error',
-                title: 'User denied message signature!',
-                text: 'Transaction Failed.',
+                title: 'Please sign the message.',
+                html: '',
+                timerProgressBar: true,
                 didOpen: () => {
-                  Swal.hideLoading()
+                  Swal.showLoading()
+                }
+              }).then(result => {
+                if (result.dismiss === Swal.DismissReason.timer) {
                 }
               })
+
+              onChangeWait('true')
+              const { account, contract, ethersProvider, swapMethod } = call
+              const token0 = swapMethod.args[2][0]
+              const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
+
+              const txResponse = await contract.populateTransaction.swapWithoutETH(
+                account,
+                token0,
+                path,
+                swapMethod.args[0]
+              )
+
+              const gasLimit = await ethersProvider.estimateGas({
+                to: contract.address,
+                from: account,
+                data: txResponse.data
+              })
+
+              const builtTx = await getErcForwarderClient().buildTx({
+                to: contract.address,
+                token: gasToken,
+                txGas: Number(gasLimit),
+                data: txResponse.data
+              })
+              const tx = builtTx.request
+
+              let transaction: any
+              try {
+                transaction = await getErcForwarderClient().sendTxEIP712({ req: tx })
+                console.log('transaction: ', transaction) 
+              } catch (error) {
+                onChangeWait('false')
+                onChangeTransaction('undefined')
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Transaction Failed.!',
+                  didOpen: () => {
+                    Swal.hideLoading()
+                  }
+                })
+              }
+
+              Swal.fire({
+                title: 'Transaction Sent',
+                html: 'Waiting for Confirmation...',
+                timerProgressBar: true,
+                didOpen: () => {
+                  Swal.showLoading()
+                }
+              }).then(result => {
+                if (result.dismiss === Swal.DismissReason.timer) {
+                  console.log('I was closed by the timer')
+                }
+              })
+              onChangeWait('false')
+              onChangeTransactionHash(transaction && transaction.txHash)
+              // const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
+              // addBiconomyTransaction(transaction, {
+              //   summary: withVersion
+              // })
+
+              if (transaction && transaction.code == 200 && transaction.txHash) {
+                ethersProvider.once(transaction.txHash, result => {
+                  const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
+                  onChangeTransactionHash('')
+                  onChangeTransaction(transaction.txHash)
+                  console.log('result: ', result)
+
+                  Swal.fire({
+                    title: 'Transaction Successfull',
+                    text: 'Transaction Successfull',
+                    icon: 'success',
+                    html:
+                    `<a href=${hashLink} target="_blank">Etherscan</a>`,
+                    confirmButtonText: 'continue'
+                  })
+                    .then(result => {
+                      onChangeOpen(false)
+                    })
+                    .catch(error => {
+                      Swal.fire('reverted', 'Transaction Failed!', 'error')
+                    })
+                })
+              } else {
+                // onChangeWait("false")
+                onChangeTransaction('undefined')
+                Swal.fire({
+                  icon: 'error',
+                  title: 'User denied message signature!',
+                  text: 'Transaction Failed.',
+                  didOpen: () => {
+                    Swal.hideLoading()
+                  }
+                })
+              }
+
+              // const txReciept = await txResponse.wait()
+              // console.log('txReciept: ', txReciept)
+              //  .then(gasEstimate => {
+              //   return {
+              //     call,
+              //     gasEstimate
+              //   }
+              // })
+              // .catch(gasError => {
+              //   console.debug('Gas estimate failed, trying eth_call to extract error', call)
+
+              //   return contract.callStatic[methodName](...args, options)
+              //     .then(result => {
+              //       console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
+              //       return { call, error: new Error('Unexpected issue with estimating the gas. Please try again.') }
+              //     })
+              //     .catch(callError => {
+              //       console.debug('Call threw error', call, callError)
+              //       let errorMessage: string
+              //       switch (callError.reason) {
+              //         case 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT':
+              //         case 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT':
+              //           errorMessage =
+              //             'This transaction will not succeed either due to price movement or fee on transfer. Try increasing your slippage tolerance.'
+              //           break
+              //         default:
+              //           errorMessage = `The transaction cannot succeed due to error: ${callError.reason}. This is probably an issue with one of the tokens you are swapping.`
+              //       }
+              //       return { call, error: new Error(errorMessage) }
+              //     })
+              // })
             }
-
-            // const txReciept = await txResponse.wait()
-            // console.log('txReciept: ', txReciept)
-            //  .then(gasEstimate => {
-            //   return {
-            //     call,
-            //     gasEstimate
-            //   }
-            // })
-            // .catch(gasError => {
-            //   console.debug('Gas estimate failed, trying eth_call to extract error', call)
-
-            //   return contract.callStatic[methodName](...args, options)
-            //     .then(result => {
-            //       console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
-            //       return { call, error: new Error('Unexpected issue with estimating the gas. Please try again.') }
-            //     })
-            //     .catch(callError => {
-            //       console.debug('Call threw error', call, callError)
-            //       let errorMessage: string
-            //       switch (callError.reason) {
-            //         case 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT':
-            //         case 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT':
-            //           errorMessage =
-            //             'This transaction will not succeed either due to price movement or fee on transfer. Try increasing your slippage tolerance.'
-            //           break
-            //         default:
-            //           errorMessage = `The transaction cannot succeed due to error: ${callError.reason}. This is probably an issue with one of the tokens you are swapping.`
-            //       }
-            //       return { call, error: new Error(errorMessage) }
-            //     })
-            // })
           })
           // )
         } catch (error) {
