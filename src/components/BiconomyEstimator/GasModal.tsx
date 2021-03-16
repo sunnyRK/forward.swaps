@@ -119,7 +119,23 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   }
 
   const onApprove = async (tokenSymbol: any) => {
-    const approvedResp: any = await approveToken(tokenSymbol)
+    let approvedResp: any
+    if(tokenSymbol == 'USDT') {
+      const isApproved = await checkAllowance(selectedToken, inputAmount)
+      if (isApproved) {
+        Swal.fire('You have already given allowance')
+        return
+      } else if (!isApproved) {
+        approvedResp = await approveToken(tokenSymbol)
+      } else {
+        Swal.fire('Something went wrong!')
+        onChangeOpen(false)
+        return
+      }
+    } else {
+      approvedResp = await approveToken(tokenSymbol)
+    }
+
     if (approvedResp) {
       // setIsApproved(true)
       const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
