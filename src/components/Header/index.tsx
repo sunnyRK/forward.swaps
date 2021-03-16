@@ -12,6 +12,7 @@ import styled from 'styled-components'
 
 // import Logo from '../../assets/svg/logo.svg'
 // import LogoDark from '../../assets/svg/logo_white.svg'
+import biconomyLogo from '../../assets/images/biconomyLogo.svg'
 import { useActiveWeb3React } from '../../hooks'
 // import { useDarkModeManager } from '../../state/user/hooks'
 import {
@@ -195,12 +196,13 @@ const Title = styled.a`
   }
 `
 
-// const UniIcon = styled.div`
-//   transition: transform 0.3s ease;
-//   :hover {
-//     transform: rotate(-5deg);
-//   }
-// `
+const UniIcon = styled.div`
+  transition: transform 0.3s ease;
+  margin-left: 8px
+  :hover {
+    transform: rotate(-5deg);
+  }
+`
 
 const activeClassName = 'ACTIVE'
 
@@ -328,9 +330,9 @@ export default function Header() {
       </Modal>
       <HeaderRow>
         <Title href=".">
-          {/* <UniIcon>
-            <img width={'24px'} src={darkMode ? LogoDark : Logo} alt="logo" />
-          </UniIcon> */}
+          <UniIcon>
+            <img width={'25px'} height={'30px'} src={biconomyLogo} alt="logo" />
+          </UniIcon>
         </Title>
         <HeaderLinks>
           <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
