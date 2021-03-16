@@ -25,8 +25,9 @@ import { TYPE, ExternalLink } from '../../theme'
 
 import { YellowCard } from '../Card'
 import { 
-  // Moon, 
-  Sun } from 'react-feather'
+  // Moon,
+  // Sun 
+} from 'react-feather'
 // import Menu from '../Menu'
 
 import Row, { RowFixed } from '../Row'
@@ -420,12 +421,12 @@ export default function Header() {
           </AccountElement>
         </HeaderElement>
         <HeaderElementWrap>
-          <StyledMenuButton 
-            // onClick={() => toggleDarkMode()}
-          >
+          {/* <StyledMenuButton 
+            onClick={() => toggleDarkMode()}
+          > */}
             {/* {darkMode ? <Moon size={20} /> : <Sun size={20} />} */}
-              <Sun size={20}/>
-          </StyledMenuButton>
+              {/* <Sun size={20}/> */}
+          {/* </StyledMenuButton> */}
           {/* <Menu /> */}
         </HeaderElementWrap>
       </HeaderControls>
