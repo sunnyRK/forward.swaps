@@ -6,7 +6,7 @@ import { darken } from 'polished'
 import { useBlockNumber } from '../../state/application/hooks'
 import { getEtherscanLink } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
-import biconomy from '../../assets/images/biconomy.png'
+// import biconomy from '../../assets/images/biconomy.png'
 
 const activeClassName = 'ACTIVE'
 
@@ -17,7 +17,7 @@ const StyledCenter = styled.div`
   cursor: pointer;
   text-decoration: none;
   color: ${({ theme }) => theme.text2};
-  font-size: 1rem;
+  font-size: 1.2rem;
   width: fit-content;
   margin-bottom: 20px;
   font-weight: 600;
@@ -142,10 +142,10 @@ export default function Polling() {
           <strong>Save your ETH by paying gas in Stablecoins!</strong>
           <br></br>
           <div style={{ display: 'flex' }}>
-            <span style={{ textAlign: 'center', marginLeft: '80px', marginBottom: '10px', marginRight: '5px' }}>
-              Powered by{' '}
+            <span style={{ textAlign: 'center', marginLeft: '103px', marginBottom: '10px', marginRight: '5px' }}>
+              Powered by Biconomy{' '}
             </span>
-            <img src={biconomy} style={{ height: '25px' }}></img>
+            {/* <img src={biconomy} style={{ height: '25px' }}></img> */}
           </div>
         </div>
       </StyledCenter>
