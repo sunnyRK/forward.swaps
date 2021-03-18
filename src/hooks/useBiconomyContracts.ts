@@ -41,24 +41,27 @@ const useBiconomyContracts = () => {
   const { account, library } = useActiveWeb3React()
   const { onChangeApproved, onChangeOpen } = useWaitActionHandlers()
 
-
   function getContractInstance(erc20token: string): any {
-    if (erc20token === 'USDC') {
-      return getContract(
-        USDC_kovan_contract.address,
-        USDC_kovan_contract.abi,
-        library as Web3Provider,
-        account as string
-      )
-    } else if (erc20token === 'USDT') {
-      return getContract(
-        USDT_kovan_contract.address,
-        USDT_kovan_contract.abi,
-        library as Web3Provider,
-        account as string
-      )
-    } else if (erc20token === 'DAI') {
-      return getContract(DAI_kovan_contract.address, DAI_kovan_contract.abi, library as Web3Provider, account as string)
+    try {
+      if (erc20token === 'USDC') {
+        return getContract(
+          USDC_kovan_contract.address,
+          USDC_kovan_contract.abi,
+          library as Web3Provider,
+          account as string
+        )
+      } else if (erc20token === 'USDT') {
+        return getContract(
+          USDT_kovan_contract.address,
+          USDT_kovan_contract.abi,
+          library as Web3Provider,
+          account as string
+        )
+      } else if (erc20token === 'DAI') {
+        return getContract(DAI_kovan_contract.address, DAI_kovan_contract.abi, library as Web3Provider, account as string)
+      } 
+    } catch (error) {
+      console.log('Error: ', error)
     }
   }
 
@@ -426,7 +429,6 @@ const useBiconomyContracts = () => {
 
   const calculateGasFeesForApproveAndSwap = async (erc20token: string, token0: string, token1: string, inputAmount: string) => {
     try {
-      
       if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
         Swal.fire('Something went wrong!')
         onChangeOpen(false)
@@ -653,20 +655,29 @@ const useBiconomyContracts = () => {
   }
 
   const checkAllowance = async (erc20token: string, inputAmount: string) => {
-    const TokenContractInstance = getContractInstance(erc20token)
-    const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
-    console.log('Allowance', erc20token, allowance.toString(), parseInt(inputAmount) * 1e18)
-    if (allowance > (parseInt(inputAmount) * 1e18)) {
-      return true
-    } else {
+    try {
+      const TokenContractInstance = getContractInstance(erc20token)
+      const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
+      console.log('Allowance', erc20token, allowance.toString(), parseInt(inputAmount) * 1e18)
+      if (allowance > (parseInt(inputAmount) * 1e18)) {
+        return true
+      } else {
+        return false
+      } 
+    } catch (error) {
+      console.log('Error: ', error)
       return false
     }
   }
 
   const checkBalance = async (erc20token: string) => {
-    const TokenContractInstance = getContractInstance(erc20token)
-    const balance = await TokenContractInstance.balanceOf(account)
-    return balance
+    try {
+      const TokenContractInstance = getContractInstance(erc20token)
+      const balance = await TokenContractInstance.balanceOf(account)
+      return balance 
+    } catch (error) {
+      console.log('Error: ', error) 
+    }
   }
 
   return {
