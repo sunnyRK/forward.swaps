@@ -508,7 +508,7 @@ const useBiconomyContracts = () => {
 
   const approveToken = async (erc20token: string) => {
     try {
-      if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
+      if(getPermitClient() == '' || getPermitClient() ==  'undefined' || getPermitClient() == null) {
         Swal.fire('Something went wrong!')
         onChangeOpen(false)
         return
@@ -521,7 +521,7 @@ const useBiconomyContracts = () => {
 
         if (erc20token === 'USDC') {
           Swal.fire({
-            title: 'Please sign the permit message.',
+            title: 'Please sign the permit message',
             html: '',
             timerProgressBar: true,
             didOpen: () => {
@@ -541,7 +541,7 @@ const useBiconomyContracts = () => {
           tokenPermitOptions = {
             domainData: domainData,
             value: '100000000000000000000',
-            deadline: Math.floor(Date.now() / 1000 + 3600) 
+            deadline: Math.floor(Date.now() / 1000 + 3600)
           }
           permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions)
           console.log("permitTx", permitTx)
@@ -562,7 +562,7 @@ const useBiconomyContracts = () => {
           console.log('permitTxConfirm: ', permitTx)
         } else if (erc20token === 'USDT') {
           Swal.fire({
-            title: 'Please sign the Approve message.',
+            title: 'Please approve to spend USDT',
             html: '',
             timerProgressBar: true,
             didOpen: () => {
@@ -578,7 +578,7 @@ const useBiconomyContracts = () => {
           console.log('permitTx: ', permitTx)
         } else if (erc20token === 'DAI') {
             Swal.fire({
-              title: 'Please sign the permit message.',
+              title: 'Please sign the permit message',
               html: '',
               timerProgressBar: true,
               didOpen: () => {

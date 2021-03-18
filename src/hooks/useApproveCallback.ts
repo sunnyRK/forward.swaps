@@ -17,6 +17,7 @@ import DAI_kovan_contract from '../contracts/DAI_kovan.json'
 import USDC_kovan_contract from '../contracts/USDC_kovan.json'
 import { BICONOMY_CONTRACT } from "../constants/config";
 import { getPermitClient } from "../biconomy/biconomy";
+import Swal from 'sweetalert2'
 
 export enum ApprovalState {
   UNKNOWN,
@@ -90,52 +91,76 @@ export function useApproveCallback(
     let permitTx
 
     if (tokenContract.address == DAI_kovan_contract.address) {
-      domainData = {
-        name: 'Dai Stablecoin',
-        version: '1',
-        chainId: 42,
-        verifyingContract: DAI_kovan_contract.address // kovan
-      }
+      if(getPermitClient() == '' || getPermitClient() ==  'undefined' || getPermitClient() == null) {
+        Swal.fire('Something went wrong!')
+        return
+      } else {
+        domainData = {
+          name: 'Dai Stablecoin',
+          version: '1',
+          chainId: 42,
+          verifyingContract: DAI_kovan_contract.address // kovan
+        }
 
-      tokenPermitOptions1 = {
-        spender: BICONOMY_CONTRACT,
-        domainData: domainData,
-        value: '100000000000000000000',
-        deadline: Math.floor(Date.now() / 1000 + 3600)
-      }
+        tokenPermitOptions1 = {
+          spender: BICONOMY_CONTRACT,
+          domainData: domainData,
+          value: '100000000000000000000',
+          deadline: Math.floor(Date.now() / 1000 + 3600)
+        }
 
-      permitTx = await getPermitClient().daiPermit(tokenPermitOptions1)
-      await permitTx.wait(1)
-      addTransaction(permitTx, {
-        summary: 'Approve ' + amountToApprove.currency.symbol,
-        approval: { tokenAddress: token.address, spender: spender }
-      })
-      console.log('permitTx: ', permitTx)
-      return permitTx
+        permitTx = await getPermitClient().daiPermit(tokenPermitOptions1)
+        // console.log('permitTx: ', permitTx, amountToApprove.currency.symbol, token.address, spender)
+        // addTransaction(permitTx, {
+        //   summary: 'Approve ' + amountToApprove.currency.symbol,
+        //   approval: { tokenAddress: token.address, spender: spender }
+        // })
+        await permitTx.wait(1)
+        console.log('permitTx: ', permitTx)
+        if (permitTx.hash) {
+          addTransaction(permitTx, {
+            summary: 'Approve ' + amountToApprove.currency.symbol,
+            approval: { tokenAddress: token.address, spender: spender }
+          })
+        }
+        return permitTx
+      }
     } else if (tokenContract.address == USDC_kovan_contract.address) {
-      domainData = {
-        name: 'USDC Coin',
-        version: '1',
-        chainId: 42,
-        verifyingContract: USDC_kovan_contract.address
-      }
+      if(getPermitClient() == '' || getPermitClient() ==  'undefined' || getPermitClient() == null) {
+        Swal.fire('Something went wrong!')
+        return
+      } else {
+        domainData = {
+          name: 'USDC Coin',
+          version: '1',
+          chainId: 42,
+          verifyingContract: USDC_kovan_contract.address
+        }
 
-      tokenPermitOptions1 = {
-        spender: BICONOMY_CONTRACT,
-        domainData: domainData,
-        value: '100000000000000000000',
-        deadline: Math.floor(Date.now() / 1000 + 3600)
+        tokenPermitOptions1 = {
+          spender: BICONOMY_CONTRACT,
+          domainData: domainData,
+          value: '100000000000000000000',
+          deadline: Math.floor(Date.now() / 1000 + 3600)
+        }
+        permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions1)
+        await permitTx.wait(1)
+        console.log('permitTx: ', permitTx)
+        if (permitTx.hash) {
+          addTransaction(permitTx, {
+            summary: 'Approve ' + amountToApprove.currency.symbol,
+            approval: { tokenAddress: token.address, spender: spender }
+          })
+        }
+        return permitTx
       }
-      permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions1)
-      await permitTx.wait(1)
-      console.log('permitTx: ', permitTx)
-      return permitTx
     } else {
       return tokenContract
         .approve(spender, useExact ? amountToApprove.raw.toString() : MaxUint256, {
           gasLimit: calculateGasMargin(estimatedGas)
         })
         .then((response: TransactionResponse) => {
+          console.log('permitTx', response)
           addTransaction(response, {
             summary: 'Approve ' + amountToApprove.currency.symbol,
             approval: { tokenAddress: token.address, spender: spender }

@@ -14,7 +14,7 @@ import styled from 'styled-components'
 // import LogoDark from '../../assets/svg/logo_white.svg'
 import biconomyLogo from '../../assets/images/biconomyLogo.svg'
 import { useActiveWeb3React } from '../../hooks'
-// import { useDarkModeManager } from '../../state/user/hooks'
+import { useDarkModeManager } from '../../state/user/hooks'
 import {
   useETHBalances
   //  useAggregateUniBalance
@@ -25,8 +25,8 @@ import { TYPE, ExternalLink } from '../../theme'
 
 import { YellowCard } from '../Card'
 import { 
-  // Moon,
-  // Sun 
+  Moon,
+  Sun 
 } from 'react-feather'
 // import Menu from '../Menu'
 
@@ -307,7 +307,7 @@ export default function Header() {
 
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
   // const [isDark] = useDarkModeManager()
-  // const [darkMode, toggleDarkMode] = useDarkModeManager()
+  const [darkMode, toggleDarkMode] = useDarkModeManager()
 
   const toggleClaimModal = useToggleSelfClaimModal()
 
@@ -421,12 +421,11 @@ export default function Header() {
           </AccountElement>
         </HeaderElement>
         <HeaderElementWrap>
-          {/* <StyledMenuButton 
+          <StyledMenuButton 
             onClick={() => toggleDarkMode()}
-          > */}
-            {/* {darkMode ? <Moon size={20} /> : <Sun size={20} />} */}
-              {/* <Sun size={20}/> */}
-          {/* </StyledMenuButton> */}
+          >
+            {darkMode ? <Moon size={20} /> : <Sun size={20} />}
+          </StyledMenuButton>
           {/* <Menu /> */}
         </HeaderElementWrap>
       </HeaderControls>

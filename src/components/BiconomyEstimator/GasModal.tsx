@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState
+  // , useContext
+ } from 'react'
 import 'react-responsive-modal/styles.css'
 import { Modal } from 'react-responsive-modal'
 import SmallButtons from './SmallButtons'
@@ -8,7 +10,7 @@ import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
 import QuestionHelper from '../QuestionHelper'
 import { TYPE } from '../../theme'
-import { ThemeContext } from 'styled-components'
+// import { ThemeContext } from 'styled-components'
 import DAI_kovan_contract from '../../contracts/DAI_kovan.json'
 import USDT_kovan_contract from '../../contracts/USDT_kovan.json'
 import USDC_kovan_contract from '../../contracts/USDC_kovan.json'
@@ -72,7 +74,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     }
   }, [tx])
 
-  const theme = useContext(ThemeContext)
+  // const theme = useContext(ThemeContext)
 
   const onDeposit = async () => {
     try {
@@ -189,20 +191,23 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       setCheckingAllowance(true)
       // const isApproved = await checkAllowance(selectedToken)
       const isApproved = await checkAllowance(selectedToken, inputAmount)
-
       const balance = await checkBalance(selectedToken)
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
-      if (selectedToken == 'USDT') {
-        setBalance((balance / 1e6).toString())
+      if (parseInt(fee) <= 0) {
+        setSelectedToken(selectedToken)
       } else {
-        setBalance((balance / 1e18).toString())
-        const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
-        setApproveAndSwapFees(approveAndSwapfee)
+        if (selectedToken == 'USDT') {
+          setBalance((balance / 1e6).toString())
+        } else {
+          setBalance((balance / 1e18).toString())
+          const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
+          setApproveAndSwapFees(approveAndSwapfee)
+        }
+        onChangeApproved(isApproved)
+        // setIsApproved(isApproved)
+        setCheckingAllowance(false)
+        setFees(fee)
       }
-      onChangeApproved(isApproved)
-      // setIsApproved(isApproved)
-      setCheckingAllowance(false)
-      setFees(fee)
     }
     if (selectedToken != '' && path0 != '' && path1 != '') {
       process()
@@ -256,8 +261,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         center
         blockScroll={true}
       >
-        <div className="header">
-          <div className="title" style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <div className="header" style={{color: "#000000"}}>
+          <div className="title" style={{ textAlign: 'center', marginBottom: '20px', color: "#000000" }}>
             Select tokens to pay gas fees
           </div>
           <div className="tabs">
@@ -267,7 +272,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
         </div>
 
-        <div className="body">
+        <div className="body" style={{color: "#000000"}}>
           <div className="token-container">
             <SmallButtons
               marginPX={'0px'}
@@ -332,34 +337,35 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                 <AutoColumn gap="0px">
                   <RowBetween>
                     <RowFixed>
-                      <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                      <TYPE.black fontSize={14} fontWeight={400} color={"#000000"}>
                         Your Balance :{' '}
                       </TYPE.black>
                       <QuestionHelper text="Your metamask balance." />
                     </RowFixed>
                     <RowFixed>
-                      <TYPE.black fontSize={14}>{checkBal}</TYPE.black>
-                      <TYPE.black fontSize={14} marginLeft={'4px'}>
+                      <TYPE.black fontSize={14} style={{color: "#000000"}}>{checkBal}</TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{color: "#000000"}}>
                         {selectedToken}
                       </TYPE.black>
                     </RowFixed>
                   </RowBetween>
                   <RowBetween>
                     <RowFixed>
-                      <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                      <TYPE.black fontSize={14} fontWeight={400} color={"#000000"}>
                         Estimated Tx fee :{' '}
                       </TYPE.black>
                       <QuestionHelper text="Estimated tx fee is a fee will be deduct from stablecoin balance." />
                     </RowFixed>
                     <RowFixed>
-                      <TYPE.black fontSize={14}>{parseInt(fees) > 0 ? fees : '0'}</TYPE.black>
-                      <TYPE.black fontSize={14} marginLeft={'4px'}>
+                      <TYPE.black fontSize={14} style={{color: "#000000"}}>{parseInt(fees) > 0 ? fees : '0'}</TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{color: "#000000"}}>
                         {selectedToken}
                       </TYPE.black>
                     </RowFixed>
                   </RowBetween>
                 </AutoColumn>
-
+                
+                {parseInt(fees) > 0 ? (
                 <div className="buttons">
                   <div className="tx-button cancel" onClick={onCloseModal}>
                     Cancel
@@ -372,7 +378,11 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                   >
                     Swap
                   </div>
-                </div>
+                </div>):(
+                  <div className="gas-amount">
+                    <strong>Fees getting calculating...</strong>
+                  </div>
+                )}
               </div>
             ) : selectedToken == 'DAI' || selectedToken == 'USDC' ? (
               <div className="pay-tx">
