@@ -22,6 +22,7 @@ interface GasModalProps {
   handleDeposit: () => void
   hadaleGasModalEnable: () => void
   setGasTokenAndSwapCallback: (gas: any) => void
+  wipeInput: () => void
   path0: any
   path1: any
   inputToken: any
@@ -32,6 +33,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   handleDeposit,
   hadaleGasModalEnable,
   setGasTokenAndSwapCallback,
+  wipeInput,
   path0,
   path1,
   inputToken,
@@ -41,7 +43,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     // wait, 
     isOpen,
     tx, isApproved } = useWaitState()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeApproved, onChangeOpen } = useWaitActionHandlers()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeApproved, onChangeOpen, onChangeGasModal } = useWaitActionHandlers()
 
   // const { connected } = useStoreState((state) => state);
   const { checkAllowance, checkBalance, approveToken, calculateFees, approveTokenAndSwap, calculateGasFeesForApproveAndSwap } = useBiconomyContracts()
@@ -55,17 +57,18 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   const [fees, setFees] = useState('0')
   const [approveAndSwapFees, setApproveAndSwapFees] = useState('0')
   const [isApproveAndSwap, setApproveAndSwap] = useState(false)
+  // const [isApproveState, setApprove] = useState(false)
   const [selectedToken, setSelectedToken] = useState('')
 
   // const onOpenModal = () => setOpen(true)
   const onCloseModal = () => {
-    hadaleGasModalEnable()
+    // hadaleGasModalEnable()
     setOpen(false)
     onChangeWait('false')
     onChangeTransaction('')
     onChangeTransactionHash('')
     onChangeOpen(false)
-    // onChangeFee('')
+    onChangeGasModal(false)
   }
 
   useEffect(() => {
@@ -137,10 +140,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     } else {
       approvedResp = await approveToken(tokenSymbol)
     }
-    // hadaleGasModalEnable()
-
     if (approvedResp) {
-      // setIsApproved(true)
       const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
       setFees(fee)
     }
@@ -198,7 +198,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         if (selectedToken == 'USDT') {
           setBalance((balance / 1e6).toString())
           onChangeApproved(isApproved)
-          // setIsApproved(isApproved)
           setCheckingAllowance(false)
           setFees(fee)
         } else {
@@ -209,7 +208,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           } else {
             setApproveAndSwapFees(approveAndSwapfee)
             onChangeApproved(isApproved)
-            // setIsApproved(isApproved)
             setCheckingAllowance(false)
             setFees(fee)
           }
@@ -230,11 +228,11 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     async function process() {
       await onApproveAndSwap(selectedToken)
       setApproveAndSwap(false)
-      hadaleGasModalEnable()
+      // hadaleGasModalEnable()
       const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
-      setFees(fee)
-      // onCloseModal()
-      // setIsApproved(true)
+      if(parseInt(fee) > 0) {
+        setFees(fee)
+      }
     }
     if(isApproveAndSwap) {
       process()
@@ -263,7 +261,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     <>
       <Modal
         open={isOpen != null ? (isOpen) : (false)}
-        // open={true}
         onClose={onCloseModal}
         center
         blockScroll={true}
@@ -436,7 +433,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                     </RowFixed>
                   </RowBetween>
                 </AutoColumn>
-
                   
                 {parseInt(approveAndSwapFees) > 0 && parseInt(checkBal) > 0 ? (
                   <div className="buttons">

@@ -176,7 +176,7 @@ export function useBiconomySwapper(
   const { account } = useActiveWeb3React()
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeOpen} = useWaitActionHandlers()
+  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeOpen, onChangeGasModal} = useWaitActionHandlers()
   // const tradeVersion = getTradeVersion(trade)
 
   return useMemo(() => {
@@ -189,6 +189,7 @@ export function useBiconomySwapper(
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
           onChangeOpen(false)
+          onChangeGasModal(false)
           swapCalls.map(async call => {
             if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
               Swal.fire('Something went wrong!')
@@ -293,6 +294,7 @@ export function useBiconomySwapper(
               } else {
                 // onChangeWait("false")
                 onChangeTransaction('undefined')
+                onChangeGasModal(false)
                 Swal.fire({
                   icon: 'error',
                   title: 'User denied message signature!',

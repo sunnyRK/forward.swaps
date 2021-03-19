@@ -39,7 +39,7 @@ const daiPermitType = [
 
 const useBiconomyContracts = () => {
   const { account, library } = useActiveWeb3React()
-  const { onChangeApproved, onChangeOpen } = useWaitActionHandlers()
+  const { onChangeApproved, onChangeOpen, onChangeGasModal } = useWaitActionHandlers()
 
   function getContractInstance(erc20token: string): any {
     try {
@@ -146,6 +146,8 @@ const useBiconomyContracts = () => {
         let domainData
         let tokenPermitOptions
         onChangeOpen(false)
+        onChangeGasModal(false)
+        
         Swal.fire({
           title: 'Please sign the permit message.',
           html: '',

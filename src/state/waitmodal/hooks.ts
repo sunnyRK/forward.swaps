@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
-import { setWait, setTransaction, setTransactionHash, setTimer, setFee, setApproved, setOpen } from './actions'
+import { setWait, setTransaction, setTransactionHash, setTimer, setFee, setApproved, setOpen, setGasModal } from './actions'
 
 export function useWaitState(): AppState['waitmodal'] {
   return useSelector<AppState, AppState['waitmodal']>(state => state.waitmodal)
@@ -15,6 +15,7 @@ export function useWaitActionHandlers(): {
   onChangeFee: (gasFees: string | null) => void
   onChangeApproved: (isApproved: boolean | null) => void
   onChangeOpen: (isOpen: boolean) => void
+  onChangeGasModal: (isGasModal: boolean) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
 
@@ -67,6 +68,13 @@ export function useWaitActionHandlers(): {
     [dispatch]
   )
 
+  const onChangeGasModal = useCallback(
+    (isGasModal: boolean | null) => {
+      dispatch(setGasModal({ isGasModal }))
+    },
+    [dispatch]
+  )
+
   return {
     onChangeWait,
     onChangeTransaction,
@@ -74,6 +82,7 @@ export function useWaitActionHandlers(): {
     onChangeSetTimerBool,
     onChangeFee,
     onChangeApproved,
-    onChangeOpen
+    onChangeOpen,
+    onChangeGasModal
   }
 }

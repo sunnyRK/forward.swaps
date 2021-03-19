@@ -60,6 +60,8 @@ import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter
 import { isTradeBetter } from 'utils/trades'
 // import { useChill, useSocksController } from "../../hooks/useContract";
 // import biconomy from '../../assets/images/biconomy.png'
+import { useWaitActionHandlers } from '../../state/waitmodal/hooks'
+import { useWaitState } from '../../state/waitmodal/hooks'
 
 // const activeClassName = 'ACTIVE'
 
@@ -95,6 +97,8 @@ export default function Swap() {
   const [gasModalEnable, setGasModalEnable] = useState(false)
   const [gasToken, setGasToken] = useState('')
   const loadedUrlParams = useDefaultsFromURLSearch()
+  const { onChangeGasModal } = useWaitActionHandlers()
+  const { isGasModal } = useWaitState()
 
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
@@ -313,8 +317,10 @@ export default function Swap() {
           return
         }
         callback(gasTokenValue)
+        // wipeInput()
+        // setGasModalEnable(false)
       } catch (error) {
-        console.log('Error: ', error)
+        console.log('Error1: ', error)
       }
     },
     [
@@ -335,8 +341,8 @@ export default function Swap() {
     try {
       if (gasModalEnable) {
         setGasModalEnable(false)
-        onUserInput(Field.INPUT, '')
-        onUserInput(Field.OUTPUT, '')
+        // onUserInput(Field.INPUT, '')
+        // onUserInput(Field.OUTPUT, '')
       } else {
         setGasModalEnable(true)
       }
@@ -344,6 +350,14 @@ export default function Swap() {
       console.log('Error: ', error)
     }
   }, [gasModalEnable])
+
+  const hadaleIsGasModal = useCallback(async () => {
+    try {
+      onChangeGasModal(true)
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }, [isGasModal])
 
   const wipeInput = useCallback(async () => {
     try {
@@ -383,7 +397,6 @@ export default function Swap() {
 
   const handleInputSelect = useCallback(
     (inputCurrency: any) => {
-      console.log('handleInputSelecthandleInputSelect')
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
     },
@@ -395,7 +408,6 @@ export default function Swap() {
   }, [maxAmountInput, onUserInput])
 
   const handleOutputSelect = useCallback((outputCurrency: any) => { 
-      console.log("handleOutputSelecthandleOutputSelect")
       onCurrencySelection(Field.OUTPUT, outputCurrency)
     }, [
     onCurrencySelection
@@ -574,7 +586,8 @@ export default function Swap() {
             <BottomGrouping>
               <ButtonError
                 onClick={() => {
-                  hadaleGasModalEnable()
+                  // hadaleGasModalEnable()
+                  hadaleIsGasModal()
                 }}
                 id="swap-button"
                 disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
@@ -726,7 +739,7 @@ export default function Swap() {
             ) : null}
           </BottomGrouping>
  */}
-          {gasModalEnable ? (
+          {isGasModal ? (
             <BottomGrouping>
               <GasModal
                 handleDeposit={handleDeposit}
@@ -736,6 +749,7 @@ export default function Swap() {
                 inputAmount={formattedAmounts[Field.INPUT]}
                 hadaleGasModalEnable={hadaleGasModalEnable}
                 setGasTokenAndSwapCallback={setGasTokenAndSwapCallback}
+                wipeInput={wipeInput}
               />
             </BottomGrouping>
           ) : (
