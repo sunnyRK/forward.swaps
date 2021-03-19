@@ -17,7 +17,11 @@ if(window && window.ethereum) {
 
 export function getErcForwarderClient(): any {
   try {
-    return ercForwarderClient
+    if(ercForwarderClient == '' || ercForwarderClient ==  'undefined' || ercForwarderClient == null) {
+      return null
+    } else {
+      return ercForwarderClient
+    }
   } catch (error) {
     console.log('ERCForwarderClient-error', error)
     return null
@@ -26,7 +30,11 @@ export function getErcForwarderClient(): any {
 
 export function getPermitClient(): any {
   try {
-    return permitClient
+    if(permitClient == '' || permitClient ==  'undefined' || permitClient == null) {
+      return null
+    } else {
+      return permitClient
+    }
   } catch (error) {
     console.log('PermitClient-error', error)
     return null
@@ -35,7 +43,11 @@ export function getPermitClient(): any {
 
 export function getBiconomy(): any {
   try {
-    return biconomy
+    if(biconomy == '' || biconomy ==  'undefined' || biconomy == null) {
+      return null
+    } else {
+      return biconomy
+    }
   } catch (error) {
     console.log('BiconomyProvider-error', error)
     return null
