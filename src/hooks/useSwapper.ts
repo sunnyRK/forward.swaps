@@ -372,28 +372,34 @@ export function useSwapperForGas(
   return useMemo(() => {
     try {
       swapCalls.map(async call => {
-        const { account, contract, ethersProvider, swapMethod } = call
+        
+        if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
+          Swal.fire('Something went wrong!')
+          return
+        } else {
+          const { account, contract, ethersProvider, swapMethod } = call
 
-        const addr1 = account
-        const dai = swapMethod.args[2][0]
-        const path = [swapMethod.args[2][0], swapMethod.args[2][1]]
+          const addr1 = account
+          const dai = swapMethod.args[2][0]
+          const path = [swapMethod.args[2][0], swapMethod.args[2][1]]
 
-        const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, swapMethod.args[0])
+          const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, swapMethod.args[0])
 
-        const gasLimit = await ethersProvider.estimateGas({
-          to: contract.address,
-          from: account,
-          data: txResponse.data
-        })
+          const gasLimit = await ethersProvider.estimateGas({
+            to: contract.address,
+            from: account,
+            data: txResponse.data
+          })
 
-        const builtTx = await getErcForwarderClient().buildTx({
-          to: contract.address,
-          token: swapMethod.args[2][0],
-          txGas: Number(gasLimit),
-          data: txResponse.data
-        })
-        TxFess = builtTx.cost
-        return TxFess
+          const builtTx = await getErcForwarderClient().buildTx({
+            to: contract.address,
+            token: swapMethod.args[2][0],
+            txGas: Number(gasLimit),
+            data: txResponse.data
+          })
+          TxFess = builtTx.cost
+          return TxFess
+        }
       })
     } catch (error) {
       console.log('error:', error)
@@ -457,6 +463,11 @@ export function useSwapper(): {
         // : Promise<string> {
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
+          if(getPermitClient() == '' || getPermitClient() ==  'undefined' || getPermitClient() == null || 
+          getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
+            Swal.fire('Something went wrong!')
+            return
+          } else {
           swapCalls.map(async call => {
             const { account, contract, ethersProvider } = call
 
@@ -558,6 +569,7 @@ export function useSwapper(): {
             // })
           })
           // )
+          }
         } catch (error) {
           console.log('error:', error)
         }
