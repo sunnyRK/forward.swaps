@@ -180,7 +180,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     onChangeWait('false')
     onChangeTransaction('')
     onChangeTransactionHash('')
-    // onChangeFee('')
     setSelectedToken(tokenSymbol)
     setError(false)
     setInputError(false)
@@ -198,15 +197,23 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       } else {
         if (selectedToken == 'USDT') {
           setBalance((balance / 1e6).toString())
+          onChangeApproved(isApproved)
+          // setIsApproved(isApproved)
+          setCheckingAllowance(false)
+          setFees(fee)
         } else {
           setBalance((balance / 1e18).toString())
           const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
-          setApproveAndSwapFees(approveAndSwapfee)
+          if (parseInt(approveAndSwapfee) <= 0) {
+            setSelectedToken(selectedToken)
+          } else {
+            setApproveAndSwapFees(approveAndSwapfee)
+            onChangeApproved(isApproved)
+            // setIsApproved(isApproved)
+            setCheckingAllowance(false)
+            setFees(fee)
+          }
         }
-        onChangeApproved(isApproved)
-        // setIsApproved(isApproved)
-        setCheckingAllowance(false)
-        setFees(fee)
       }
     }
     if (selectedToken != '' && path0 != '' && path1 != '') {
@@ -365,7 +372,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                   </RowBetween>
                 </AutoColumn>
                 
-                {parseInt(fees) > 0 ? (
+                {parseInt(fees) > 0 && parseInt(checkBal) > 0 ? (
                 <div className="buttons">
                   <div className="tx-button cancel" onClick={onCloseModal}>
                     Cancel
@@ -380,7 +387,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                   </div>
                 </div>):(
                   <div className="gas-amount">
-                    <strong>Fees getting calculating...</strong>
+                    <strong>Fees and Balances getting calculating...</strong>
                   </div>
                 )}
               </div>
@@ -398,10 +405,43 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                     <strong>You have not selected input amount or token!</strong>
                   </div>
                 )}
+                
+                <AutoColumn gap="0px">
+                  <RowBetween>
+                    <RowFixed>
+                      <TYPE.black fontSize={14} fontWeight={400} color={"#000000"}>
+                        Your Balance :{' '}
+                      </TYPE.black>
+                      <QuestionHelper text="Your metamask balance." />
+                    </RowFixed>
+                    <RowFixed>
+                      <TYPE.black fontSize={14} style={{color: "#000000"}}>{checkBal}</TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{color: "#000000"}}>
+                        {selectedToken}
+                      </TYPE.black>
+                    </RowFixed>
+                  </RowBetween>
+                  <RowBetween>
+                    <RowFixed>
+                      <TYPE.black fontSize={14} fontWeight={400} color={"#000000"}>
+                        Estimated Tx fee :{' '}
+                      </TYPE.black>
+                      <QuestionHelper text="Estimated tx fee is a fee will be deduct from stablecoin balance." />
+                    </RowFixed>
+                    <RowFixed>
+                      <TYPE.black fontSize={14} style={{color: "#000000"}}>{parseInt(approveAndSwapFees) > 0 ? approveAndSwapFees : '0'}</TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{color: "#000000"}}>
+                        {selectedToken}
+                      </TYPE.black>
+                    </RowFixed>
+                  </RowBetween>
+                </AutoColumn>
 
-                <div className="buttons">
+                  
+                {parseInt(approveAndSwapFees) > 0 && parseInt(checkBal) > 0 ? (
+                  <div className="buttons">
                   <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
-                  Permit
+                    Permit
                   </div>
                   <div
                     className="tx-button proceed"
@@ -411,7 +451,12 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                   >
                     Permit and Swap
                   </div>
-                </div>
+                  </div> ) : (
+                    <div className="gas-amount">
+                      <strong>Fees and Balances getting calculating...</strong>
+                  </div>
+                )}
+
               </div>
             ) : (
               <div className="approve-token">

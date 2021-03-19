@@ -20,6 +20,7 @@ export function getErcForwarderClient(): any {
     return ercForwarderClient
   } catch (error) {
     console.log('ERCForwarderClient-error', error)
+    return null
   }
 }
 
@@ -28,6 +29,7 @@ export function getPermitClient(): any {
     return permitClient
   } catch (error) {
     console.log('PermitClient-error', error)
+    return null
   }
 }
 
@@ -36,5 +38,6 @@ export function getBiconomy(): any {
     return biconomy
   } catch (error) {
     console.log('BiconomyProvider-error', error)
+    return null
   }
 }
