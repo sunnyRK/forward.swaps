@@ -52,10 +52,10 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   const [balanceError, setError] = useState(false)
   const [inputError, setInputError] = useState(false)
   const [checkingAllowance, setCheckingAllowance] = useState(true)
-  const [checkBal, setBalance] = useState('0')
+  const [checkBal, setBalance] = useState('undefined')
   // const [isApproved, setIsApproved] = useState(false)
-  const [fees, setFees] = useState('0')
-  const [approveAndSwapFees, setApproveAndSwapFees] = useState('0')
+  const [fees, setFees] = useState('undefined')
+  const [approveAndSwapFees, setApproveAndSwapFees] = useState('undefined')
   const [isApproveAndSwap, setApproveAndSwap] = useState(false)
   // const [isApproveState, setApprove] = useState(false)
   const [selectedToken, setSelectedToken] = useState('')
@@ -191,27 +191,39 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       // const isApproved = await checkAllowance(selectedToken)
       const isApproved = await checkAllowance(selectedToken, inputAmount)
       const balance = await checkBalance(selectedToken)
-      const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
-      if (parseInt(fee) <= 0) {
+
+      if (balance == undefined || isApproved == undefined) {
         setSelectedToken(selectedToken)
-      } else {
-        if (selectedToken == 'USDT') {
-          setBalance((balance / 1e6).toString())
+      }
+
+      if(isApproved) {
+        let fee = await calculateFees(selectedToken, path0, path1, inputAmount)
+        if (fee == undefined) {
+          setSelectedToken(selectedToken)
+        } else {
+          if (selectedToken == 'USDT') {
+            setBalance((balance / 1e6).toString())
+          } else {
+            setBalance((balance / 1e18).toString())
+          }
           onChangeApproved(isApproved)
           setCheckingAllowance(false)
           setFees(fee)
+        }      
+      } else {
+        const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
+        if (approveAndSwapfee == undefined) {
+          setSelectedToken(selectedToken)
         } else {
-          setBalance((balance / 1e18).toString())
-          const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
-          if (parseInt(approveAndSwapfee) <= 0) {
-            setSelectedToken(selectedToken)
+          if (selectedToken == 'USDT') {
+            setBalance((balance / 1e6).toString())
           } else {
-            setApproveAndSwapFees(approveAndSwapfee)
-            onChangeApproved(isApproved)
-            setCheckingAllowance(false)
-            setFees(fee)
+            setBalance((balance / 1e18).toString())
           }
-        }
+          onChangeApproved(isApproved)
+          setCheckingAllowance(false)
+          setApproveAndSwapFees(approveAndSwapfee)
+        }  
       }
     }
     if (selectedToken != '' && path0 != '' && path1 != '') {
@@ -369,7 +381,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                   </RowBetween>
                 </AutoColumn>
                 
-                {parseInt(fees) > 0 && parseInt(checkBal) > 0 ? (
+                {fees != 'undefined' && checkBal != 'undefined' ? (
                 <div className="buttons">
                   <div className="tx-button cancel" onClick={onCloseModal}>
                     Cancel
@@ -434,7 +446,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                   </RowBetween>
                 </AutoColumn>
                   
-                {parseInt(approveAndSwapFees) > 0 && parseInt(checkBal) > 0 ? (
+                {approveAndSwapFees != 'undefined' && checkBal != 'undefined' ? (
                   <div className="buttons">
                   <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
                     Permit
