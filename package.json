@@ -131,5 +131,6 @@
     "react-responsive-modal": "^6.0.1",
     "sweetalert2": "^10.15.2",
     "web3modal": "^1.9.3"
-  }
+  },
+  "version": "0.0.0"
 }
