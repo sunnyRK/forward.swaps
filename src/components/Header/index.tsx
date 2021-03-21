@@ -7,8 +7,12 @@ import { Text } from 'rebass'
 import { NavLink } from 'react-router-dom'
 import { darken } from 'polished'
 import { useTranslation } from 'react-i18next'
-
+import Chip from '@material-ui/core/Chip'
 import styled from 'styled-components'
+import { ReactComponent as Close } from '../../assets/images/x.svg'
+import USDCIcon from '../../assets/images/usdc.png'
+import USDTIcon from '../../assets/images/usdt.png'
+import DAIIcon from '../../assets/images/dai.png'
 
 // import Logo from '../../assets/svg/logo.svg'
 // import LogoDark from '../../assets/svg/logo_white.svg'
@@ -66,6 +70,10 @@ const HeaderFrame = styled.div`
   `}
 `
 
+const ImageIcon = styled.img`
+  height: 20px
+`
+
 const HeaderControls = styled.div`
   display: flex;
   flex-direction: row;
@@ -90,6 +98,31 @@ const HeaderControls = styled.div`
   `};
 `
 
+const ModalHeaderRow = styled.div`
+  ${({ theme }) => theme.flexRowNoWrap};
+  padding: 1rem 1rem;
+  font-weight: 500;
+  color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary1 : 'inherit')};
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 1rem;
+  `};
+`
+
+const FaucetChipWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`
+
+const ContentWrapper = styled.div`
+  background-color: ${({ theme }) => theme.bg1};
+  padding: 2rem;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`padding: 1rem`};
+`
+
 const HeaderElement = styled.div`
   display: flex;
   align-items: center;
@@ -100,10 +133,29 @@ const HeaderElement = styled.div`
     align-items: center;
   `};
 `
+const HoverText = styled.div`
+  :hover {
+    cursor: pointer;
+  }
+`
+
+const FaucetElement = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  cursor: pointer;
+  font-weight: 400;
+  padding: 8px;
+`
 
 const HeaderElementWrap = styled.div`
   display: flex;
   align-items: center;
+`
+
+const FaucetChip = styled(Chip)`
+  color: ${({ theme }) => theme.text1}!important
+  background: ${({ theme }) => theme.bg2}!important
 `
 
 const HeaderRow = styled(RowFixed)`
@@ -118,6 +170,40 @@ const HeaderLinks = styled(Row)`
     padding: 1rem 0 1rem 1rem;
     justify-content: flex-end;
 `};
+`
+const UpperSection = styled.div`
+  position: relative;
+  
+  h5 {
+    margin: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  h5:last-child {
+    margin-bottom: 0px;
+  }
+
+  h4 {
+    margin-top: 0;
+    font-weight: 500;
+  }
+`
+const CloseIcon = styled.div`
+  position: absolute;
+  right: 1rem;
+  top: 14px;
+  &:hover {
+    cursor: pointer;
+    opacity: 0.6;
+  }
+`
+
+const CloseColor = styled(Close)`
+  path {
+    stroke: ${({ theme }) => theme.text4};
+  }
 `
 
 const AccountElement = styled.div<{ active: boolean }>`
@@ -142,6 +228,13 @@ const UNIAmount = styled(AccountElement)`
   font-weight: 500;
   background-color: ${({ theme }) => theme.bg3};
   background: radial-gradient(174.47% 188.91% at 1.84% 0%, #ff007a 0%, #2172e5 100%), #edeef2;
+`
+
+const Wrapper = styled.div`
+  ${({ theme }) => theme.flexColumnNoWrap}
+  margin: 0;
+  padding: 0;
+  width: 100%;
 `
 
 const UNIWrapper = styled.span`
@@ -318,16 +411,57 @@ export default function Header() {
   // const aggregateBalance: TokenAmount | undefined = useAggregateUniBalance()
 
   const [showUniBalanceModal, setShowUniBalanceModal] = useState(false)
+  const [showFaucetModal, setShowFaucetModal] = useState(false)
   const showClaimPopup = useShowClaimPopup()
 
   // const countUpValue = aggregateBalance?.toFixed(0) ?? '0'
   // const countUpValuePrevious = usePrevious(countUpValue) ?? '0'
+
+  const closeFaucetModal = () => {
+    setShowFaucetModal(false)
+  }
+
+  const onFaucetClick = (tokenSymbol: string) => {
+    switch(tokenSymbol) {
+      case "USDC":
+        console.log("USDC faucet button clicked");
+        break;
+      case "USDT":
+        console.log("USDT faucet button clicked");
+        break;
+      case "DAI":
+        console.log("DAI faucet button clicked");
+        // Redirect here to DAI faucet page
+        break;
+      default:
+        // Show error message that faucet token is not supported
+    }
+  }
 
   return (
     <HeaderFrame>
       <ClaimModal />
       <Modal isOpen={showUniBalanceModal} onDismiss={() => setShowUniBalanceModal(false)}>
         <UniBalanceContent setShowUniBalanceModal={setShowUniBalanceModal} />
+      </Modal>
+      <Modal isOpen={showFaucetModal} onDismiss={closeFaucetModal} minHeight={false} maxHeight={90}>
+        <Wrapper>
+          <UpperSection>
+            <CloseIcon onClick={closeFaucetModal}>
+              <CloseColor />
+            </CloseIcon>
+            <ModalHeaderRow>
+              <HoverText>Get Tokens From Faucet</HoverText>
+            </ModalHeaderRow>
+            <ContentWrapper>
+              <FaucetChipWrapper>
+                <FaucetChip label="Get USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("USDC")}}/>
+                <FaucetChip label="Get USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("USDT")}}/>
+                <FaucetChip label="Get DAI" icon={<ImageIcon src={DAIIcon} />} onClick={()=>{onFaucetClick("DAI")}}/>
+              </FaucetChipWrapper>
+            </ContentWrapper>
+          </UpperSection>
+        </Wrapper>
       </Modal>
       <HeaderRow>
         <Title href=".">
@@ -344,37 +478,21 @@ export default function Header() {
             See how much ETH you can save <span style={{ fontSize: '11px' }}>↗</span>
           </StyledExternalLink>
 
-          {/* <StyledNavLink
-            id={`pool-nav-link`}
-            to={'/pool'}
-            isActive={(match, { pathname }) =>
-              Boolean(match) ||
-              pathname.startsWith('/add') ||
-              pathname.startsWith('/remove') ||
-              pathname.startsWith('/create') ||
-              pathname.startsWith('/find')
-            }
-          >
-            {t('pool')}
-          </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/uni'}>
-            UNI
-          </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/vote'}>
-            Vote
-          </StyledNavLink>
-          <StyledExternalLink id={`stake-nav-link`} href={'https://uniswap.info'}>
-            Charts <span style={{ fontSize: '11px' }}>↗</span>
-          </StyledExternalLink> */}
+          
         </HeaderLinks>
       </HeaderRow>
       <HeaderControls>
+        <FaucetElement onClick={() => setShowFaucetModal(true)}>
+          Faucet
+        </FaucetElement>
+
         <HeaderElement>
           <HideSmall>
             {chainId && NETWORK_LABELS[chainId] && (
               <NetworkCard title={NETWORK_LABELS[chainId]}>{NETWORK_LABELS[chainId]}</NetworkCard>
             )}
           </HideSmall>
+
           {availableClaim && !showClaimPopup && (
             <UNIWrapper onClick={toggleClaimModal}>
               <UNIAmount active={!!account && !availableClaim} style={{ pointerEvents: 'auto' }}>
@@ -420,6 +538,8 @@ export default function Header() {
             <Web3Status />
           </AccountElement>
         </HeaderElement>
+        
+        
         <HeaderElementWrap>
           <StyledMenuButton 
             onClick={() => toggleDarkMode()}

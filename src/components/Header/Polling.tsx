@@ -140,9 +140,9 @@ export default function Polling() {
       <StyledCenter>
         <div>
           <strong>Save your ETH by paying gas in Stablecoins!</strong>
-          <br></br>
-          <div style={{ display: 'flex' }}>
-            <span style={{ textAlign: 'center', marginLeft: '103px', marginBottom: '10px', marginRight: '5px' }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <span style={{ textAlign: 'center', marginBottom: '10px'}}>
               Powered by Biconomy{' '}
             </span>
             {/* <img src={biconomy} style={{ height: '25px' }}></img> */}
