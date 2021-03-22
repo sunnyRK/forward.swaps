@@ -38,7 +38,7 @@ const daiPermitType = [
 ]
 
 const useBiconomyContracts = () => {
-  const { account, library } = useActiveWeb3React()
+  const { account, library, chainId } = useActiveWeb3React()
   const { onChangeApproved, onChangeOpen, onChangeGasModal } = useWaitActionHandlers()
 
   function getContractInstance(erc20token: string): any {
@@ -695,92 +695,96 @@ const useBiconomyContracts = () => {
 
   const faucetTransfer = async (tokenSymbol: string) => {
     try {
-      const contract: Contract = await getFaucetContract()
-      // console.log('FaucetContract:', contract)
-      let erc20TokenAddress
-      if (tokenSymbol === 'USDC') {
-        erc20TokenAddress = USDC_kovan_contract.address
-        Swal.fire({
-          title: 'Please sign the faucet transaction message.',
-          html: '',
-          timerProgressBar: true,
-          didOpen: () => {
-            Swal.showLoading()
+      if(chainId == 42) {
+        const contract: Contract = await getFaucetContract()
+        // console.log('FaucetContract:', contract)
+        let erc20TokenAddress
+        if (tokenSymbol === 'USDC') {
+          erc20TokenAddress = USDC_kovan_contract.address
+          Swal.fire({
+            title: 'Please sign the faucet transaction message.',
+            html: '',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              
+            }
+          })
+          let tx = await contract.getTokens(erc20TokenAddress);
+          console.log('FaucetTx:', tx)  
+          const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+          Swal.fire({
+            title: 'Faucet Transaction Sent',
+            html: 'Waiting for Confirmation...',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+            }
+          })
+          await tx.wait(1)
+          Swal.fire({
+            title: 'Faucet Transaction Successfull',
+            text: 'Faucet Transaction Successfull',
+            icon: 'success',
+            html:
+            `<a href=${hashLink} target="_blank">Etherscan</a>`,
+            confirmButtonText: 'continue'
+          })
+          console.log('FaucetTx:', tx)  
+        } else if (tokenSymbol === 'USDT') {
+          erc20TokenAddress = USDT_kovan_contract.address
+          Swal.fire({
+            title: 'Please sign the faucet transaction message.',
+            html: '',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              
+            }
+          })
+          let tx = await contract.getTokens(erc20TokenAddress);
+          console.log('FaucetTx:', tx)  
+          const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+          Swal.fire({
+            title: 'Faucet Transaction Sent',
+            html: 'Waiting for Confirmation...',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+            }
+          })
+          await tx.wait(1)
+          Swal.fire({
+            title: 'Faucet Transaction Successfull',
+            text: 'Faucet Transaction Successfull',
+            icon: 'success',
+            html:
+            `<a href=${hashLink} target="_blank">Etherscan</a>`,
+            confirmButtonText: 'continue'
+          })
+          console.log('FaucetTx:', tx)  
+          console.log('FaucetTx:', tx)
+        } else if (tokenSymbol === 'DAI') {
+          const newWindow = window.open('https://app.uniswap.org/#/swap?exactField=input&exactAmount=0.1&outputCurrency=0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '_blank', 'noopener,noreferrer')
+          if (newWindow) {
+              newWindow.opener = null
+              return
           }
-        }).then((result: any) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-            
-          }
-        })
-        let tx = await contract.getTokens(erc20TokenAddress);
-        console.log('FaucetTx:', tx)  
-        const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
-        Swal.fire({
-          title: 'Faucet Transaction Sent',
-          html: 'Waiting for Confirmation...',
-          timerProgressBar: true,
-          didOpen: () => {
-            Swal.showLoading()
-          }
-        }).then((result: any) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-          }
-        })
-        await tx.wait(1)
-        Swal.fire({
-          title: 'Faucet Transaction Successfull',
-          text: 'Faucet Transaction Successfull',
-          icon: 'success',
-          html:
-          `<a href=${hashLink} target="_blank">Etherscan</a>`,
-          confirmButtonText: 'continue'
-        })
-        console.log('FaucetTx:', tx)  
-      } else if (tokenSymbol === 'USDT') {
-        erc20TokenAddress = USDT_kovan_contract.address
-        Swal.fire({
-          title: 'Please sign the faucet transaction message.',
-          html: '',
-          timerProgressBar: true,
-          didOpen: () => {
-            Swal.showLoading()
-          }
-        }).then((result: any) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-            
-          }
-        })
-        let tx = await contract.getTokens(erc20TokenAddress);
-        console.log('FaucetTx:', tx)  
-        const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
-        Swal.fire({
-          title: 'Faucet Transaction Sent',
-          html: 'Waiting for Confirmation...',
-          timerProgressBar: true,
-          didOpen: () => {
-            Swal.showLoading()
-          }
-        }).then((result: any) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-          }
-        })
-        await tx.wait(1)
-        Swal.fire({
-          title: 'Faucet Transaction Successfull',
-          text: 'Faucet Transaction Successfull',
-          icon: 'success',
-          html:
-          `<a href=${hashLink} target="_blank">Etherscan</a>`,
-          confirmButtonText: 'continue'
-        })
-        console.log('FaucetTx:', tx)  
-        console.log('FaucetTx:', tx)
-      } else if (tokenSymbol === 'DAI') {
-        const newWindow = window.open('https://app.uniswap.org/#/swap?exactField=input&exactAmount=0.1&outputCurrency=0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '_blank', 'noopener,noreferrer')
-        if (newWindow) {
-            newWindow.opener = null
-            return
         }
+      } else {
+        alert("Network is wrong. Please switch to Kovan.")
       }
     } catch (error) {
       console.log('Error: ', error)
