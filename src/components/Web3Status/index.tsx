@@ -11,13 +11,17 @@ import PortisIcon from '../../assets/images/portisIcon.png'
 import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
 import { fortmatic, injected, portis, walletconnect, walletlink } from '../../connectors'
 import { NetworkContextName } from '../../constants'
+import Swal from "sweetalert2";
 import useENSName from '../../hooks/useENSName'
 import { useHasSocks } from '../../hooks/useSocksBalance'
+import { setBiconomy } from "../../biconomy/biconomy";
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { isTransactionRecent, useAllTransactions } from '../../state/transactions/hooks'
 import { TransactionDetails } from '../../state/transactions/reducer'
 import { shortenAddress } from '../../utils'
 import { ButtonSecondary } from '../Button'
+import { Biconomy } from '@biconomy/mexa'
+import { BICONOMY_API_KEY } from "../../constants/config";
 
 import Identicon from '../Identicon'
 import Loader from '../Loader'
@@ -34,6 +38,9 @@ const IconWrapper = styled.div<{ size?: number }>`
     width: ${({ size }) => (size ? size + 'px' : '32px')};
   }
 `
+
+let i = 0
+let j = 0 
 
 const Web3StatusGeneric = styled(ButtonSecondary)`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -181,6 +188,27 @@ function Web3StatusInner() {
   const toggleWalletModal = useWalletModalToggle()
 
   if (account) {
+    console.log("account +")
+    console.log(account)
+    console.log(connector)
+    let biconomy : any
+
+    if(i < 1){
+    if(window && window.ethereum) {
+      biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
+      console.log(window.ethereum);
+      console.log('biconomy init');
+      biconomy
+        .onEvent(biconomy.READY, () => {
+          //ercForwarderClient = biconomy.erc20ForwarderClient
+          //permitClient = biconomy.permitClient
+        })
+        .onEvent(biconomy.ERROR, () => {})
+      setBiconomy(biconomy)
+      i++;
+    }
+  }
+
     return (
       <Web3StatusConnected id="web3-status-connected" onClick={toggleWalletModal} pending={hasPendingTransactions}>
         {hasPendingTransactions ? (
@@ -204,6 +232,11 @@ function Web3StatusInner() {
       </Web3StatusError>
     )
   } else {
+    console.log("account ++")
+    if(j < 1){
+    Swal.fire(`Please switch your wallet to Kovan network`);
+    j++;
+    }
     return (
       <Web3StatusConnect id="connect-wallet" onClick={toggleWalletModal} faded={!account}>
         <Text>{t('Connect to a wallet')}</Text>
