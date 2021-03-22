@@ -500,8 +500,9 @@ const useBiconomyContracts = () => {
           const tx = builtTx.request
           fee = builtTx.cost // only gets the cost of target method call
           console.log(tx)
-          console.log(fee)
+          // console.log(fee)
         }
+        console.log('calculateGasFeesForApproveAndSwap: ', fee)
         return fee.toString()
       } 
     } catch (error) {
@@ -661,7 +662,7 @@ const useBiconomyContracts = () => {
       const TokenContractInstance = getContractInstance(erc20token)
       const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
       console.log('Allowance', erc20token, allowance.toString(), parseInt(inputAmount) * 1e18)
-      if (allowance > (parseInt(inputAmount) * 1e18)) {
+      if (parseInt(allowance) >= (parseInt(inputAmount) * 1e18)) {
         return true
       } else {
         return false

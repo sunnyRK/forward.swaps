@@ -211,19 +211,23 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           setFees(fee)
         }      
       } else {
-        const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
-        if (approveAndSwapfee == undefined) {
-          setSelectedToken(selectedToken)
-        } else {
-          if (selectedToken == 'USDT') {
-            setBalance((balance / 1e6).toString())
+        if(selectedToken != 'USDT') {
+          const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
+          if (approveAndSwapfee == undefined) {
+            setSelectedToken(selectedToken)
           } else {
             setBalance((balance / 1e18).toString())
-          }
+            onChangeApproved(isApproved)
+            setCheckingAllowance(false)
+            setApproveAndSwapFees(approveAndSwapfee)
+          } 
+        } else {
+          // For USDT
+          setBalance((balance / 1e6).toString())
           onChangeApproved(isApproved)
           setCheckingAllowance(false)
-          setApproveAndSwapFees(approveAndSwapfee)
-        }  
+          setApproveAndSwapFees('0')
+        }
       }
     }
     if (selectedToken != '' && path0 != '' && path1 != '') {
@@ -466,7 +470,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                 )}
 
               </div>
-            ) : (
+              ) : (
               <div className="approve-token">
                 <div className="note">
                   Note: Give approval to Biconomy ERC-20 Forwarder Contract, so it can deduct fee in selected token.
