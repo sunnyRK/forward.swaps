@@ -44,6 +44,7 @@ import { Dots } from '../swap/styleds'
 import Modal from '../Modal'
 import UniBalanceContent from './UniBalanceContent'
 // import usePrevious from '../../hooks/usePrevious'
+import useBiconomyContracts from '../../hooks/useBiconomyContracts'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -398,6 +399,8 @@ export default function Header() {
   const { account, chainId } = useActiveWeb3React()
   const { t } = useTranslation()
 
+  const { faucetTransfer } = useBiconomyContracts()
+
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
   // const [isDark] = useDarkModeManager()
   const [darkMode, toggleDarkMode] = useDarkModeManager()
@@ -421,17 +424,17 @@ export default function Header() {
     setShowFaucetModal(false)
   }
 
-  const onFaucetClick = (tokenSymbol: string) => {
+  const onFaucetClick = async (tokenSymbol: string) => {
     switch(tokenSymbol) {
       case "USDC":
-        console.log("USDC faucet button clicked");
+        await faucetTransfer('USDC')
         break;
       case "USDT":
-        console.log("USDT faucet button clicked");
+        await faucetTransfer('USDT')
         break;
       case "DAI":
-        console.log("DAI faucet button clicked");
         // Redirect here to DAI faucet page
+        await faucetTransfer('DAI')
         break;
       default:
         // Show error message that faucet token is not supported

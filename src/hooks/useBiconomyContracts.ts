@@ -695,7 +695,7 @@ const useBiconomyContracts = () => {
   const faucetTransfer = async (tokenSymbol: string) => {
     try {
       const contract: Contract = await getFaucetContract()
-      console.log('FaucetContract:', contract)
+      // console.log('FaucetContract:', contract)
       let erc20TokenAddress
       if (tokenSymbol === 'USDC') {
         erc20TokenAddress = USDC_kovan_contract.address
@@ -728,7 +728,7 @@ const useBiconomyContracts = () => {
     calculateFees,
     calculateGasFeesForApproveAndSwap,
     faucetTransfer
-  }
+    }
 }
 
 export default useBiconomyContracts
