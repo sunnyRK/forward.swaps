@@ -700,11 +700,80 @@ const useBiconomyContracts = () => {
       let erc20TokenAddress
       if (tokenSymbol === 'USDC') {
         erc20TokenAddress = USDC_kovan_contract.address
+        Swal.fire({
+          title: 'Please sign the faucet transaction message.',
+          html: '',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then((result: any) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            
+          }
+        })
         let tx = await contract.getTokens(erc20TokenAddress);
+        console.log('FaucetTx:', tx)  
+        const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+        Swal.fire({
+          title: 'Faucet Transaction Sent',
+          html: 'Waiting for Confirmation...',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then((result: any) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+          }
+        })
+        await tx.wait(1)
+        Swal.fire({
+          title: 'Faucet Transaction Successfull',
+          text: 'Faucet Transaction Successfull',
+          icon: 'success',
+          html:
+          `<a href=${hashLink} target="_blank">Etherscan</a>`,
+          confirmButtonText: 'continue'
+        })
         console.log('FaucetTx:', tx)  
       } else if (tokenSymbol === 'USDT') {
         erc20TokenAddress = USDT_kovan_contract.address
+        Swal.fire({
+          title: 'Please sign the faucet transaction message.',
+          html: '',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then((result: any) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            
+          }
+        })
         let tx = await contract.getTokens(erc20TokenAddress);
+        console.log('FaucetTx:', tx)  
+        const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+        Swal.fire({
+          title: 'Faucet Transaction Sent',
+          html: 'Waiting for Confirmation...',
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+          }
+        }).then((result: any) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+          }
+        })
+        await tx.wait(1)
+        Swal.fire({
+          title: 'Faucet Transaction Successfull',
+          text: 'Faucet Transaction Successfull',
+          icon: 'success',
+          html:
+          `<a href=${hashLink} target="_blank">Etherscan</a>`,
+          confirmButtonText: 'continue'
+        })
+        console.log('FaucetTx:', tx)  
         console.log('FaucetTx:', tx)
       } else if (tokenSymbol === 'DAI') {
         const newWindow = window.open('https://app.uniswap.org/#/swap?exactField=input&exactAmount=0.1&outputCurrency=0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '_blank', 'noopener,noreferrer')
@@ -716,7 +785,7 @@ const useBiconomyContracts = () => {
     } catch (error) {
       console.log('Error: ', error)
       if(error.code == -32016) {
-        alert("You have rquested recently. Please try after some time.")
+        alert("You have requested too early. Please try after some time.")
       } else if(error.code == 4001) {
         // alert("User Denied to confirm!")
       }
