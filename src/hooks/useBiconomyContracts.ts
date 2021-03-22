@@ -715,6 +715,11 @@ const useBiconomyContracts = () => {
       }
     } catch (error) {
       console.log('Error: ', error)
+      if(error.code == -32016) {
+        alert("You have rquested recently. Please try after some time.")
+      } else if(error.code == 4001) {
+        // alert("User Denied to confirm!")
+      }
     }
   }
 
