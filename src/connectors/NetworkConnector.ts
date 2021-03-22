@@ -47,7 +47,7 @@ class MiniRpcProvider implements AsyncSendable {
     this.host = parsed.host
     this.path = parsed.pathname
     // how long to wait to batch calls
-    this.batchWaitTimeMs = batchWaitTimeMs ?? 50
+    this.batchWaitTimeMs = batchWaitTimeMs ?? 1000
   }
 
   public readonly clearBatch = async () => {
@@ -63,7 +63,8 @@ class MiniRpcProvider implements AsyncSendable {
         body: JSON.stringify(batch.map(item => item.request))
       })
     } catch (error) {
-      batch.forEach(({ reject }) => reject(new Error('Failed to send batch call')))
+      //batch.forEach(({ reject }) => reject(new Error('Failed to send batch call')))
+      console.log(error)
       return
     }
 
