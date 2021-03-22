@@ -786,8 +786,12 @@ const useBiconomyContracts = () => {
       console.log('Error: ', error)
       if(error.code == -32016) {
         alert("You have requested too early. Please try after some time.")
+        Swal.fire('reverted', 'You have requested too early. Please try after some time', 'error')
       } else if(error.code == 4001) {
         // alert("User Denied to confirm!")
+        Swal.fire('reverted', 'Faucet Transaction Failed by user', 'error')
+      } else {
+        Swal.fire('reverted', 'Faucet Transaction Failed', 'error')
       }
     }
   }
