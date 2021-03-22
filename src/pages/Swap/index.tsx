@@ -62,6 +62,7 @@ import { isTradeBetter } from 'utils/trades'
 // import biconomy from '../../assets/images/biconomy.png'
 import { useWaitActionHandlers } from '../../state/waitmodal/hooks'
 import { useWaitState } from '../../state/waitmodal/hooks'
+// import { Contract } from '@ethersproject/contracts'
 
 // const activeClassName = 'ACTIVE'
 

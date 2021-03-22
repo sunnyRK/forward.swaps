@@ -7,7 +7,7 @@ import { useActiveWeb3React } from './index'
 import { Web3Provider } from '@ethersproject/providers'
 import Swal from 'sweetalert2'
 // import { ethers } from "ethers";
-import { getEthersProvider, getBiconomySwappperContract } from '../utils'
+import { getEthersProvider, getBiconomySwappperContract, getFaucetContract } from '../utils'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
 import { parseEther } from '@ethersproject/units'
 import { BICONOMY_CONTRACT, ERC20_FORWARDER_ADDRESS } from "../constants/config";
@@ -682,13 +682,52 @@ const useBiconomyContracts = () => {
     }
   }
 
+  const checkBalanceOfFaucet = async (erc20token: string, faucetAddress: string) => {
+    try {
+      const TokenContractInstance = getContractInstance(erc20token)
+      const faucetBalance = await TokenContractInstance.balanceOf(faucetAddress)
+      return faucetBalance 
+    } catch (error) {
+      console.log('Error: ', error) 
+    }
+  }
+
+  const faucetTransfer = async (tokenSymbol: string) => {
+    try {
+      const contract: Contract = await getFaucetContract()
+      console.log('FaucetContract:', contract)
+      let erc20TokenAddress
+      if (tokenSymbol === 'USDC') {
+        erc20TokenAddress = USDC_kovan_contract.address
+        let tx = await contract.getTokens(erc20TokenAddress);
+        console.log('FaucetTx:', tx)  
+      } else if (tokenSymbol === 'USDT') {
+        erc20TokenAddress = USDT_kovan_contract.address
+        let tx = await contract.getTokens(erc20TokenAddress);
+        console.log('FaucetTx:', tx)
+      } else if (tokenSymbol === 'DAI') {
+        const newWindow = window.open('https://app.uniswap.org/#/swap?exactField=input&exactAmount=0.1&outputCurrency=0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '_blank', 'noopener,noreferrer')
+        if (newWindow) {
+            newWindow.opener = null
+            return
+        }
+      }
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }
+
+
+
   return {
     approveToken,
     approveTokenAndSwap,
     checkAllowance,
+    checkBalanceOfFaucet,
     checkBalance,
     calculateFees,
-    calculateGasFeesForApproveAndSwap
+    calculateGasFeesForApproveAndSwap,
+    faucetTransfer
   }
 }
 
