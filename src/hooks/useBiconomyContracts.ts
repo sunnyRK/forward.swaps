@@ -13,6 +13,7 @@ import { parseEther } from '@ethersproject/units'
 import { BICONOMY_CONTRACT, ERC20_FORWARDER_ADDRESS } from "../constants/config";
 import { getPermitClient, getErcForwarderClient } from "../biconomy/biconomy";
 import { useWaitActionHandlers } from '../state/waitmodal/hooks'
+import { getEtherscanLink } from '../utils'
 
 const domainType = [
   { name: 'name', type: 'string' },
@@ -269,13 +270,14 @@ const useBiconomyContracts = () => {
         
           if(transaction && transaction.code == 200 && transaction.txHash) {
             ethersProvider.once(transaction.txHash, (result: any) => {
-              const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
+              // const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
+              const chainIdForEtherscan: any = chainId
               console.log('result++:', result);
               Swal.fire({
                 title: 'Transaction Successfull',
                 text: 'Transaction Successfull',
                 html:
-                  `<a href=${hashLink} target="_blank">Etherscan</a>`,
+                  `<a href=${getEtherscanLink(chainIdForEtherscan, transaction.txHash, 'transaction')} target="_blank">Etherscan</a>`,
                 icon: 'success',
                 confirmButtonText: 'continue'
               })
@@ -397,14 +399,14 @@ const useBiconomyContracts = () => {
               ethersProvider.once(transaction.txHash, (result: any) => {
                 // Emitted when the transaction has been mined
                 console.log('result++:', result);
-                const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
-
+                // const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
+                const chainIdForEtherscan: any = chainId
                 Swal.fire({
                   title: 'Transaction Successfull',
                   text: 'Transaction Successfull',
                   icon: 'success',
                   html:
-                  `<a href=${hashLink} target="_blank">Etherscan</a>`,
+                  `<a href=${getEtherscanLink(chainIdForEtherscan, transaction.txHash, 'transaction')} target="_blank">Etherscan</a>`,
                   confirmButtonText: 'continue'
                 })
                   .then((result: any) => {
@@ -624,13 +626,14 @@ const useBiconomyContracts = () => {
         }
 
         if (permitTx.hash) {
-          const hashLink = "https://kovan.etherscan.io/tx/"+permitTx.hash
+          // const hashLink = "https://kovan.etherscan.io/tx/"+permitTx.hash
+          const chainIdForEtherscan: any = chainId
           Swal.fire({
             title: 'Transaction Successfull',
             text: 'Transaction Successfull',
             icon: 'success',
             html:
-            `<a href=${hashLink} target="_blank">Etherscan</a>`,
+            `<a href=${getEtherscanLink(chainIdForEtherscan, permitTx.hash, 'transaction')} target="_blank">Etherscan</a>`,
             confirmButtonText: 'continue'
           })
             .then((result: any) => {
@@ -715,7 +718,8 @@ const useBiconomyContracts = () => {
           })
           let tx = await contract.getTokens(erc20TokenAddress);
           console.log('FaucetTx:', tx)  
-          const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+          // const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+          const chainIdForEtherscan: any = chainId
           Swal.fire({
             title: 'Faucet Transaction Sent',
             html: 'Waiting for Confirmation...',
@@ -733,7 +737,7 @@ const useBiconomyContracts = () => {
             text: 'Faucet Transaction Successfull',
             icon: 'success',
             html:
-            `<a href=${hashLink} target="_blank">Etherscan</a>`,
+            `<a href=${getEtherscanLink(chainIdForEtherscan, tx.hash, 'transaction')} target="_blank">Etherscan</a>`,
             confirmButtonText: 'continue'
           })
           console.log('FaucetTx:', tx)  
@@ -753,7 +757,8 @@ const useBiconomyContracts = () => {
           })
           let tx = await contract.getTokens(erc20TokenAddress);
           console.log('FaucetTx:', tx)  
-          const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+          // const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+          const chainIdForEtherscan: any = chainId
           Swal.fire({
             title: 'Faucet Transaction Sent',
             html: 'Waiting for Confirmation...',
@@ -771,7 +776,7 @@ const useBiconomyContracts = () => {
             text: 'Faucet Transaction Successfull',
             icon: 'success',
             html:
-            `<a href=${hashLink} target="_blank">Etherscan</a>`,
+            `<a href=${getEtherscanLink(chainIdForEtherscan, tx.hash, 'transaction')} target="_blank">Etherscan</a>`,
             confirmButtonText: 'continue'
           })
           console.log('FaucetTx:', tx)  

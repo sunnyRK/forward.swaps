@@ -9,7 +9,7 @@ import {
 } from '@uniswap/sdk'
 import { BIPS_BASE, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
 import { Contract } from '@ethersproject/contracts'
-import { getBiconomySwappperContract, getEthersProvider } from '../utils'
+import { getBiconomySwappperContract, getEthersProvider, getEtherscanLink } from '../utils'
 import { Web3Provider } from '@ethersproject/providers'
 import { getTradeVersion, useV1TradeExchangeAddress } from '../data/V1'
 import { Version } from './useToggledVersion'
@@ -173,7 +173,7 @@ export function useBiconomySwapper(
   callback: any
   error: string | null
 } {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
   const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeOpen, onChangeGasModal} = useWaitActionHandlers()
@@ -271,7 +271,8 @@ export function useBiconomySwapper(
 
               if (transaction && transaction.code == 200 && transaction.txHash) {
                 ethersProvider.once(transaction.txHash, result => {
-                  const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
+                  // const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
+                  const chainIdForEtherscan: any = chainId
                   onChangeTransactionHash('')
                   onChangeTransaction(transaction.txHash)
                   console.log('result: ', result)
@@ -281,7 +282,7 @@ export function useBiconomySwapper(
                     text: 'Transaction Successfull',
                     icon: 'success',
                     html:
-                    `<a href=${hashLink} target="_blank">Etherscan</a>`,
+                    `<a href=${getEtherscanLink(chainIdForEtherscan, transaction.txHash, 'transaction')} target="_blank">Etherscan</a>`,
                     confirmButtonText: 'continue'
                   })
                     .then(result => {
