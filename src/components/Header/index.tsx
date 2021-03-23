@@ -13,6 +13,7 @@ import { ReactComponent as Close } from '../../assets/images/x.svg'
 import USDCIcon from '../../assets/images/usdc.png'
 import USDTIcon from '../../assets/images/usdt.png'
 import DAIIcon from '../../assets/images/dai.png'
+import KETHIcon from '../../assets/images/keth.png'
 
 // import Logo from '../../assets/svg/logo.svg'
 // import LogoDark from '../../assets/svg/logo_white.svg'
@@ -434,7 +435,12 @@ export default function Header() {
         break;
       case "DAI":
         // Redirect here to DAI faucet page
+        // might make it part of 
         await faucetTransfer('DAI')
+        break;
+      case "KETH":
+        // Redirect to KETH faucet page
+        await faucetTransfer('KETH')
         break;
       default:
         // Show error message that faucet token is not supported
@@ -460,7 +466,8 @@ export default function Header() {
               <FaucetChipWrapper>
                 <FaucetChip label="Get USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("USDC")}}/>
                 <FaucetChip label="Get USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("USDT")}}/>
-                <FaucetChip label="Get DAI" icon={<ImageIcon src={DAIIcon} />} onClick={()=>{onFaucetClick("DAI")}}/>
+                <FaucetChip label="Get DAI"  icon={<ImageIcon src={DAIIcon} />} onClick={()=>{onFaucetClick("DAI")}}/>
+                <FaucetChip label="Get KETH" icon={<ImageIcon src={KETHIcon} />} onClick={()=>{onFaucetClick("KETH")}}/>
               </FaucetChipWrapper>
             </ContentWrapper>
           </UpperSection>
