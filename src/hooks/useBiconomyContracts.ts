@@ -116,6 +116,10 @@ const useBiconomyContracts = () => {
       }
     } catch (error) {
       console.log('error: ', error)
+      if(error.code == -32603) {
+        console.log('Failed to Fetch RPC in calculateFees')
+      }
+      return undefined
     }
   }
 
@@ -509,7 +513,10 @@ const useBiconomyContracts = () => {
       } 
     } catch (error) {
       console.log(error)
-      return 0
+      if(error.code == -32603) {
+        console.log('Failed to Fetch RPC in calculateGasFeesForApproveAndSwap')
+      }
+      return undefined
     }
   }
 
@@ -667,12 +674,22 @@ const useBiconomyContracts = () => {
       const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
       console.log('Allowance', erc20token, allowance.toString(), parseInt(inputAmount) * 1e18)
       // TO do for USDT 1e6 into inputAmount line 669
-      if (parseInt(allowance) >= (parseInt(inputAmount) * 1e18)) {
-        isApproved = true
-        return isApproved
+      if(erc20token == 'USDT') {
+        if (parseInt(allowance) >= (parseInt(inputAmount) * 1e6)) {
+          isApproved = true
+          return isApproved
+        } else {
+          isApproved = false
+          return isApproved
+        }
       } else {
-        isApproved = false
-        return isApproved
+        if (parseInt(allowance) >= (parseInt(inputAmount) * 1e18)) {
+          isApproved = true
+          return isApproved
+        } else {
+          isApproved = false
+          return isApproved
+        }
       }
     } catch (error) {
       console.log('Error: ', error)
@@ -690,6 +707,10 @@ const useBiconomyContracts = () => {
       return balance 
     } catch (error) {
       console.log('Error: ', error) 
+      if(error.code == -32603) {
+        console.log('Failed to Fetch RPC in checkBalance')
+      }
+      return undefined
     }
   }
 
@@ -699,7 +720,11 @@ const useBiconomyContracts = () => {
       const faucetBalance = await TokenContractInstance.balanceOf(faucetAddress)
       return faucetBalance 
     } catch (error) {
-      console.log('Error: ', error) 
+      console.log('Error: ', error)
+      if(error.code == -32603) {
+        console.log('Failed to Fetch RPC in checkBalanceOfFaucet')
+      }
+      return undefined
     }
   }
 
