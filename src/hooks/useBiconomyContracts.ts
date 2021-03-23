@@ -661,18 +661,25 @@ const useBiconomyContracts = () => {
   }
 
   const checkAllowance = async (erc20token: string, inputAmount: string) => {
+    let isApproved: any
     try {
       const TokenContractInstance = getContractInstance(erc20token)
       const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
       console.log('Allowance', erc20token, allowance.toString(), parseInt(inputAmount) * 1e18)
+      // TO do for USDT 1e6 into inputAmount line 669
       if (parseInt(allowance) >= (parseInt(inputAmount) * 1e18)) {
-        return true
+        isApproved = true
+        return isApproved
       } else {
-        return false
-      } 
+        isApproved = false
+        return isApproved
+      }
     } catch (error) {
       console.log('Error: ', error)
-      return false
+      if(error.code == -32603) {
+        console.log('Failed to Fetch RPC in checkAllowance')
+      }
+      return isApproved
     }
   }
 
