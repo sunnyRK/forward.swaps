@@ -205,6 +205,7 @@ function Web3StatusInner() {
         })
         .onEvent(biconomy.ERROR, () => {})
       setBiconomy(biconomy)
+      console.log('biconomy setter invoked')
       i++;
     }
   }
