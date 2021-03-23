@@ -185,24 +185,26 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     setInputError(false)
   }
 
+  const resetSelectedToken = async () => {
+    setSelectedToken('')
+    setSelectedToken(selectedToken)
+  }
+
   useEffect(() => {
     const process = async () => {
       try {
         setCheckingAllowance(true)
         const isApproved = await checkAllowance(selectedToken, inputAmount)
-        console.log('Getting-Details-isApproved: ', isApproved)
         const balance = await checkBalance(selectedToken)
-        console.log('Getting-Details-balance: ', balance)
 
         if (balance == undefined || isApproved == undefined) {
-          console.log('Getting-Details-AgainCall:')
-          setSelectedToken(selectedToken)
+          resetSelectedToken()
         }
 
         if(isApproved) {
           let fee = await calculateFees(selectedToken, path0, path1, inputAmount)
           if (fee == undefined) {
-            setSelectedToken(selectedToken)
+            resetSelectedToken()
           } else {
             if (selectedToken == 'USDT') {
               setBalance((balance / 1e6).toString())
@@ -217,7 +219,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           if(selectedToken != 'USDT') {
             const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
             if (approveAndSwapfee == undefined) {
-              setSelectedToken(selectedToken)
+              resetSelectedToken()
             } else {
               setBalance((balance / 1e18).toString())
               onChangeApproved(isApproved)
@@ -235,9 +237,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       } catch (error) {
         console.log('Getting-Details-Error: ', error)
         if(error.code = -32603) {
-          setSelectedToken(selectedToken)
+          resetSelectedToken()
         } else {
-          setSelectedToken(selectedToken)
+          resetSelectedToken()
         }
       }
     }
