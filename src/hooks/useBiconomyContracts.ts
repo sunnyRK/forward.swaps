@@ -62,11 +62,11 @@ const useBiconomyContracts = () => {
         return getContract(DAI_kovan_contract.address, DAI_kovan_contract.abi, library as Web3Provider, account as string)
       } 
     } catch (error) {
-      console.log('Error: ', error)
+      console.log('Error-getContractInstance: ', error)
     }
   }
 
-  const calculateFees = async (tokenSymbol: string, path0: string, path1: string, inputAmount: any) => {
+  const calculateFees = async (tokenSymbol: string, paths: any[], inputAmount: any) => {
     try {
       if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
         Swal.fire('Something went wrong!')
@@ -81,7 +81,8 @@ const useBiconomyContracts = () => {
         } else if (tokenSymbol === 'DAI') {
           gasToken = DAI_kovan_contract.address
         }
-        const path = [path0, path1]
+
+        // const path = [path0, path1]
         const contract: Contract | null = getBiconomySwappperContract(
           BICONOMY_CONTRACT,
           BICONOMYSWAPPER_ABI,
@@ -89,11 +90,11 @@ const useBiconomyContracts = () => {
           account?.toString()
         )
         const ethersProvider: Web3Provider | null = getEthersProvider()
-
+        
         const txResponse = await contract.populateTransaction.swapWithoutETH(
           account,
-          path0,
-          path,
+          paths[0],
+          paths,
           (inputAmount * 1e18).toString()
         )
 
@@ -115,7 +116,7 @@ const useBiconomyContracts = () => {
         return TxFess
       }
     } catch (error) {
-      console.log('error: ', error)
+      console.log('error-calculateFees: ', error)
       if(error.code == -32603) {
         console.log('Failed to Fetch RPC in calculateFees')
       }
@@ -123,7 +124,7 @@ const useBiconomyContracts = () => {
     }
   }
 
-  const approveTokenAndSwap = async (erc20token: string, token0: string, token1: string, inputAmount: string) => {
+  const approveTokenAndSwap = async (erc20token: string, inputAmount: string, paths: any[]) => {
     try {
       if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
         Swal.fire('Something went wrong!')
@@ -139,12 +140,12 @@ const useBiconomyContracts = () => {
           library as Web3Provider
         )
 
-        const path = [token0, token1]
-        console.log("Params:", account, token0, path, inputAmount, parseEther(inputAmount))
+        // const path = [token0, token1]
+        console.log("Params:", account, paths, inputAmount, parseEther(inputAmount))
         const txResponse = await contract.populateTransaction.swapWithoutETH(
           account,
-          token0,
-          path,
+          paths[0],
+          paths,
           parseEther(inputAmount)
         )
 
@@ -426,7 +427,7 @@ const useBiconomyContracts = () => {
         }
       }
     } catch (error) {
-      console.log("error: ", error)
+      console.log("error-approveTokenAndSwap: ", error)
       if(error.code == 4001) {
         Swal.fire('reverted', 'User denied message signature!', 'error')
       } else {
@@ -435,7 +436,7 @@ const useBiconomyContracts = () => {
     }
   }
 
-  const calculateGasFeesForApproveAndSwap = async (erc20token: string, token0: string, token1: string, inputAmount: string) => {
+  const calculateGasFeesForApproveAndSwap = async (erc20token: string, paths: any[], inputAmount: string) => {
     try {
       if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
         Swal.fire('Something went wrong!')
@@ -452,12 +453,12 @@ const useBiconomyContracts = () => {
 
         let fee
         if (erc20token === 'USDC') {
-          const path = [token0, token1]
-          console.log("Params:", account, token0, path, parseEther(inputAmount))
+          // const path = [token0, token1]
+          console.log("Params:", account, paths, parseEther(inputAmount))
           const data = await contract.populateTransaction.swapWithoutETH(
             account,
-            token0,
-            path,
+            paths[0],
+            paths,
             parseEther(inputAmount)
           )
 
@@ -482,11 +483,11 @@ const useBiconomyContracts = () => {
           console.log(fee);
         
         } else if (erc20token === 'DAI') {
-          const path = [token0, token1]
+          // const path = [token0, token1]
           const data = await contract.populateTransaction.swapWithoutETH(
             account,
-            token0,
-            path,
+            paths[0],
+            paths,
             parseEther(inputAmount)
           )
 
@@ -512,7 +513,7 @@ const useBiconomyContracts = () => {
         return fee.toString()
       } 
     } catch (error) {
-      console.log(error)
+      console.log('error-calculateGasFeesForApproveAndSwap: ', error)
       if(error.code == -32603) {
         console.log('Failed to Fetch RPC in calculateGasFeesForApproveAndSwap')
       }
@@ -657,7 +658,7 @@ const useBiconomyContracts = () => {
         }
       }
     } catch (error) {
-      console.log("error: ", error)
+      console.log("error-approveToken: ", error)
       if(error.code == 4001) {
         Swal.fire('reverted', 'User denied message signature!', 'error')
       } else {
@@ -692,7 +693,7 @@ const useBiconomyContracts = () => {
         }
       }
     } catch (error) {
-      console.log('Error: ', error)
+      console.log('Error-checkAllowance: ', error)
       if(error.code == -32603) {
         console.log('Failed to Fetch RPC in checkAllowance')
       }
@@ -706,7 +707,7 @@ const useBiconomyContracts = () => {
       const balance = await TokenContractInstance.balanceOf(account)
       return balance 
     } catch (error) {
-      console.log('Error: ', error) 
+      console.log('Error-checkBalance: ', error) 
       if(error.code == -32603) {
         console.log('Failed to Fetch RPC in checkBalance')
       }
@@ -720,7 +721,7 @@ const useBiconomyContracts = () => {
       const faucetBalance = await TokenContractInstance.balanceOf(faucetAddress)
       return faucetBalance 
     } catch (error) {
-      console.log('Error: ', error)
+      console.log('Error-checkBalanceOfFaucet: ', error)
       if(error.code == -32603) {
         console.log('Failed to Fetch RPC in checkBalanceOfFaucet')
       }
@@ -830,7 +831,7 @@ const useBiconomyContracts = () => {
         alert("Network is wrong. Please switch to Kovan.")
       }
     } catch (error) {
-      console.log('Error: ', error)
+      console.log('Error-faucetTransfer: ', error)
       if(error.code == -32016) {
         Swal.fire('reverted', 'You have requested too early. Please try after some time', 'error')
       } else if(error.code == 4001) {

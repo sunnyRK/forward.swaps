@@ -179,6 +179,15 @@ export function useBiconomySwapper(
   const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeOpen, onChangeGasModal} = useWaitActionHandlers()
   // const tradeVersion = getTradeVersion(trade)
 
+  let paths: any = []
+  let len: any | undefined = trade?.route?.path?.length
+  if(len>0) {
+    for(let i=0; i<parseInt(len); i++) {
+      paths[i] = trade?.route.path[i].address
+    }
+  }
+  console.log('paths', paths)
+
   return useMemo(() => {
     // try {
 
@@ -210,13 +219,13 @@ export function useBiconomySwapper(
 
               onChangeWait('true')
               const { account, contract, ethersProvider, swapMethod } = call
-              const token0 = swapMethod.args[2][0]
-              const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
+              // const token0 = swapMethod.args[2][0]
+              // const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
 
               const txResponse = await contract.populateTransaction.swapWithoutETH(
                 account,
-                token0,
-                path,
+                paths[0],
+                paths,
                 swapMethod.args[0]
               )
 

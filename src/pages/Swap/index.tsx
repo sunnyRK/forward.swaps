@@ -146,6 +146,8 @@ export default function Swap() {
     currencies,
     inputError: swapInputError
   } = useDerivedSwapInfo()
+
+
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
@@ -160,6 +162,14 @@ export default function Swap() {
   }
   const trade = showWrap ? undefined : tradesByVersion[toggledVersion]
   const defaultTrade = showWrap ? undefined : tradesByVersion[DEFAULT_VERSION]
+
+  let paths: any = []
+  let len: any | undefined = trade?.route?.path?.length
+  if(len>0) {
+    for(let i=0; i<parseInt(len); i++) {
+      paths[i] = trade?.route.path[i].address
+    }
+  }
 
   const betterTradeLinkV2: Version | undefined =
     toggledVersion === Version.v1 && isTradeBetter(v1Trade, v2Trade) ? Version.v2 : undefined
@@ -746,6 +756,7 @@ export default function Swap() {
                 handleDeposit={handleDeposit}
                 path0={trade && trade.route.path[0].address}
                 path1={trade && trade.route.path[1].address}
+                paths={paths}
                 inputToken={trade && trade.route.input.symbol}
                 inputAmount={formattedAmounts[Field.INPUT]}
                 hadaleGasModalEnable={hadaleGasModalEnable}
