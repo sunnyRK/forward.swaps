@@ -819,6 +819,12 @@ const useBiconomyContracts = () => {
               newWindow.opener = null
               return
           }
+        } else if (tokenSymbol === 'KETH') {
+          const newWindow = window.open('https://gitter.im/kovan-testnet/faucet', '_blank', 'noopener,noreferrer')
+          if (newWindow) {
+              newWindow.opener = null
+              return
+          }
         }
       } else {
         alert("Network is wrong. Please switch to Kovan.")
