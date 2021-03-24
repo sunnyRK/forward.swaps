@@ -1,7 +1,8 @@
 import DAI_kovan_contract from '../contracts/DAI_kovan.json'
 import USDT_kovan_contract from '../contracts/USDT_kovan.json'
 import USDC_kovan_contract from '../contracts/USDC_kovan.json'
-//import Tradeable_USDC_kovan_contract from '../contracts/Tradeable_USDC_kovan.json'
+import Tradeable_USDC_kovan_contract from '../contracts/Tradeable_USDC_kovan.json'
+import Tradeable_USDT_kovan_contract from '../contracts/Tradeable_USDT_kovan.json'
 import { Contract } from '@ethersproject/contracts'
 import { getContract } from '../utils'
 import { useActiveWeb3React } from './index'
@@ -872,14 +873,100 @@ const useBiconomyContracts = () => {
             confirmButtonText: 'continue'
           })
           console.log('FaucetTx:', tx)  
-        } else if (tokenSymbol === 'KETH') {
+        } else if (tokenSymbol === 'TUSDC') {
+          erc20TokenAddress = Tradeable_USDC_kovan_contract.address
+          Swal.fire({
+            title: 'Please sign the faucet transaction message.',
+            html: '',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              
+            }
+          })
+          let tx = await contract.getTokens(erc20TokenAddress);
+          console.log('FaucetTx:', tx)  
+          // const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+          const chainIdForEtherscan: any = chainId
+          Swal.fire({
+            title: 'Faucet Transaction Sent',
+            html: 'Waiting for Confirmation...',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+            }
+          })
+          await tx.wait(1)
+          Swal.fire({
+            title: 'Faucet Transaction Successfull',
+            text: 'Faucet Transaction Successfull',
+            icon: 'success',
+            html:
+            `<a href=${getEtherscanLink(chainIdForEtherscan, tx.hash, 'transaction')} target="_blank">Etherscan</a>`,
+            confirmButtonText: 'continue'
+          })
+          console.log('FaucetTx:', tx)  
+        }
+        else if (tokenSymbol === 'TUSDT') {
+          /*const newWindow = window.open('https://app.uniswap.org/#/swap?exactField=input&exactAmount=0.1&outputCurrency=0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '_blank', 'noopener,noreferrer')
+          if (newWindow) {
+              newWindow.opener = null
+              return
+          }*/
+          erc20TokenAddress = Tradeable_USDT_kovan_contract.address
+          Swal.fire({
+            title: 'Please sign the faucet transaction message.',
+            html: '',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+              
+            }
+          })
+          let tx = await contract2.getTokens(erc20TokenAddress);
+          console.log('FaucetTx:', tx)  
+          // const hashLink = "https://kovan.etherscan.io/tx/"+tx.hash
+          const chainIdForEtherscan: any = chainId
+          Swal.fire({
+            title: 'Faucet Transaction Sent',
+            html: 'Waiting for Confirmation...',
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading()
+            }
+          }).then((result: any) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+            }
+          })
+          await tx.wait(1)
+          Swal.fire({
+            title: 'Faucet Transaction Successfull',
+            text: 'Faucet Transaction Successfull',
+            icon: 'success',
+            html:
+            `<a href=${getEtherscanLink(chainIdForEtherscan, tx.hash, 'transaction')} target="_blank">Etherscan</a>`,
+            confirmButtonText: 'continue'
+          })
+          console.log('FaucetTx:', tx)  
+        }
+        else if (tokenSymbol === 'KETH') {
           const newWindow = window.open('https://gitter.im/kovan-testnet/faucet', '_blank', 'noopener,noreferrer')
           if (newWindow) {
               newWindow.opener = null
               return
           }
         }
-      } else {
+      } 
+       else {
         alert("Network is wrong. Please switch to Kovan.")
       }
     } catch (error) {

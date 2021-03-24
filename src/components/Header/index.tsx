@@ -442,6 +442,18 @@ export default function Header() {
         // Redirect to KETH faucet page
         await faucetTransfer('KETH')
         break;
+      case "KETH":
+        // Redirect to KETH faucet page
+        await faucetTransfer('KETH')
+        break;
+      case "TUSDC":
+        // Redirect to KETH faucet page
+        await faucetTransfer('TUSDC')
+        break;
+      case "TUSDT":
+        // Redirect to KETH faucet page
+        await faucetTransfer('TUSDT')
+        break;
       default:
         // Show error message that faucet token is not supported
     }
@@ -464,10 +476,19 @@ export default function Header() {
             </ModalHeaderRow>
             <ContentWrapper>
               <FaucetChipWrapper>
+                <HoverText>Fee Tokens</HoverText>
                 <FaucetChip label="Get USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("USDC")}}/>
                 <FaucetChip label="Get USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("USDT")}}/>
-                <FaucetChip label="Get DAI"  icon={<ImageIcon src={DAIIcon} />} onClick={()=>{onFaucetClick("DAI")}}/>
-                <FaucetChip label="Get KETH" icon={<ImageIcon src={KETHIcon} />} onClick={()=>{onFaucetClick("KETH")}}/>
+                <FaucetChip label="Get DAI"  icon={<ImageIcon src={DAIIcon} />} onClick={()=>{onFaucetClick("DAI")}}/>  
+              </FaucetChipWrapper>
+              <FaucetChipWrapper>
+                <HoverText>Kovan ETH</HoverText>
+                <FaucetChip label="Get KETH" icon={<ImageIcon src={KETHIcon} />} onClick={()=>{onFaucetClick("KETH")}}/>  
+              </FaucetChipWrapper>  
+              <FaucetChipWrapper>
+                <HoverText>Trade Tokens</HoverText>
+                <FaucetChip label="Get Trade USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("TUSDC")}}/>
+                <FaucetChip label="Get Trade USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("TUSDT")}}/>
               </FaucetChipWrapper>
             </ContentWrapper>
           </UpperSection>
