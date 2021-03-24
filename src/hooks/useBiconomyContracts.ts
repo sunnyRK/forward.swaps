@@ -684,7 +684,7 @@ const useBiconomyContracts = () => {
       console.log('Allowance', erc20token, allowance.toString(), (parseInt(inputAmount) * (10**decimals)).toString())
       // TO do for USDT 1e6 into inputAmount line 669
       if(erc20token == 'USDT') {
-        if (parseInt(allowance) >= (parseInt(inputAmount) * (10**decimals))) {
+        if (parseInt(allowance) >= (parseInt(inputAmount) * (10**6))) {
           isApproved = true
           return isApproved
         } else {
@@ -692,7 +692,7 @@ const useBiconomyContracts = () => {
           return isApproved
         }
       } else {
-        if (parseInt(allowance) >= (parseInt(inputAmount) * (10**decimals))) {
+        if (parseInt(allowance) >= (parseInt(inputAmount) * (10**18))) {
           isApproved = true
           return isApproved
         } else {
