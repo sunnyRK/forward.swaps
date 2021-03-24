@@ -130,7 +130,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   const onApprove = async (tokenSymbol: any) => {
     let approvedResp: any
     if(tokenSymbol == 'USDT') {
-      const isApproved = await checkAllowance(selectedToken, inputAmount)
+      const isApproved = await checkAllowance(selectedToken, inputAmount, decimals)
       if (isApproved) {
         Swal.fire('You have already given allowance')
         return
@@ -172,7 +172,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   }
 
   const onApproveAndSwap = async (tokenSymbol: any) => {
-    const approvedResp: any = await approveTokenAndSwap(tokenSymbol, inputAmount, paths)
+    const approvedResp: any = await approveTokenAndSwap(tokenSymbol, inputAmount, paths, decimals)
     if (approvedResp) {
       // setIsApproved(true)
       const fee = await calculateFees(tokenSymbol, paths, inputAmount, decimals)
@@ -199,7 +199,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       try {
         // debugger
         setCheckingAllowance(true)
-        const isApproved = await checkAllowance(selectedToken, inputAmount)
+        const isApproved = await checkAllowance(selectedToken, inputAmount, decimals)
         const balance = await checkBalance(selectedToken)
 
         if (balance == undefined || isApproved == undefined) {
