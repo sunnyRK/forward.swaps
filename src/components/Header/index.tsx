@@ -475,21 +475,31 @@ export default function Header() {
               <HoverText>Get Tokens From Faucet</HoverText>
             </ModalHeaderRow>
             <ContentWrapper>
-              <FaucetChipWrapper>
+
+              <div style={{marginTop: "10px", marginBottom: "10px"}}>
                 <HoverText>Fee Tokens</HoverText>
+              </div>
+              <FaucetChipWrapper>
                 <FaucetChip label="Get USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("USDC")}}/>
                 <FaucetChip label="Get USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("USDT")}}/>
                 <FaucetChip label="Get DAI"  icon={<ImageIcon src={DAIIcon} />} onClick={()=>{onFaucetClick("DAI")}}/>  
               </FaucetChipWrapper>
-              <FaucetChipWrapper>
+              
+              <div style={{marginTop: "20px", marginBottom: "10px"}}>
                 <HoverText>Kovan ETH</HoverText>
-                <FaucetChip label="Get KETH" icon={<ImageIcon src={KETHIcon} />} onClick={()=>{onFaucetClick("KETH")}}/>  
-              </FaucetChipWrapper>  
+              </div>
               <FaucetChipWrapper>
+                <FaucetChip label="Get KETH" icon={<ImageIcon src={KETHIcon} />} onClick={()=>{onFaucetClick("KETH")}}/>  
+              </FaucetChipWrapper>
+
+              <div style={{marginTop: "20px", marginBottom: "10px"}}>
                 <HoverText>Trade Tokens</HoverText>
+              </div>
+              <FaucetChipWrapper>
                 <FaucetChip label="Get Trade USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("TUSDC")}}/>
                 <FaucetChip label="Get Trade USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("TUSDT")}}/>
               </FaucetChipWrapper>
+
             </ContentWrapper>
           </UpperSection>
         </Wrapper>
