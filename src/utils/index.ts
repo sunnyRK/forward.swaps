@@ -12,6 +12,7 @@ import { TokenAddressMap } from '../state/lists/hooks'
 import { getBiconomy } from "../biconomy/biconomy";
 import FaucetManagerAbi from '../constants/abis/FaucetManagerAbi.json'
 import { FAUCET_ADDRESS_KOVAN } from "../constants/config";
+import { FAUCET2_ADDRESS_KOVAN } from "../constants/config";
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
   try {
@@ -116,6 +117,12 @@ export function getBiconomySwappperContract(
 export function getFaucetContract(): Contract {
   const signer = getEthersProvider().getSigner()
   const contract = new ethers.Contract(FAUCET_ADDRESS_KOVAN, FaucetManagerAbi, signer.connectUnchecked())
+  return contract
+}
+
+export function getFaucet2Contract(): Contract {
+  const signer = getEthersProvider().getSigner()
+  const contract = new ethers.Contract(FAUCET2_ADDRESS_KOVAN, FaucetManagerAbi, signer.connectUnchecked())
   return contract
 }
 

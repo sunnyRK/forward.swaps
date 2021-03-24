@@ -15,6 +15,7 @@ import { useActiveWeb3React } from './index'
 
 import DAI_kovan_contract from '../contracts/DAI_kovan.json'
 import USDC_kovan_contract from '../contracts/USDC_kovan.json'
+//import Tradeable_USDC_kovan_contract from '../contracts/Tradeable_USDC_kovan.json'
 import { BICONOMY_CONTRACT } from "../constants/config";
 import { getPermitClient } from "../biconomy/biconomy";
 import Swal from 'sweetalert2'

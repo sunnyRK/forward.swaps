@@ -758,6 +758,7 @@ export default function Swap() {
                 path1={trade && trade.route.path[1].address}
                 paths={paths}
                 inputToken={trade && trade.route.input.symbol}
+                decimals={trade && trade.inputAmount.currency.decimals}
                 inputAmount={formattedAmounts[Field.INPUT]}
                 hadaleGasModalEnable={hadaleGasModalEnable}
                 setGasTokenAndSwapCallback={setGasTokenAndSwapCallback}

@@ -27,6 +27,7 @@ interface GasModalProps {
   path1: any
   paths: any[]
   inputToken: any
+  decimals: any
   inputAmount: any
 }
 
@@ -39,7 +40,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   path1,
   paths,
   inputToken,
-  inputAmount
+  inputAmount,
+  decimals
 }) => {
   const { 
     // wait, 
@@ -143,7 +145,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       approvedResp = await approveToken(tokenSymbol)
     }
     if (approvedResp) {
-      const fee = await calculateFees(tokenSymbol, paths, inputAmount)
+      const fee = await calculateFees(tokenSymbol, paths, inputAmount, decimals)
       setFees(fee)
     }
   }
@@ -173,7 +175,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     const approvedResp: any = await approveTokenAndSwap(tokenSymbol, inputAmount, paths)
     if (approvedResp) {
       // setIsApproved(true)
-      const fee = await calculateFees(tokenSymbol, paths, inputAmount)
+      const fee = await calculateFees(tokenSymbol, paths, inputAmount, decimals)
       setFees(fee)
     }
   }
@@ -205,7 +207,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         }
 
         if(isApproved) {
-          let fee = await calculateFees(selectedToken, paths, inputAmount)
+          let fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
+          if (fee != ""){
           if (fee == undefined) {
             resetSelectedToken()
           } else {
@@ -217,10 +220,12 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
             onChangeApproved(isApproved)
             setCheckingAllowance(false)
             setFees(fee)
-          }      
+          }     
+        } 
         } else {
           if(selectedToken != 'USDT') {
-            const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, paths, inputAmount)
+            const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, paths, inputAmount, decimals)
+            if (approveAndSwapfee != ""){
             if (approveAndSwapfee == undefined) {
               resetSelectedToken()
             } else {
@@ -229,7 +234,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
               setCheckingAllowance(false)
               setApproveAndSwapFees(approveAndSwapfee)
             } 
-          } else {
+          }
+         } else {
             // For USDT
             setBalance((balance / 1e6).toString())
             onChangeApproved(isApproved)
@@ -262,7 +268,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       await onApproveAndSwap(selectedToken)
       setApproveAndSwap(false)
       // hadaleGasModalEnable()
-      const fee = await calculateFees(selectedToken, paths, inputAmount)
+      const fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
       if(parseInt(fee) > 0) {
         setFees(fee)
       }
@@ -280,8 +286,8 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         setError(false)
         setInputError(false)
         if (path0 != '' && path1 != '') {
-          const fee = await calculateFees(selectedToken, paths, inputAmount)
-          const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, paths, inputAmount)
+          const fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
+          const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, paths, inputAmount, decimals)
           setFees(fee)
           setApproveAndSwapFees(approveAndSwapfee)
         }
