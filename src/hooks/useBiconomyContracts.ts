@@ -11,7 +11,6 @@ import Swal from 'sweetalert2'
 // import { ethers } from "ethers";
 import { getEthersProvider, getBiconomySwappperContract, getFaucetContract, getFaucet2Contract } from '../utils'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
-import { parseEther } from '@ethersproject/units'
 import { BICONOMY_CONTRACT, ERC20_FORWARDER_ADDRESS } from "../constants/config";
 import { getPermitClient, getErcForwarderClient } from "../biconomy/biconomy";
 import { useWaitActionHandlers } from '../state/waitmodal/hooks'
@@ -97,7 +96,7 @@ const useBiconomyContracts = () => {
           account,
           paths[0],
           paths,
-          (inputAmount * (10**decimals)).toString()
+          (parseInt(inputAmount) * (10**decimals)).toString()
         )
 
         const gasLimit = await ethersProvider.estimateGas({
@@ -130,7 +129,7 @@ const useBiconomyContracts = () => {
     }
   }
 
-  const approveTokenAndSwap = async (erc20token: string, inputAmount: string, paths: any[]) => {
+  const approveTokenAndSwap = async (erc20token: string, inputAmount: any, paths: any[], decimals: any) => {
     try {
       if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
         Swal.fire('Something went wrong!')
@@ -147,12 +146,11 @@ const useBiconomyContracts = () => {
         )
 
         // const path = [token0, token1]
-        console.log("Params:", account, paths, inputAmount, parseEther(inputAmount))
         const txResponse = await contract.populateTransaction.swapWithoutETH(
           account,
           paths[0],
           paths,
-          parseEther(inputAmount)
+          (parseInt(inputAmount) * (10**decimals)).toString()
         )
 
         let domainData
@@ -442,7 +440,7 @@ const useBiconomyContracts = () => {
     }
   }
 
-  const calculateGasFeesForApproveAndSwap = async (erc20token: string, paths: any[], inputAmount: any, decimals:any) => {
+  const calculateGasFeesForApproveAndSwap = async (erc20token: string, paths: any[], inputAmount: any, decimals: any) => {
     try {
       if(getErcForwarderClient() == '' || getErcForwarderClient() ==  'undefined' || getErcForwarderClient() == null) {
         Swal.fire('Something went wrong!')
@@ -460,7 +458,7 @@ const useBiconomyContracts = () => {
         let fee
         if (erc20token === 'USDC') {
           // const path = [token0, token1]
-          console.log("Params:", account, paths, parseEther(inputAmount))
+          console.log("Params:", account, paths, (parseInt(inputAmount) * (10**decimals)).toString())
           const data = await contract.populateTransaction.swapWithoutETH(
             account,
             paths[0],
@@ -678,15 +676,15 @@ const useBiconomyContracts = () => {
     }
   }
 
-  const checkAllowance = async (erc20token: string, inputAmount: string) => {
+  const checkAllowance = async (erc20token: string, inputAmount: any, decimals: any) => {
     let isApproved: any
     try {
       const TokenContractInstance = getContractInstance(erc20token)
       const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
-      console.log('Allowance', erc20token, allowance.toString(), parseInt(inputAmount) * 1e18)
+      console.log('Allowance', erc20token, allowance.toString(), (parseInt(inputAmount) * (10**decimals)).toString())
       // TO do for USDT 1e6 into inputAmount line 669
       if(erc20token == 'USDT') {
-        if (parseInt(allowance) >= (parseInt(inputAmount) * 1e6)) {
+        if (parseInt(allowance) >= (parseInt(inputAmount) * (10**decimals))) {
           isApproved = true
           return isApproved
         } else {
@@ -694,7 +692,7 @@ const useBiconomyContracts = () => {
           return isApproved
         }
       } else {
-        if (parseInt(allowance) >= (parseInt(inputAmount) * 1e18)) {
+        if (parseInt(allowance) >= (parseInt(inputAmount) * (10**decimals))) {
           isApproved = true
           return isApproved
         } else {
