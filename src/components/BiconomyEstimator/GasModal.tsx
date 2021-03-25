@@ -1,11 +1,13 @@
-import React, { useEffect, useState
+import React, {
+  useEffect,
+  useState
   // , useContext
- } from 'react'
+} from 'react'
 import 'react-responsive-modal/styles.css'
 import { Modal } from 'react-responsive-modal'
 import SmallButtons from './SmallButtons'
 import useBiconomyContracts from '../../hooks/useBiconomyContracts'
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2'
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
 import QuestionHelper from '../QuestionHelper'
@@ -43,14 +45,30 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   inputAmount,
   decimals
 }) => {
-  const { 
-    // wait, 
+  const {
+    // wait,
     isOpen,
-    tx, isApproved } = useWaitState()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeApproved, onChangeOpen, onChangeGasModal } = useWaitActionHandlers()
+    tx,
+    isApproved
+  } = useWaitState()
+  const {
+    onChangeWait,
+    onChangeTransaction,
+    onChangeTransactionHash,
+    onChangeApproved,
+    onChangeOpen,
+    onChangeGasModal
+  } = useWaitActionHandlers()
 
   // const { connected } = useStoreState((state) => state);
-  const { checkAllowance, checkBalance, approveToken, calculateFees, approveTokenAndSwap, calculateGasFeesForApproveAndSwap } = useBiconomyContracts()
+  const {
+    checkAllowance,
+    checkBalance,
+    approveToken,
+    calculateFees,
+    approveTokenAndSwap,
+    calculateGasFeesForApproveAndSwap
+  } = useBiconomyContracts()
 
   const [open, setOpen] = useState(false)
   const [balanceError, setError] = useState(false)
@@ -76,7 +94,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   }
 
   useEffect(() => {
-    if(tx != '' && tx != 'undefined') {
+    if (tx != '' && tx != 'undefined') {
       onCloseModal()
     }
   }, [tx])
@@ -129,7 +147,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   const onApprove = async (tokenSymbol: any) => {
     let approvedResp: any
-    if(tokenSymbol == 'USDT') {
+    if (tokenSymbol == 'USDT') {
       const isApproved = await checkAllowance(selectedToken, inputAmount, decimals)
       if (isApproved) {
         Swal.fire('You have already given allowance')
@@ -156,13 +174,13 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
       setError(true)
     } else {
       Swal.fire({
-        title: 'Total Estimated gas fees of permit and Swap '+ tokenSymbol,
-        text: approveAndSwapFees + " " + tokenSymbol,
+        title: 'Total Estimated gas fees of permit and Swap ' + tokenSymbol,
+        text: approveAndSwapFees + ' ' + tokenSymbol,
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Permit And Swap'
-      }).then(async (result) => {
+      }).then(async result => {
         if (result.isConfirmed) {
           setApproveAndSwap(true)
           // from here It will call use effect of isApproveAndSwap
@@ -206,36 +224,41 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           resetSelectedToken()
         }
 
-        if(isApproved) {
-          let fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
-          if (fee != ""){
-          if (fee == undefined) {
-            resetSelectedToken()
-          } else {
-            if (selectedToken == 'USDT') {
-              setBalance((balance / 1e6).toString())
-            } else {
-              setBalance((balance / 1e18).toString())
-            }
-            onChangeApproved(isApproved)
-            setCheckingAllowance(false)
-            setFees(fee)
-          }     
-        } 
-        } else {
-          if(selectedToken != 'USDT') {
-            const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, paths, inputAmount, decimals)
-            if (approveAndSwapfee != ""){
-            if (approveAndSwapfee == undefined) {
+        if (isApproved) {
+          const fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
+          if (fee != '') {
+            if (fee == undefined) {
               resetSelectedToken()
             } else {
-              setBalance((balance / 1e18).toString())
+              if (selectedToken == 'USDT') {
+                setBalance((balance / 1e6).toString())
+              } else {
+                setBalance((balance / 1e18).toString())
+              }
               onChangeApproved(isApproved)
               setCheckingAllowance(false)
-              setApproveAndSwapFees(approveAndSwapfee)
-            } 
+              setFees(fee)
+            }
           }
-         } else {
+        } else {
+          if (selectedToken != 'USDT') {
+            const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(
+              selectedToken,
+              paths,
+              inputAmount,
+              decimals
+            )
+            if (approveAndSwapfee != '') {
+              if (approveAndSwapfee == undefined) {
+                resetSelectedToken()
+              } else {
+                setBalance((balance / 1e18).toString())
+                onChangeApproved(isApproved)
+                setCheckingAllowance(false)
+                setApproveAndSwapFees(approveAndSwapfee)
+              }
+            }
+          } else {
             // For USDT
             setBalance((balance / 1e6).toString())
             onChangeApproved(isApproved)
@@ -245,7 +268,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         }
       } catch (error) {
         console.log('Getting-Details-Error: ', error)
-        if(error.code = -32603) {
+        if ((error.code = -32603)) {
           resetSelectedToken()
         } else {
           resetSelectedToken()
@@ -262,18 +285,18 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
     onChangeOpen(true)
     setSelectedToken('USDC')
   }, [])
-  
+
   useEffect(() => {
     async function process() {
       await onApproveAndSwap(selectedToken)
       setApproveAndSwap(false)
       // hadaleGasModalEnable()
       const fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
-      if(parseInt(fee) > 0) {
+      if (parseInt(fee) > 0) {
         setFees(fee)
       }
     }
-    if(isApproveAndSwap) {
+    if (isApproveAndSwap) {
       process()
     }
   }, [isApproveAndSwap])
@@ -298,14 +321,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   return (
     <>
-      <Modal
-        open={isOpen != null ? (isOpen) : (false)}
-        onClose={onCloseModal}
-        center
-        blockScroll={true}
-      >
-        <div className="header" style={{color: "#000000"}}>
-          <div className="title" style={{ textAlign: 'center', marginBottom: '20px', color: "#000000" }}>
+      <Modal open={isOpen != null ? isOpen : false} onClose={onCloseModal} center blockScroll={true}>
+        <div className="header" style={{ color: '#000000' }}>
+          <div className="title" style={{ textAlign: 'center', marginBottom: '20px', color: '#000000' }}>
             Select tokens to pay gas fees
           </div>
           <div className="tabs">
@@ -315,7 +333,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
         </div>
 
-        <div className="body" style={{color: "#000000"}}>
+        <div className="body" style={{ color: '#000000' }}>
           <div className="token-container">
             <SmallButtons
               marginPX={'0px'}
@@ -338,7 +356,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
 
           <div className="token-action">
-            
             {/* {wait == 'true' ? (
               <div className="alignCenter">
                 <strong>Waiting for confirmation...</strong>
@@ -380,129 +397,139 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
                 <AutoColumn gap="0px">
                   <RowBetween>
                     <RowFixed>
-                      <TYPE.black fontSize={14} fontWeight={400} color={"#000000"}>
+                      <TYPE.black fontSize={14} fontWeight={400} color={'#000000'}>
                         Your Balance :{' '}
                       </TYPE.black>
                       <QuestionHelper text="Your metamask balance." />
                     </RowFixed>
                     <RowFixed>
-                      <TYPE.black fontSize={14} style={{color: "#000000"}}>{checkBal}</TYPE.black>
-                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{color: "#000000"}}>
+                      <TYPE.black fontSize={14} style={{ color: '#000000' }}>
+                        {checkBal}
+                      </TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{ color: '#000000' }}>
                         {selectedToken}
                       </TYPE.black>
                     </RowFixed>
                   </RowBetween>
                   <RowBetween>
                     <RowFixed>
-                      <TYPE.black fontSize={14} fontWeight={400} color={"#000000"}>
+                      <TYPE.black fontSize={14} fontWeight={400} color={'#000000'}>
                         Estimated Tx fee :{' '}
                       </TYPE.black>
                       <QuestionHelper text="Estimated tx fee is a fee will be deduct from stablecoin balance." />
                     </RowFixed>
                     <RowFixed>
-                      <TYPE.black fontSize={14} style={{color: "#000000"}}>{parseInt(fees) > 0 ? fees : '0'}</TYPE.black>
-                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{color: "#000000"}}>
+                      <TYPE.black fontSize={14} style={{ color: '#000000' }}>
+                        {parseInt(fees) > 0 ? fees : '0'}
+                      </TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{ color: '#000000' }}>
                         {selectedToken}
                       </TYPE.black>
                     </RowFixed>
                   </RowBetween>
                 </AutoColumn>
-                
+
                 {fees != 'undefined' && checkBal != 'undefined' ? (
-                <div className="buttons">
-                  <div className="tx-button cancel" onClick={onCloseModal}>
-                    Cancel
+                  <div className="buttons">
+                    <div className="tx-button cancel" onClick={onCloseModal}>
+                      Cancel
+                    </div>
+                    <div
+                      className="tx-button proceed"
+                      onClick={() => {
+                        onDeposit()
+                      }}
+                    >
+                      Swap
+                    </div>
                   </div>
-                  <div
-                    className="tx-button proceed"
-                    onClick={() => {
-                      onDeposit()
-                    }}
-                  >
-                    Swap
-                  </div>
-                </div>):(
+                ) : (
                   <div className="gas-amount">
                     <strong>Fees and Balances are getting calculated...</strong>
                   </div>
                 )}
               </div>
-            ) : isApproved == false ? ( selectedToken == 'DAI' || selectedToken == 'USDC' ? (
-              <div className="pay-tx">
+            ) : isApproved == false ? (
+              selectedToken == 'DAI' || selectedToken == 'USDC' ? (
+                <div className="pay-tx">
+                  {balanceError && (
+                    <div className="gas-amount">
+                      <strong>Not enough balance to perform the swap and pay the fees!</strong>
+                    </div>
+                  )}
 
-                {balanceError && (
-                  <div className="gas-amount">
-                    <strong>Not enough balance to perform the swap and pay the fees!</strong>
-                  </div>
-                )}
+                  {inputError && (
+                    <div className="gas-amount">
+                      <strong>You have not selected input amount or token!</strong>
+                    </div>
+                  )}
 
-                {inputError && (
-                  <div className="gas-amount">
-                    <strong>You have not selected input amount or token!</strong>
-                  </div>
-                )}
-                
-                <AutoColumn gap="0px">
-                  <RowBetween>
-                    <RowFixed>
-                      <TYPE.black fontSize={14} fontWeight={400} color={"#000000"}>
-                        Your Balance :{' '}
-                      </TYPE.black>
-                      <QuestionHelper text="Your metamask balance." />
-                    </RowFixed>
-                    <RowFixed>
-                      <TYPE.black fontSize={14} style={{color: "#000000"}}>{checkBal}</TYPE.black>
-                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{color: "#000000"}}>
-                        {selectedToken}
-                      </TYPE.black>
-                    </RowFixed>
-                  </RowBetween>
-                  <RowBetween>
-                    <RowFixed>
-                      <TYPE.black fontSize={14} fontWeight={400} color={"#000000"}>
-                        Estimated Tx fee :{' '}
-                      </TYPE.black>
-                      <QuestionHelper text="Estimated tx fee is a fee will be deduct from stablecoin balance." />
-                    </RowFixed>
-                    <RowFixed>
-                      <TYPE.black fontSize={14} style={{color: "#000000"}}>{parseInt(approveAndSwapFees) > 0 ? approveAndSwapFees : '0'}</TYPE.black>
-                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{color: "#000000"}}>
-                        {selectedToken}
-                      </TYPE.black>
-                    </RowFixed>
-                  </RowBetween>
-                </AutoColumn>
-                  
-                {approveAndSwapFees != 'undefined' && checkBal != 'undefined' ? (
-                  <div className="buttons">
-                  <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
-                    Permit
-                  </div>
-                  <div
-                    className="tx-button proceed"
-                    onClick={() => {
-                      onApproveAndSwapAlert(selectedToken)
-                    }}
-                  >
-                    Permit and Swap
-                  </div>
-                  </div> ) : (
+                  <AutoColumn gap="0px">
+                    <RowBetween>
+                      <RowFixed>
+                        <TYPE.black fontSize={14} fontWeight={400} color={'#000000'}>
+                          Your Balance :{' '}
+                        </TYPE.black>
+                        <QuestionHelper text="Your metamask balance." />
+                      </RowFixed>
+                      <RowFixed>
+                        <TYPE.black fontSize={14} style={{ color: '#000000' }}>
+                          {checkBal}
+                        </TYPE.black>
+                        <TYPE.black fontSize={14} marginLeft={'4px'} style={{ color: '#000000' }}>
+                          {selectedToken}
+                        </TYPE.black>
+                      </RowFixed>
+                    </RowBetween>
+                    <RowBetween>
+                      <RowFixed>
+                        <TYPE.black fontSize={14} fontWeight={400} color={'#000000'}>
+                          Estimated Tx fee :{' '}
+                        </TYPE.black>
+                        <QuestionHelper text="Estimated tx fee is a fee will be deduct from stablecoin balance." />
+                      </RowFixed>
+                      <RowFixed>
+                        <TYPE.black fontSize={14} style={{ color: '#000000' }}>
+                          {parseInt(approveAndSwapFees) > 0 ? approveAndSwapFees : '0'}
+                        </TYPE.black>
+                        <TYPE.black fontSize={14} marginLeft={'4px'} style={{ color: '#000000' }}>
+                          {selectedToken}
+                        </TYPE.black>
+                      </RowFixed>
+                    </RowBetween>
+                  </AutoColumn>
+
+                  {approveAndSwapFees != 'undefined' && checkBal != 'undefined' ? (
+                    <div className="buttons">
+                      <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
+                        Permit
+                      </div>
+                      <div
+                        className="tx-button proceed"
+                        onClick={() => {
+                          onApproveAndSwapAlert(selectedToken)
+                        }}
+                      >
+                        Permit and Swap
+                      </div>
+                    </div>
+                  ) : (
                     <div className="gas-amount">
                       <strong>Fees and Balances getting calculating...</strong>
-                  </div>
-                )}
-
-              </div>
+                    </div>
+                  )}
+                </div>
               ) : (
-              <div className="approve-token">
-                <div className="note">
-                  Note: Give approval to Biconomy ERC-20 Forwarder Contract, so it can deduct fee in selected token.
+                <div className="approve-token">
+                  <div className="note">
+                    Note: Give approval to Biconomy ERC-20 Forwarder Contract, so it can deduct fee in selected token.
+                  </div>
+                  <div className="approve-token-button" onClick={() => onApprove(selectedToken)}>
+                    Approve {selectedToken}
+                  </div>
                 </div>
-                <div className="approve-token-button" onClick={() => onApprove(selectedToken)}>
-                  Approve {selectedToken}
-                </div>
-              </div>
-            )) : (
+              )
+            ) : (
               <div className="alignCenter">
                 <strong>Checking allowance to ERC20 Forwarder for selected fee token...</strong>
               </div>

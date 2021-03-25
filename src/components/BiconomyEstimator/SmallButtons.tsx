@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
-import dai from "../../assets/images/dai.png";
-import usdc from "../../assets/images/usdc.png";
-import usdt from "../../assets/images/usdt.png";
+import dai from '../../assets/images/dai.png'
+import usdc from '../../assets/images/usdc.png'
+import usdt from '../../assets/images/usdt.png'
 
 const IconWrapper = styled.div<{ size?: number }>`
   ${({ theme }) => theme.flexColumnNoWrap};
@@ -41,18 +41,21 @@ const SmallButtons: React.FunctionComponent<SmallButtonsProps> = ({ name, active
         }}
       ></div> */}
       {/* <img src={dai} alt={'wallet connect logo'} /> */}
-      { name == 'USDC' ? (
+      {name == 'USDC' ? (
         <IconWrapper size={25}>
           <img src={usdc} alt={'token logo'} />
-        </IconWrapper>) : name === 'DAI' ? (
+        </IconWrapper>
+      ) : name === 'DAI' ? (
         <IconWrapper size={25}>
           <img src={dai} alt={'token logo'} />
         </IconWrapper>
-        ) : name == 'USDT' ? 
+      ) : name == 'USDT' ? (
         <IconWrapper size={25}>
           <img src={usdt} alt={'token logo'} />
-        </IconWrapper> : ('')
-       }
+        </IconWrapper>
+      ) : (
+        ''
+      )}
       <div className="name">{name}</div>
     </div>
   )

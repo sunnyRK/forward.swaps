@@ -1,5 +1,14 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { setWait, setTransaction, setTransactionHash, setTimer, setFee, setApproved, setOpen, setGasModal } from './actions'
+import {
+  setWait,
+  setTransaction,
+  setTransactionHash,
+  setTimer,
+  setFee,
+  setApproved,
+  setOpen,
+  setGasModal
+} from './actions'
 
 export interface WaitState {
   readonly wait: string | null

@@ -1,7 +1,16 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
-import { setWait, setTransaction, setTransactionHash, setTimer, setFee, setApproved, setOpen, setGasModal } from './actions'
+import {
+  setWait,
+  setTransaction,
+  setTransactionHash,
+  setTimer,
+  setFee,
+  setApproved,
+  setOpen,
+  setGasModal
+} from './actions'
 
 export function useWaitState(): AppState['waitmodal'] {
   return useSelector<AppState, AppState['waitmodal']>(state => state.waitmodal)

@@ -9,10 +9,10 @@ import { ROUTER_ADDRESS } from '../constants'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@uniswap/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
 // import { useActiveWeb3React } from "../hooks/";
-import { getBiconomy } from "../biconomy/biconomy";
+import { getBiconomy } from '../biconomy/biconomy'
 import FaucetManagerAbi from '../constants/abis/FaucetManagerAbi.json'
-import { FAUCET_ADDRESS_KOVAN } from "../constants/config";
-import { FAUCET2_ADDRESS_KOVAN } from "../constants/config";
+import { FAUCET_ADDRESS_KOVAN } from '../constants/config'
+import { FAUCET2_ADDRESS_KOVAN } from '../constants/config'
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
   try {
@@ -113,7 +113,7 @@ export function getBiconomySwappperContract(
   return contract
 }
 
-// Faucet Methods 
+// Faucet Methods
 export function getFaucetContract(): Contract {
   const signer = getEthersProvider().getSigner()
   const contract = new ethers.Contract(FAUCET_ADDRESS_KOVAN, FaucetManagerAbi, signer.connectUnchecked())

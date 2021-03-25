@@ -1,11 +1,11 @@
 import { ChainId, JSBI, Percent, Token, WETH } from '@uniswap/sdk'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 
-import { 
-  // fortmatic, 
-  injected, 
+import {
+  // fortmatic,
+  injected
   // portis, walletconnect, walletlink
- } from '../connectors'
+} from '../connectors'
 
 export const ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 
@@ -131,7 +131,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     description: 'Easy-to-use browser extension.',
     href: null,
     color: '#E8831D'
-  },
+  }
   // WALLET_CONNECT: {
   //   connector: walletconnect,
   //   name: 'WalletConnect',

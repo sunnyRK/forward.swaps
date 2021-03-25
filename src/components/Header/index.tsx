@@ -29,10 +29,7 @@ import { CardNoise } from '../earn/styled'
 import { TYPE, ExternalLink } from '../../theme'
 
 import { YellowCard } from '../Card'
-import { 
-  Moon,
-  Sun 
-} from 'react-feather'
+import { Moon, Sun } from 'react-feather'
 // import Menu from '../Menu'
 
 import Row, { RowFixed } from '../Row'
@@ -73,7 +70,7 @@ const HeaderFrame = styled.div`
 `
 
 const ImageIcon = styled.img`
-  height: 20px
+  height: 20px;
 `
 
 const HeaderControls = styled.div`
@@ -175,7 +172,7 @@ const HeaderLinks = styled(Row)`
 `
 const UpperSection = styled.div`
   position: relative;
-  
+
   h5 {
     margin: 0;
     margin-bottom: 0.5rem;
@@ -426,36 +423,36 @@ export default function Header() {
   }
 
   const onFaucetClick = async (tokenSymbol: string) => {
-    switch(tokenSymbol) {
-      case "USDC":
+    switch (tokenSymbol) {
+      case 'USDC':
         await faucetTransfer('USDC')
-        break;
-      case "USDT":
+        break
+      case 'USDT':
         await faucetTransfer('USDT')
-        break;
-      case "DAI":
+        break
+      case 'DAI':
         // Redirect here to DAI faucet page
-        // might make it part of 
+        // might make it part of
         await faucetTransfer('DAI')
-        break;
-      case "KETH":
+        break
+      case 'KETH':
         // Redirect to KETH faucet page
         await faucetTransfer('KETH')
-        break;
-      case "KETH":
+        break
+      case 'KETH':
         // Redirect to KETH faucet page
         await faucetTransfer('KETH')
-        break;
-      case "TUSDC":
+        break
+      case 'TUSDC':
         // Redirect to KETH faucet page
         await faucetTransfer('TUSDC')
-        break;
-      case "TUSDT":
+        break
+      case 'TUSDT':
         // Redirect to KETH faucet page
         await faucetTransfer('TUSDT')
-        break;
+        break
       default:
-        // Show error message that faucet token is not supported
+      // Show error message that faucet token is not supported
     }
   }
 
@@ -475,31 +472,65 @@ export default function Header() {
               <HoverText>Get Tokens From Faucet</HoverText>
             </ModalHeaderRow>
             <ContentWrapper>
-
-              <div style={{marginTop: "10px", marginBottom: "10px"}}>
+              <div style={{ marginTop: '10px', marginBottom: '10px' }}>
                 <HoverText>Fee Tokens</HoverText>
               </div>
               <FaucetChipWrapper>
-                <FaucetChip label="Get USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("USDC")}}/>
-                <FaucetChip label="Get USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("USDT")}}/>
-                <FaucetChip label="Get DAI"  icon={<ImageIcon src={DAIIcon} />} onClick={()=>{onFaucetClick("DAI")}}/>  
+                <FaucetChip
+                  label="Get USDC"
+                  icon={<ImageIcon src={USDCIcon} />}
+                  onClick={() => {
+                    onFaucetClick('USDC')
+                  }}
+                />
+                <FaucetChip
+                  label="Get USDT"
+                  icon={<ImageIcon src={USDTIcon} />}
+                  onClick={() => {
+                    onFaucetClick('USDT')
+                  }}
+                />
+                <FaucetChip
+                  label="Get DAI"
+                  icon={<ImageIcon src={DAIIcon} />}
+                  onClick={() => {
+                    onFaucetClick('DAI')
+                  }}
+                />
               </FaucetChipWrapper>
-              
-              <div style={{marginTop: "20px", marginBottom: "10px"}}>
+
+              <div style={{ marginTop: '20px', marginBottom: '10px' }}>
                 <HoverText>Kovan ETH</HoverText>
               </div>
               <FaucetChipWrapper>
-                <FaucetChip label="Get KETH" icon={<ImageIcon src={KETHIcon} />} onClick={()=>{onFaucetClick("KETH")}}/>  
+                <FaucetChip
+                  label="Get KETH"
+                  icon={<ImageIcon src={KETHIcon} />}
+                  onClick={() => {
+                    onFaucetClick('KETH')
+                  }}
+                />
               </FaucetChipWrapper>
 
-              <div style={{marginTop: "20px", marginBottom: "10px"}}>
+              <div style={{ marginTop: '20px', marginBottom: '10px' }}>
                 <HoverText>Trade Tokens</HoverText>
               </div>
               <FaucetChipWrapper>
-                <FaucetChip label="Get Trade USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("TUSDC")}}/>
-                <FaucetChip label="Get Trade USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("TUSDT")}}/>
+                <FaucetChip
+                  label="Get Trade USDC"
+                  icon={<ImageIcon src={USDCIcon} />}
+                  onClick={() => {
+                    onFaucetClick('TUSDC')
+                  }}
+                />
+                <FaucetChip
+                  label="Get Trade USDT"
+                  icon={<ImageIcon src={USDTIcon} />}
+                  onClick={() => {
+                    onFaucetClick('TUSDT')
+                  }}
+                />
               </FaucetChipWrapper>
-
             </ContentWrapper>
           </UpperSection>
         </Wrapper>
@@ -518,14 +549,10 @@ export default function Header() {
           <StyledExternalLink id={`stake-nav-link`} href={'http://iwaste-eth.com'}>
             See how much ETH you can save <span style={{ fontSize: '11px' }}>↗</span>
           </StyledExternalLink>
-
-          
         </HeaderLinks>
       </HeaderRow>
       <HeaderControls>
-        <FaucetElement onClick={() => setShowFaucetModal(true)}>
-          Faucet
-        </FaucetElement>
+        <FaucetElement onClick={() => setShowFaucetModal(true)}>Faucet</FaucetElement>
 
         <HeaderElement>
           <HideSmall>
@@ -579,12 +606,9 @@ export default function Header() {
             <Web3Status />
           </AccountElement>
         </HeaderElement>
-        
-        
+
         <HeaderElementWrap>
-          <StyledMenuButton 
-            onClick={() => toggleDarkMode()}
-          >
+          <StyledMenuButton onClick={() => toggleDarkMode()}>
             {darkMode ? <Moon size={20} /> : <Sun size={20} />}
           </StyledMenuButton>
           {/* <Menu /> */}

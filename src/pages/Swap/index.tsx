@@ -34,9 +34,7 @@ import { useCurrency, useAllTokens } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useSwapCallback } from '../../hooks/useSwapCallback'
-import {
-  useBiconomySwapper
-} from '../../hooks/useSwapper'
+import { useBiconomySwapper } from '../../hooks/useSwapper'
 import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
 import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
 import { useToggleSettingsMenu, useWalletModalToggle } from '../../state/application/hooks'
@@ -147,7 +145,6 @@ export default function Swap() {
     inputError: swapInputError
   } = useDerivedSwapInfo()
 
-
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
@@ -163,10 +160,10 @@ export default function Swap() {
   const trade = showWrap ? undefined : tradesByVersion[toggledVersion]
   const defaultTrade = showWrap ? undefined : tradesByVersion[DEFAULT_VERSION]
 
-  let paths: any = []
-  let len: any | undefined = trade?.route?.path?.length
-  if(len>0) {
-    for(let i=0; i<parseInt(len); i++) {
+  const paths: any = []
+  const len: any | undefined = trade?.route?.path?.length
+  if (len > 0) {
+    for (let i = 0; i < parseInt(len); i++) {
       paths[i] = trade?.route.path[i].address
     }
   }
@@ -335,7 +332,7 @@ export default function Swap() {
       }
     },
     [
-      gasToken, 
+      gasToken,
       callback,
       priceImpactWithoutFee,
       tradeToConfirm,
@@ -418,11 +415,12 @@ export default function Swap() {
     maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
   }, [maxAmountInput, onUserInput])
 
-  const handleOutputSelect = useCallback((outputCurrency: any) => { 
+  const handleOutputSelect = useCallback(
+    (outputCurrency: any) => {
       onCurrencySelection(Field.OUTPUT, outputCurrency)
-    }, [
-    onCurrencySelection
-  ])
+    },
+    [onCurrencySelection]
+  )
 
   const swapIsUnsupported = useIsTransactionUnsupported(currencies?.INPUT, currencies?.OUTPUT)
   return (
@@ -770,7 +768,7 @@ export default function Swap() {
           )}
         </Wrapper>
       </AppBody>
-      
+
       {!swapIsUnsupported ? (
         <AdvancedSwapDetailsDropdown trade={trade} />
       ) : (
