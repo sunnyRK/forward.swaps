@@ -356,7 +356,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
 
           <div className="token-action">
-          
             {checkingAllowance ? (
               <div className="alignCenter">
                 <strong>Checking allowance to ERC20 Forwarder for selected fee token...</strong>
