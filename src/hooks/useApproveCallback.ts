@@ -16,8 +16,8 @@ import { useActiveWeb3React } from './index'
 import DAI_kovan_contract from '../contracts/DAI_kovan.json'
 import USDC_kovan_contract from '../contracts/USDC_kovan.json'
 //import Tradeable_USDC_kovan_contract from '../contracts/Tradeable_USDC_kovan.json'
-import { BICONOMY_CONTRACT } from "../constants/config";
-import { getPermitClient } from "../biconomy/biconomy";
+import { BICONOMY_CONTRACT } from '../constants/config'
+import { getPermitClient } from '../biconomy/biconomy'
 import Swal from 'sweetalert2'
 
 export enum ApprovalState {
@@ -93,7 +93,7 @@ export function useApproveCallback(
       let permitTx
 
       if (tokenContract.address == DAI_kovan_contract.address) {
-        if(getPermitClient() == '' || getPermitClient() ==  'undefined' || getPermitClient() == null) {
+        if (getPermitClient() == '' || getPermitClient() == 'undefined' || getPermitClient() == null) {
           Swal.fire('Something went wrong!')
           return
         } else {
@@ -128,7 +128,7 @@ export function useApproveCallback(
           return permitTx
         }
       } else if (tokenContract.address == USDC_kovan_contract.address) {
-        if(getPermitClient() == '' || getPermitClient() ==  'undefined' || getPermitClient() == null) {
+        if (getPermitClient() == '' || getPermitClient() == 'undefined' || getPermitClient() == null) {
           Swal.fire('Something went wrong!')
           return
         } else {
@@ -172,9 +172,9 @@ export function useApproveCallback(
             console.debug('Failed to approve token', error)
             throw error
           })
-      }  
+      }
     } catch (error) {
-       console.log('Error: ', error) 
+      console.log('Error: ', error)
     }
   }, [approvalState, token, tokenContract, amountToApprove, spender, addTransaction])
   return [approvalState, approve]
