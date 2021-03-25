@@ -338,27 +338,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
 
           <div className="token-action">
-            
-            {/* {wait == 'true' ? (
-              <div className="alignCenter">
-                <strong>Waiting for confirmation...</strong>
-                <br></br>
-                <strong>Biconomy performing transaction...</strong>
-              </div>
-            ) : tx != '' && tx != 'undefined' ? (
-              <div className="alignCenter">
-                <strong>Transaction Submitted</strong>
-                <br></br>
-                <a href={'https://kovan.etherscan.io/tx/' + tx}>Etherscan</a>
-              </div>
-            ) : tx == 'undefined' ? (
-              <div className="alignCenter">
-                <strong>Transaction Failed</strong>
-              </div>
-            ) : (
-              ''
-            )} */}
-
+          
             {checkingAllowance ? (
               <div className="alignCenter">
                 <strong>Checking allowance to ERC20 Forwarder for selected fee token...</strong>
