@@ -8,7 +8,7 @@ import { getContract } from '../utils'
 import { useActiveWeb3React } from './index'
 import { Web3Provider } from '@ethersproject/providers'
 import Swal from 'sweetalert2'
-// import { ethers } from "ethers";
+import { ethers } from "ethers";
 import { getEthersProvider, getBiconomySwappperContract, getFaucetContract, getFaucet2Contract } from '../utils'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
 import { BICONOMY_CONTRACT, ERC20_FORWARDER_ADDRESS } from "../constants/config";
@@ -74,6 +74,10 @@ const useBiconomyContracts = () => {
         onChangeOpen(false)
         return
       } else {
+        debugger;
+        console.log(decimals)
+        console.log(inputAmount)
+        console.log( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) )
         let gasToken
         if (tokenSymbol === 'USDC') {
           gasToken = USDC_kovan_contract.address
@@ -96,7 +100,7 @@ const useBiconomyContracts = () => {
           account,
           paths[0],
           paths,
-          (parseInt(inputAmount) * (10**decimals)).toString()
+          ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString()
         )
 
         const gasLimit = await ethersProvider.estimateGas({
@@ -150,7 +154,7 @@ const useBiconomyContracts = () => {
           account,
           paths[0],
           paths,
-          (parseInt(inputAmount) * (10**decimals)).toString()
+          ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString()
         )
 
         let domainData
@@ -458,12 +462,12 @@ const useBiconomyContracts = () => {
         let fee
         if (erc20token === 'USDC') {
           // const path = [token0, token1]
-          console.log("Params:", account, paths, (parseInt(inputAmount) * (10**decimals)).toString())
+          console.log("Params:", account, paths, ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString())
           const data = await contract.populateTransaction.swapWithoutETH(
             account,
             paths[0],
             paths,
-            (parseInt(inputAmount) * (10**decimals)).toString()
+            ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString()
           )
 
           let gasLimit = await ethersProvider.estimateGas({
@@ -492,7 +496,7 @@ const useBiconomyContracts = () => {
             account,
             paths[0],
             paths,
-            (parseInt(inputAmount) * (10**decimals)).toString()
+            ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString()
           )
 
           const gasLimit = await ethersProvider.estimateGas({
@@ -563,7 +567,7 @@ const useBiconomyContracts = () => {
           }
           tokenPermitOptions = {
             domainData: domainData,
-            value: '100000000000000000000',
+            value: '10000000000000000000000',
             deadline: Math.floor(Date.now() / 1000 + 3600)
           }
           permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions)
@@ -681,10 +685,10 @@ const useBiconomyContracts = () => {
     try {
       const TokenContractInstance = getContractInstance(erc20token)
       const allowance = await TokenContractInstance.allowance(account, ERC20_FORWARDER_ADDRESS)
-      console.log('Allowance', erc20token, allowance.toString(), (parseInt(inputAmount) * (10**decimals)).toString())
+      console.log('Allowance', erc20token, allowance.toString())
       // TO do for USDT 1e6 into inputAmount line 669
       if(erc20token == 'USDT') {
-        if (parseInt(allowance) >= (parseInt(inputAmount) * (10**6))) {
+        if (parseInt(allowance) > 0) {
           isApproved = true
           return isApproved
         } else {
@@ -692,7 +696,7 @@ const useBiconomyContracts = () => {
           return isApproved
         }
       } else {
-        if (parseInt(allowance) >= (parseInt(inputAmount) * (10**18))) {
+        if (parseInt(allowance) > 0) {
           isApproved = true
           return isApproved
         } else {
