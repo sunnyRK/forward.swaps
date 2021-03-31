@@ -74,10 +74,10 @@ const useBiconomyContracts = () => {
         onChangeOpen(false)
         return
       } else {
-        debugger;
         console.log(decimals)
         console.log(inputAmount)
-        console.log( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) )
+        let effectiveInput = (parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString())) - parseFloat("100")
+        console.log(effectiveInput)
         let gasToken
         if (tokenSymbol === 'USDC') {
           gasToken = USDC_kovan_contract.address
@@ -100,7 +100,7 @@ const useBiconomyContracts = () => {
           account,
           paths[0],
           paths,
-          ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString()
+          effectiveInput.toString()
         )
 
         const gasLimit = await ethersProvider.estimateGas({
@@ -142,6 +142,8 @@ const useBiconomyContracts = () => {
       } else {
         const ethersProvider: Web3Provider | null = getEthersProvider()
         const TokenContractInstance: Contract = getContractInstance(erc20token)
+        let effectiveInput = (parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString())) - parseFloat("10")
+        console.log(effectiveInput)
 
         const contract: Contract | null = getBiconomySwappperContract(
           BICONOMY_CONTRACT,
@@ -154,7 +156,7 @@ const useBiconomyContracts = () => {
           account,
           paths[0],
           paths,
-          ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString()
+          effectiveInput.toString()
         )
 
         let domainData
@@ -459,15 +461,18 @@ const useBiconomyContracts = () => {
           library as Web3Provider
         )
 
+        let effectiveInput = (parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString())) - parseFloat("10")
+        console.log(effectiveInput)
+
         let fee
         if (erc20token === 'USDC') {
           // const path = [token0, token1]
-          console.log("Params:", account, paths, ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString())
+          console.log("Params:", account, paths, effectiveInput.toString())
           const data = await contract.populateTransaction.swapWithoutETH(
             account,
             paths[0],
             paths,
-            ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString()
+            effectiveInput.toString()
           )
 
           let gasLimit = await ethersProvider.estimateGas({
@@ -496,7 +501,7 @@ const useBiconomyContracts = () => {
             account,
             paths[0],
             paths,
-            ( parseFloat(inputAmount) * parseFloat((ethers.BigNumber.from(10).pow(ethers.BigNumber.from(decimals))).toString()) ).toString()
+            effectiveInput.toString()
           )
 
           const gasLimit = await ethersProvider.estimateGas({
@@ -832,12 +837,12 @@ const useBiconomyContracts = () => {
           })
           console.log('FaucetTx:', tx)  
         } else if (tokenSymbol === 'DAI') {
-          /*const newWindow = window.open('https://app.uniswap.org/#/swap?exactField=input&exactAmount=0.1&outputCurrency=0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '_blank', 'noopener,noreferrer')
+          const newWindow = window.open('https://app.uniswap.org/#/swap?exactField=input&exactAmount=0.1&outputCurrency=0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '_blank', 'noopener,noreferrer')
           if (newWindow) {
               newWindow.opener = null
               return
-          }*/
-          erc20TokenAddress = DAI_kovan_contract.address
+          }
+          /*erc20TokenAddress = DAI_kovan_contract.address
           Swal.fire({
             title: 'Please sign the faucet transaction message.',
             html: '',
@@ -874,7 +879,7 @@ const useBiconomyContracts = () => {
             `<a href=${getEtherscanLink(chainIdForEtherscan, tx.hash, 'transaction')} target="_blank">Etherscan</a>`,
             confirmButtonText: 'continue'
           })
-          console.log('FaucetTx:', tx)  
+          console.log('FaucetTx:', tx) */ 
         } else if (tokenSymbol === 'TUSDC') {
           erc20TokenAddress = Tradeable_USDC_kovan_contract.address
           Swal.fire({
@@ -913,7 +918,7 @@ const useBiconomyContracts = () => {
             `<a href=${getEtherscanLink(chainIdForEtherscan, tx.hash, 'transaction')} target="_blank">Etherscan</a>`,
             confirmButtonText: 'continue'
           })
-          console.log('FaucetTx:', tx)  
+          console.log('FaucetTx:', tx) 
         }
         else if (tokenSymbol === 'TUSDT') {
           /*const newWindow = window.open('https://app.uniswap.org/#/swap?exactField=input&exactAmount=0.1&outputCurrency=0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '_blank', 'noopener,noreferrer')

@@ -497,7 +497,7 @@ export default function Header() {
               </div>
               <FaucetChipWrapper>
                 <FaucetChip label="Get Trade USDC" icon={<ImageIcon src={USDCIcon} />} onClick={()=>{onFaucetClick("TUSDC")}}/>
-                <FaucetChip label="Get Trade USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("TUSDT")}}/>
+                {/*<FaucetChip label="Get Trade USDT" icon={<ImageIcon src={USDTIcon} />} onClick={()=>{onFaucetClick("TUSDT")}}/>*/}
               </FaucetChipWrapper>
 
             </ContentWrapper>
