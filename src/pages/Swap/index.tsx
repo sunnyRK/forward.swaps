@@ -545,7 +545,12 @@ export default function Swap() {
                 <GreyCard style={{ textAlign: 'center' }}>
                   <TYPE.main mb="4px">ETH is not supported.</TYPE.main>
                   {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
-                </GreyCard>
+                </GreyCard>) : 
+                currencies[Field.INPUT]?.symbol == 'MKR' ? (
+                  <GreyCard style={{ textAlign: 'center' }}>
+                    <TYPE.main mb="4px">MKR is not supported.</TYPE.main>
+                    {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
+                  </GreyCard>
               ) : swapIsUnsupported ? (
                 <ButtonPrimary disabled={true}>
                   <TYPE.main mb="4px">Unsupported Asset</TYPE.main>
