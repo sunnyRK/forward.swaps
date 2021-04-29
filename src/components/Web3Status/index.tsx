@@ -235,7 +235,7 @@ function Web3StatusInner() {
   } else {
     console.log("account ++")
     if(j < 1){
-    Swal.fire(`Please switch your wallet to Kovan network`);
+    Swal.fire(`Please switch your wallet to Ethereum main network`);
     j++;
     }
     return (

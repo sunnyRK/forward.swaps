@@ -57,6 +57,8 @@ export function useApproveCallback(
 
   const approve = useCallback(async (): Promise<void> => {
     try {
+
+      debugger; 
       if (approvalState !== ApprovalState.NOT_APPROVED) {
         console.error('approve was called unnecessarily')
         return
@@ -92,7 +94,8 @@ export function useApproveCallback(
       let tokenPermitOptions1
       let permitTx
 
-      if (tokenContract.address == DAI_kovan_contract.address) {
+
+      if (tokenContract.address.toLowerCase() == DAI_kovan_contract.address.toLowerCase()) {
         if(getPermitClient() == '' || getPermitClient() ==  'undefined' || getPermitClient() == null) {
           Swal.fire('Something went wrong!')
           return
@@ -100,7 +103,7 @@ export function useApproveCallback(
           domainData = {
             name: 'Dai Stablecoin',
             version: '1',
-            chainId: 42,
+            chainId: 1,
             verifyingContract: DAI_kovan_contract.address // kovan
           }
 
@@ -127,22 +130,22 @@ export function useApproveCallback(
           }
           return permitTx
         }
-      } else if (tokenContract.address == USDC_kovan_contract.address) {
+      } else if (tokenContract.address.toLowerCase() == USDC_kovan_contract.address.toLowerCase()) {
         if(getPermitClient() == '' || getPermitClient() ==  'undefined' || getPermitClient() == null) {
           Swal.fire('Something went wrong!')
           return
         } else {
           domainData = {
-            name: 'USDC Coin',
-            version: '1',
-            chainId: 42,
+            name: 'USD Coin',
+            version: '2',
+            chainId: 1,
             verifyingContract: USDC_kovan_contract.address
           }
 
           tokenPermitOptions1 = {
             spender: BICONOMY_CONTRACT,
             domainData: domainData,
-            value: '100000000000000000000',
+            value: '1000000000',
             deadline: Math.floor(Date.now() / 1000 + 3600)
           }
           permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions1)

@@ -179,9 +179,9 @@ const useBiconomyContracts = () => {
 
         if (erc20token === 'USDC') {
           domainData = {
-            name: 'USDC Coin',
-            version: '1',
-            chainId: 42,
+            name: 'USD Coin',
+            version: '2',
+            chainId: 1,
             verifyingContract: USDC_kovan_contract.address
           }
 
@@ -204,7 +204,7 @@ const useBiconomyContracts = () => {
           tokenPermitOptions = {
             spender: ERC20_FORWARDER_ADDRESS,
             domainData: domainData,
-            value: '100000000000000000000', 
+            value: '1000000000', 
             deadline: Math.floor(Date.now() / 1000 + 3600)
           }
 
@@ -309,7 +309,7 @@ const useBiconomyContracts = () => {
           domainData = {
             name: 'Dai Stablecoin',
             version: '1',
-            chainId: 42,
+            chainId: 1,
             verifyingContract: DAI_kovan_contract.address // kovan
           }
 
