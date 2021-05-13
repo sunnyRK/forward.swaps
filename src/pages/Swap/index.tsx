@@ -1,5 +1,9 @@
 import { CurrencyAmount, JSBI, Token, Trade } from '@uniswap/sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+
+// import styled from 'styled-components'
+// import { darken } from 'polished'
+
 import { ArrowDown } from 'react-feather'
 // import ReactGA from 'react-ga'
 import { Text } from 'rebass'
@@ -30,10 +34,7 @@ import { useCurrency, useAllTokens } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useSwapCallback } from '../../hooks/useSwapCallback'
-import {
-  useBiconomySwapper
-  //  useSwapperForGas
-} from '../../hooks/useSwapper'
+import { useBiconomySwapper } from '../../hooks/useSwapper'
 import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
 import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
 import { useToggleSettingsMenu, useWalletModalToggle } from '../../state/application/hooks'
@@ -56,12 +57,47 @@ import { useIsTransactionUnsupported } from 'hooks/Trades'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import { isTradeBetter } from 'utils/trades'
 // import { useChill, useSocksController } from "../../hooks/useContract";
-// import { getPermitClient } from '../../utils'
+// import biconomy from '../../assets/images/biconomy.png'
+import { useWaitActionHandlers } from '../../state/waitmodal/hooks'
+import { useWaitState } from '../../state/waitmodal/hooks'
+// import { Contract } from '@ethersproject/contracts'
+
+// const activeClassName = 'ACTIVE'
+
+// const StyledCenter = styled.div`
+//   align-items: left;
+//   border-radius: 3rem;
+//   outline: none;
+//   cursor: pointer;
+//   text-decoration: none;
+//   color: ${({ theme }) => theme.text2};
+//   font-size: 1rem;
+//   width: fit-content;
+//   margin: 10px 12px;
+//   font-weight: 600;
+
+//   &.${activeClassName} {
+//     border-radius: 12px;
+//     font-weight: 600;
+//     color: ${({ theme }) => theme.text1};
+//   }
+
+//   :hover,
+//   :focus {
+//     color: ${({ theme }) => darken(0.1, theme.text1)};
+//   }
+
+//   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+//       display: none;
+// `}
+// `
 
 export default function Swap() {
   const [gasModalEnable, setGasModalEnable] = useState(false)
   const [gasToken, setGasToken] = useState('')
   const loadedUrlParams = useDefaultsFromURLSearch()
+  const { onChangeGasModal } = useWaitActionHandlers()
+  const { isGasModal } = useWaitState()
 
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
@@ -108,6 +144,7 @@ export default function Swap() {
     currencies,
     inputError: swapInputError
   } = useDerivedSwapInfo()
+
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
@@ -122,6 +159,14 @@ export default function Swap() {
   }
   const trade = showWrap ? undefined : tradesByVersion[toggledVersion]
   const defaultTrade = showWrap ? undefined : tradesByVersion[DEFAULT_VERSION]
+
+  const paths: any = []
+  const len: any | undefined = trade?.route?.path?.length
+  if (len > 0) {
+    for (let i = 0; i < parseInt(len); i++) {
+      paths[i] = trade?.route.path[i].address
+    }
+  }
 
   const betterTradeLinkV2: Version | undefined =
     toggledVersion === Version.v1 && isTradeBetter(v1Trade, v2Trade) ? Version.v2 : undefined
@@ -198,14 +243,6 @@ export default function Swap() {
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
   const { callback } = useBiconomySwapper(trade, allowedSlippage, recipient)
-  // console.log(
-  //   'tradetrade+++: ',
-  //   trade,
-  //   trade?.inputAmount.toString(),
-  //   trade && trade.route.path[0].address,
-  //   trade && trade.route.path[1].address
-  // )
-  // const { fee } = useSwapperForGas(trade, allowedSlippage, recipient)
 
   // the callback to execute the swap
   const {
@@ -275,27 +312,27 @@ export default function Swap() {
       if (!callback) {
         return
       }
-      // callback(gasToken)
     } catch (error) {
       console.log('Error: ', error)
     }
   }, [callback, gasToken])
 
-  const setGasTokenCallback = useCallback(
+  const setGasTokenAndSwapCallback = useCallback(
     (gasTokenValue: any) => {
       try {
         setGasToken(gasTokenValue)
         if (!callback) {
           return
-        } else {
         }
         callback(gasTokenValue)
+        // wipeInput()
+        // setGasModalEnable(false)
       } catch (error) {
-        console.log('Error: ', error)
+        console.log('Error1: ', error)
       }
     },
     [
-      gasToken, 
+      gasToken,
       callback,
       priceImpactWithoutFee,
       tradeToConfirm,
@@ -322,14 +359,22 @@ export default function Swap() {
     }
   }, [gasModalEnable])
 
-  // const wipeInput = useCallback(async () => {
-  //   try {
-  //     onUserInput(Field.INPUT, '')
-  //     onUserInput(Field.OUTPUT, '')
-  //   } catch (error) {
-  //     console.log('Error: ', error)
-  //   }
-  // }, [])
+  const hadaleIsGasModal = useCallback(async () => {
+    try {
+      onChangeGasModal(true)
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }, [isGasModal])
+
+  const wipeInput = useCallback(async () => {
+    try {
+      onUserInput(Field.INPUT, '')
+      onUserInput(Field.OUTPUT, '')
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }, [])
 
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -360,7 +405,6 @@ export default function Swap() {
 
   const handleInputSelect = useCallback(
     (inputCurrency: any) => {
-      console.log('handleInputSelecthandleInputSelect')
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
     },
@@ -371,12 +415,12 @@ export default function Swap() {
     maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
   }, [maxAmountInput, onUserInput])
 
-  const handleOutputSelect = useCallback((outputCurrency: any) => { 
-      console.log("handleOutputSelecthandleOutputSelect")
+  const handleOutputSelect = useCallback(
+    (outputCurrency: any) => {
       onCurrencySelection(Field.OUTPUT, outputCurrency)
-    }, [
-    onCurrencySelection
-  ])
+    },
+    [onCurrencySelection]
+  )
 
   const swapIsUnsupported = useIsTransactionUnsupported(currencies?.INPUT, currencies?.OUTPUT)
   return (
@@ -424,7 +468,7 @@ export default function Swap() {
                     onClick={() => {
                       setApprovalSubmitted(false) // reset 2 step UI for approvals
                       onSwitchTokens()
-                      // wipeInput()
+                      wipeInput()
                     }}
                     color={currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.primary1 : theme.text2}
                   />
@@ -551,7 +595,8 @@ export default function Swap() {
             <BottomGrouping>
               <ButtonError
                 onClick={() => {
-                  hadaleGasModalEnable()
+                  // hadaleGasModalEnable()
+                  hadaleIsGasModal()
                 }}
                 id="swap-button"
                 disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
@@ -703,16 +748,19 @@ export default function Swap() {
             ) : null}
           </BottomGrouping>
  */}
-          {gasModalEnable ? (
+          {isGasModal ? (
             <BottomGrouping>
               <GasModal
                 handleDeposit={handleDeposit}
                 path0={trade && trade.route.path[0].address}
                 path1={trade && trade.route.path[1].address}
+                paths={paths}
                 inputToken={trade && trade.route.input.symbol}
+                decimals={trade && trade.inputAmount.currency.decimals}
                 inputAmount={formattedAmounts[Field.INPUT]}
                 hadaleGasModalEnable={hadaleGasModalEnable}
-                setGasTokenCallback={setGasTokenCallback}
+                setGasTokenAndSwapCallback={setGasTokenAndSwapCallback}
+                wipeInput={wipeInput}
               />
             </BottomGrouping>
           ) : (
@@ -720,6 +768,7 @@ export default function Swap() {
           )}
         </Wrapper>
       </AppBody>
+
       {!swapIsUnsupported ? (
         <AdvancedSwapDetailsDropdown trade={trade} />
       ) : (

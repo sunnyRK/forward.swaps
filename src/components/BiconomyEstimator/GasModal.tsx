@@ -1,79 +1,105 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, {
+  useEffect,
+  useState
+  // , useContext
+} from 'react'
 import 'react-responsive-modal/styles.css'
-// import { BigNumber } from '@ethersproject/bignumber'
-// import { BigNumber } from 'ethers'
 import { Modal } from 'react-responsive-modal'
-// import CustomButton from './CustomButton'
 import SmallButtons from './SmallButtons'
 import useBiconomyContracts from '../../hooks/useBiconomyContracts'
-// import ApproveButton from "./ApproveButton";
-// import { useStoreState } from "../../store/globalStore";
-// import Swal from "sweetalert2";
+import Swal from 'sweetalert2'
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
 import QuestionHelper from '../QuestionHelper'
 import { TYPE } from '../../theme'
-import { ThemeContext } from 'styled-components'
+// import { ThemeContext } from 'styled-components'
 import DAI_kovan_contract from '../../contracts/DAI_kovan.json'
 import USDT_kovan_contract from '../../contracts/USDT_kovan.json'
 import USDC_kovan_contract from '../../contracts/USDC_kovan.json'
 import { useWaitState } from '../../state/waitmodal/hooks'
 import { useWaitActionHandlers } from '../../state/waitmodal/hooks'
+// import { useStoreState } from "../../store/globalStore";
 
 interface GasModalProps {
   handleDeposit: () => void
   hadaleGasModalEnable: () => void
-  setGasTokenCallback: (gas: any) => void
+  setGasTokenAndSwapCallback: (gas: any) => void
+  wipeInput: () => void
   path0: any
   path1: any
+  paths: any[]
   inputToken: any
+  decimals: any
   inputAmount: any
 }
 
 const GasModal: React.FunctionComponent<GasModalProps> = ({
   handleDeposit,
   hadaleGasModalEnable,
-  setGasTokenCallback,
+  setGasTokenAndSwapCallback,
+  wipeInput,
   path0,
   path1,
+  paths,
   inputToken,
-  inputAmount
+  inputAmount,
+  decimals
 }) => {
-  const { wait, tx, txHash, gasFees } = useWaitState()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee } = useWaitActionHandlers()
+  const {
+    // wait,
+    isOpen,
+    tx,
+    isApproved
+  } = useWaitState()
+  const {
+    onChangeWait,
+    onChangeTransaction,
+    onChangeTransactionHash,
+    onChangeApproved,
+    onChangeOpen,
+    onChangeGasModal
+  } = useWaitActionHandlers()
 
   // const { connected } = useStoreState((state) => state);
-  const { checkAllowance, checkBalance, approveToken, calculateFees, approveTokenAndSwap } = useBiconomyContracts()
+  const {
+    checkAllowance,
+    checkBalance,
+    approveToken,
+    calculateFees,
+    approveTokenAndSwap,
+    calculateGasFeesForApproveAndSwap
+  } = useBiconomyContracts()
 
   const [open, setOpen] = useState(false)
   const [balanceError, setError] = useState(false)
   const [inputError, setInputError] = useState(false)
-  // const [signTx, setSignTx] = useState(false)
   const [checkingAllowance, setCheckingAllowance] = useState(true)
-  const [checkBal, setBalance] = useState('0')
-  const [isApproved, setIsApproved] = useState(false)
-  const [fees, setFees] = useState('0')
-  // const [approveAndSwapFees, setApproveAndSwapFees] = useState('0')
+  const [checkBal, setBalance] = useState('undefined')
+  // const [isApproved, setIsApproved] = useState(false)
+  const [fees, setFees] = useState('undefined')
+  const [approveAndSwapFees, setApproveAndSwapFees] = useState('undefined')
+  const [isApproveAndSwap, setApproveAndSwap] = useState(false)
+  // const [isApproveState, setApprove] = useState(false)
   const [selectedToken, setSelectedToken] = useState('')
 
   // const onOpenModal = () => setOpen(true)
   const onCloseModal = () => {
-    hadaleGasModalEnable()
+    // hadaleGasModalEnable()
     setOpen(false)
     onChangeWait('false')
     onChangeTransaction('')
     onChangeTransactionHash('')
-    onChangeFee('')
-    // setSignTx(false)
+    onChangeOpen(false)
+    onChangeGasModal(false)
   }
 
-  const theme = useContext(ThemeContext)
-
   useEffect(() => {
-    console.log('Track+++1', txHash)
-    console.log('Track+++2', tx)
-    console.log(gasFees)
-  }, [txHash, tx])
+    if (tx != '' && tx != 'undefined') {
+      onCloseModal()
+    }
+  }, [tx])
+
+  // const theme = useContext(ThemeContext)
 
   const onDeposit = async () => {
     try {
@@ -81,7 +107,6 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         setInputError(true)
         return
       }
-      // setSignTx(true)
 
       if (inputToken == selectedToken) {
         const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(fees)
@@ -91,13 +116,13 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           let gasToken: string
           if (selectedToken == 'USDC') {
             gasToken = USDC_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           } else if (selectedToken == 'USDT') {
             gasToken = USDT_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           } else if (selectedToken == 'DAI') {
             gasToken = DAI_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           }
         }
       } else {
@@ -107,13 +132,13 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           let gasToken: string
           if (selectedToken == 'USDC') {
             gasToken = USDC_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           } else if (selectedToken == 'USDT') {
             gasToken = USDT_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           } else if (selectedToken == 'DAI') {
             gasToken = DAI_kovan_contract.address
-            return setGasTokenCallback(gasToken)
+            return setGasTokenAndSwapCallback(gasToken)
           }
         }
       }
@@ -121,69 +146,134 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   }
 
   const onApprove = async (tokenSymbol: any) => {
-    const approvedResp: any = await approveToken(tokenSymbol)
+    let approvedResp: any
+    if (tokenSymbol == 'USDT') {
+      const isApproved = await checkAllowance(selectedToken, inputAmount, decimals)
+      if (isApproved) {
+        Swal.fire('You have already given allowance')
+        return
+      } else if (!isApproved) {
+        approvedResp = await approveToken(tokenSymbol)
+      } else {
+        Swal.fire('Something went wrong!')
+        onChangeOpen(false)
+        return
+      }
+    } else {
+      approvedResp = await approveToken(tokenSymbol)
+    }
     if (approvedResp) {
-      setIsApproved(true)
-      const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
+      const fee = await calculateFees(tokenSymbol, paths, inputAmount, decimals)
       setFees(fee)
     }
   }
 
-  // const onApproveAndSwapAlert = async (tokenSymbol: any) => {
-  //   Swal.fire({
-  //     title: 'Approve and Swap Gas fees in '+ tokenSymbol,
-  //     text: approveAndSwapFees + " " + tokenSymbol,
-  //     // icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonColor: '#3085d6',
-  //     cancelButtonColor: '#d33',
-  //     confirmButtonText: 'Approve And Swap'
-  //   }).then(async (result) => {
-  //     if (result.isConfirmed) {
-  //       // Swal.fire(
-  //       //   'Deleted!',
-  //       //   'Your file has been deleted.',
-  //       //   'success'
-  //       // )
-  //       const approvedResp: any = await approveTokenAndSwap(tokenSymbol, path0, path1, inputAmount)
-  //       if (approvedResp) {
-  //         setIsApproved(true)
-  //         const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
-  //         setFees(fee)
-  //       }
-  //     }
-  //   })
-  // }
+  const onApproveAndSwapAlert = async (tokenSymbol: any) => {
+    const totalExchangeVolume: any = parseFloat(inputAmount) + parseFloat(approveAndSwapFees)
+    if (parseFloat(totalExchangeVolume) > parseFloat(checkBal)) {
+      setError(true)
+    } else {
+      Swal.fire({
+        title: 'Total Estimated gas fees of permit and Swap ' + tokenSymbol,
+        text: approveAndSwapFees + ' ' + tokenSymbol,
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Permit And Swap'
+      }).then(async result => {
+        if (result.isConfirmed) {
+          setApproveAndSwap(true)
+          // from here It will call use effect of isApproveAndSwap
+        }
+      })
+    }
+  }
 
   const onApproveAndSwap = async (tokenSymbol: any) => {
-    const approvedResp: any = await approveTokenAndSwap(tokenSymbol, path0, path1, inputAmount)
+    const approvedResp: any = await approveTokenAndSwap(tokenSymbol, inputAmount, paths, decimals)
     if (approvedResp) {
-      setIsApproved(true)
-      const fee = await calculateFees(tokenSymbol, path0, path1, inputAmount)
+      // setIsApproved(true)
+      const fee = await calculateFees(tokenSymbol, paths, inputAmount, decimals)
       setFees(fee)
     }
   }
 
-  const onTxFee = async (tokenSymbol: any) => {
+  const onSelectGasToken = async (tokenSymbol: any) => {
+    onChangeWait('false')
+    onChangeTransaction('')
+    onChangeTransactionHash('')
     setSelectedToken(tokenSymbol)
+    setError(false)
+    setInputError(false)
+  }
+
+  const resetSelectedToken = async () => {
+    setSelectedToken('')
+    setSelectedToken(selectedToken)
   }
 
   useEffect(() => {
     const process = async () => {
-      setCheckingAllowance(true)
-      const isApproved = await checkAllowance(selectedToken)
-      const balance = await checkBalance(selectedToken)
-      const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
-      // const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
-      if (selectedToken == 'USDT') {
-        setBalance((balance / 1e6).toString())
-      } else {
-        setBalance((balance / 1e18).toString())
+      try {
+        // debugger
+        setCheckingAllowance(true)
+        const isApproved = await checkAllowance(selectedToken, inputAmount, decimals)
+        const balance = await checkBalance(selectedToken)
+
+        if (balance == undefined || isApproved == undefined) {
+          resetSelectedToken()
+        }
+
+        if (isApproved) {
+          const fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
+          if (fee != '') {
+            if (fee == undefined) {
+              resetSelectedToken()
+            } else {
+              if (selectedToken == 'USDT') {
+                setBalance((balance / 1e6).toString())
+              } else {
+                setBalance((balance / 1e18).toString())
+              }
+              onChangeApproved(isApproved)
+              setCheckingAllowance(false)
+              setFees(fee)
+            }
+          }
+        } else {
+          if (selectedToken != 'USDT') {
+            const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(
+              selectedToken,
+              paths,
+              inputAmount,
+              decimals
+            )
+            if (approveAndSwapfee != '') {
+              if (approveAndSwapfee == undefined) {
+                resetSelectedToken()
+              } else {
+                setBalance((balance / 1e18).toString())
+                onChangeApproved(isApproved)
+                setCheckingAllowance(false)
+                setApproveAndSwapFees(approveAndSwapfee)
+              }
+            }
+          } else {
+            // For USDT
+            setBalance((balance / 1e6).toString())
+            onChangeApproved(isApproved)
+            setCheckingAllowance(false)
+            setApproveAndSwapFees('0')
+          }
+        }
+      } catch (error) {
+        console.log('Getting-Details-Error: ', error)
+        if ((error.code = -32603)) {
+          resetSelectedToken()
+        } else {
+          resetSelectedToken()
+        }
       }
-      setIsApproved(isApproved)
-      setCheckingAllowance(false)
-      setFees(fee)
-      // setApproveAndSwapFees(approveAndSwapfee)
     }
     if (selectedToken != '' && path0 != '' && path1 != '') {
       process()
@@ -191,8 +281,25 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
   }, [selectedToken])
 
   useEffect(() => {
+    console.log('pathsuseEffect: ', paths)
+    onChangeOpen(true)
     setSelectedToken('USDC')
   }, [])
+
+  useEffect(() => {
+    async function process() {
+      await onApproveAndSwap(selectedToken)
+      setApproveAndSwap(false)
+      // hadaleGasModalEnable()
+      const fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
+      if (parseInt(fee) > 0) {
+        setFees(fee)
+      }
+    }
+    if (isApproveAndSwap) {
+      process()
+    }
+  }, [isApproveAndSwap])
 
   useEffect(() => {
     const process = async () => {
@@ -202,10 +309,10 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
         setError(false)
         setInputError(false)
         if (path0 != '' && path1 != '') {
-          const fee = await calculateFees(selectedToken, path0, path1, inputAmount)
-          // const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, path0, path1, inputAmount)
+          const fee = await calculateFees(selectedToken, paths, inputAmount, decimals)
+          const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, paths, inputAmount, decimals)
           setFees(fee)
-          // setApproveAndSwapFees(approveAndSwapfee)
+          setApproveAndSwapFees(approveAndSwapfee)
         }
       }
     }
@@ -214,25 +321,9 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
 
   return (
     <>
-      {/* <CustomButton
-        color="green"
-        title="Pay Gas"
-        description="Checkout estimated gas prices and pay"
-        icon="dollar-sign"
-        onClick={onOpenModal}
-        disabled={false}
-      /> */}
-      <Modal
-        open={true}
-        onClose={onCloseModal}
-        center
-        blockScroll={true}
-        // classNames={{
-        //   modal: 'modal'
-        // }}
-      >
-        <div className="header">
-          <div className="title" style={{ textAlign: 'center', marginBottom: '20px' }}>
+      <Modal open={isOpen != null ? isOpen : false} onClose={onCloseModal} center blockScroll={true}>
+        <div className="header" style={{ color: '#000000' }}>
+          <div className="title" style={{ textAlign: 'center', marginBottom: '20px', color: '#000000' }}>
             Select tokens to pay gas fees
           </div>
           <div className="tabs">
@@ -242,204 +333,190 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           </div>
         </div>
 
-        <div className="body">
+        <div className="body" style={{ color: '#000000' }}>
           <div className="token-container">
             <SmallButtons
               marginPX={'0px'}
               name="USDC"
               active={selectedToken === 'USDC'}
-              onClick={() => onTxFee('USDC')}
+              onClick={() => onSelectGasToken('USDC')}
             />
             <SmallButtons
               marginPX={'15px'}
               name="USDT"
               active={selectedToken === 'USDT'}
-              onClick={() => onTxFee('USDT')}
+              onClick={() => onSelectGasToken('USDT')}
             />
             <SmallButtons
               marginPX={'15px'}
               name="DAI"
               active={selectedToken === 'DAI'}
-              onClick={() => onTxFee('DAI')}
+              onClick={() => onSelectGasToken('DAI')}
             />
           </div>
 
           <div className="token-action">
-            {wait == 'true' ? (
-              <div className="alignCenter">
-                <strong>Waiting for confirmation...</strong>
-                <br></br>
-                <strong>Biconomy performing transaction...</strong>
-              </div>
-            ) : tx != '' && tx != 'undefined' ? (
-              <div className="alignCenter">
-                <strong>Transaction Submitted</strong>
-                <br></br>
-                <a href={'https://kovan.etherscan.io/tx/' + tx}>Etherscan</a>
-                {/* <span>You saved {gasFees} ETH, which could be worth x*5K when ETH reaches 5K!</span> */}
-              </div>
-            ) : tx == 'undefined' ? (
-              <div className="alignCenter">
-                <strong>Transaction Failed</strong>
-              </div>
-            ) : (
-              ''
-            )}
             {checkingAllowance ? (
               <div className="alignCenter">
-                <strong>Checking Allowance Status...</strong>
+                <strong>Checking allowance to ERC20 Forwarder for selected fee token...</strong>
               </div>
             ) : isApproved ? (
               <div className="pay-tx">
                 {balanceError && (
                   <div className="gas-amount">
-                    <strong>You have not enough transaction fees!!</strong>
+                    <strong>Not enough balance to perform the swap and pay the fees!</strong>
                   </div>
                 )}
 
                 {inputError && (
                   <div className="gas-amount">
-                    <strong>You have not selected input amount or token!!</strong>
+                    <strong>You have not selected input amount or token!</strong>
                   </div>
                 )}
 
                 <AutoColumn gap="0px">
                   <RowBetween>
                     <RowFixed>
-                      <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                      <TYPE.black fontSize={14} fontWeight={400} color={'#000000'}>
                         Your Balance :{' '}
                       </TYPE.black>
                       <QuestionHelper text="Your metamask balance." />
                     </RowFixed>
                     <RowFixed>
-                      <TYPE.black fontSize={14}>{checkBal}</TYPE.black>
-                      <TYPE.black fontSize={14} marginLeft={'4px'}>
+                      <TYPE.black fontSize={14} style={{ color: '#000000' }}>
+                        {checkBal}
+                      </TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{ color: '#000000' }}>
                         {selectedToken}
                       </TYPE.black>
                     </RowFixed>
                   </RowBetween>
                   <RowBetween>
                     <RowFixed>
-                      <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                      <TYPE.black fontSize={14} fontWeight={400} color={'#000000'}>
                         Estimated Tx fee :{' '}
                       </TYPE.black>
                       <QuestionHelper text="Estimated tx fee is a fee will be deduct from stablecoin balance." />
                     </RowFixed>
                     <RowFixed>
-                      <TYPE.black fontSize={14}>{parseInt(fees) > 0 ? fees : '0'}</TYPE.black>
-                      <TYPE.black fontSize={14} marginLeft={'4px'}>
+                      <TYPE.black fontSize={14} style={{ color: '#000000' }}>
+                        {parseInt(fees) > 0 ? fees : '0'}
+                      </TYPE.black>
+                      <TYPE.black fontSize={14} marginLeft={'4px'} style={{ color: '#000000' }}>
                         {selectedToken}
                       </TYPE.black>
                     </RowFixed>
                   </RowBetween>
                 </AutoColumn>
 
-                <div className="buttons">
-                  <div className="tx-button cancel" onClick={onCloseModal}>
-                    Cancel
+                {fees != 'undefined' && checkBal != 'undefined' ? (
+                  <div className="buttons">
+                    <div className="tx-button cancel" onClick={onCloseModal}>
+                      Cancel
+                    </div>
+                    <div
+                      className="tx-button proceed"
+                      onClick={() => {
+                        onDeposit()
+                      }}
+                    >
+                      Swap
+                    </div>
                   </div>
-                  <div
-                    className="tx-button proceed"
-                    onClick={() => {
-                      onDeposit()
-                    }}
-                  >
-                    Swap
+                ) : (
+                  <div className="gas-amount">
+                    <strong>Fees and Balances are getting calculated...</strong>
                   </div>
-                </div>
-
-                {/* <div className="pay-tx">
-                <div className="buttons">
-                  <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
-                    Approve
-                  </div>
-                  <div
-                    className="tx-button proceed"
-                    onClick={() => {
-                      onApproveAndSwap(selectedToken)
-                    }}
-                  >
-                    Approve and Swap
-                  </div>
-                </div>
-              </div> */}
-
+                )}
               </div>
-            ) : selectedToken == 'DAI' || selectedToken == 'USDC' ? (
-              <div className="pay-tx">
-                <div className="buttons">
-                  <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
-                    Approve
+            ) : isApproved == false ? (
+              selectedToken == 'DAI' || selectedToken == 'USDC' ? (
+                <div className="pay-tx">
+                  {balanceError && (
+                    <div className="gas-amount">
+                      <strong>Not enough balance to perform the swap and pay the fees!</strong>
+                    </div>
+                  )}
+
+                  {inputError && (
+                    <div className="gas-amount">
+                      <strong>You have not selected input amount or token!</strong>
+                    </div>
+                  )}
+
+                  <AutoColumn gap="0px">
+                    <RowBetween>
+                      <RowFixed>
+                        <TYPE.black fontSize={14} fontWeight={400} color={'#000000'}>
+                          Your Balance :{' '}
+                        </TYPE.black>
+                        <QuestionHelper text="Your metamask balance." />
+                      </RowFixed>
+                      <RowFixed>
+                        <TYPE.black fontSize={14} style={{ color: '#000000' }}>
+                          {checkBal}
+                        </TYPE.black>
+                        <TYPE.black fontSize={14} marginLeft={'4px'} style={{ color: '#000000' }}>
+                          {selectedToken}
+                        </TYPE.black>
+                      </RowFixed>
+                    </RowBetween>
+                    <RowBetween>
+                      <RowFixed>
+                        <TYPE.black fontSize={14} fontWeight={400} color={'#000000'}>
+                          Estimated Tx fee :{' '}
+                        </TYPE.black>
+                        <QuestionHelper text="Estimated tx fee is a fee will be deduct from stablecoin balance." />
+                      </RowFixed>
+                      <RowFixed>
+                        <TYPE.black fontSize={14} style={{ color: '#000000' }}>
+                          {parseInt(approveAndSwapFees) > 0 ? approveAndSwapFees : '0'}
+                        </TYPE.black>
+                        <TYPE.black fontSize={14} marginLeft={'4px'} style={{ color: '#000000' }}>
+                          {selectedToken}
+                        </TYPE.black>
+                      </RowFixed>
+                    </RowBetween>
+                  </AutoColumn>
+
+                  {approveAndSwapFees != 'undefined' && checkBal != 'undefined' ? (
+                    <div className="buttons">
+                      <div className="tx-button proceed" onClick={() => onApprove(selectedToken)}>
+                        Permit
+                      </div>
+                      <div
+                        className="tx-button proceed"
+                        onClick={() => {
+                          onApproveAndSwapAlert(selectedToken)
+                        }}
+                      >
+                        Permit and Swap
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="gas-amount">
+                      <strong>Fees and Balances getting calculating...</strong>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="approve-token">
+                  <div className="note">
+                    Note: Give approval to Biconomy ERC-20 Forwarder Contract, so it can deduct fee in selected token.
                   </div>
-                  <div
-                    className="tx-button proceed"
-                    onClick={() => {
-                      onApproveAndSwap(selectedToken)
-                    }}
-                  >
-                    Approve and Swap
+                  <div className="approve-token-button" onClick={() => onApprove(selectedToken)}>
+                    Approve {selectedToken}
                   </div>
                 </div>
-              </div>
+              )
             ) : (
-              <div className="approve-token">
-                <div className="note">
-                  Note: Give approval to Biconomy ERC-20 Forwarder Contract, so it can deduct fee in selected token.
-                </div>
-                {/* <ApproveButton tokenName={selectedToken} /> */}
-                <div className="approve-token-button" onClick={() => onApprove(selectedToken)}>
-                  Approve {selectedToken}
-                </div>
+              <div className="alignCenter">
+                <strong>Checking allowance to ERC20 Forwarder for selected fee token...</strong>
               </div>
             )}
           </div>
         </div>
       </Modal>
-
-
-      {/* <div> */}
-      {/* { signTx ? (
-      txHash == '' && (tx == '' || tx == 'undefined') ? ( 
-        <div>
-          { 
-          Swal.fire({
-            title: 'Success!',
-            text: 'Transaction Successfully: ',
-            icon: 'success',
-            confirmButtonText: 'continue'
-          })
-            .then(result => {})
-            .catch(error => {
-              Swal.fire('reverted', 'Transaction Failed', 'error')
-            })
-          }
-        </div>
-      ) : txHash != "" ? (
-        <div>
-          { 
-            Swal.fire({
-              title: 'Transaction Sent to Biconomy Relayer.',
-              html: 'Waiting for confirmation...',
-              // timer: 2000,
-              timerProgressBar: true,
-              didOpen: () => {
-                Swal.showLoading()
-              },
-          })}
-        </div>
-        ) : tx ? (
-          Swal.fire({
-            title: 'Success!',
-            text: 'Transaction Successfully: ' + tx,
-            icon: 'success',
-            confirmButtonText: 'continue'
-          })
-            .then(result => {})
-            .catch(error => {
-              Swal.fire('reverted', 'Transaction Failed', 'error')
-            })
-        ) : ('')) : ('') }
-        </div> */}
     </>
   )
 }

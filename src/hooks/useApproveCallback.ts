@@ -12,11 +12,13 @@ import { calculateGasMargin } from '../utils'
 import { useTokenContract } from './useContract'
 import { useActiveWeb3React } from './index'
 // import { Version } from './useToggledVersion'
-import { Biconomy } from '@biconomy/mexa'
 
 import DAI_kovan_contract from '../contracts/DAI_kovan.json'
 import USDC_kovan_contract from '../contracts/USDC_kovan.json'
-import { BICONOMY_API_KEY, BICONOMY_CONTRACT } from "../constants/config";
+//import Tradeable_USDC_kovan_contract from '../contracts/Tradeable_USDC_kovan.json'
+import { BICONOMY_CONTRACT } from '../constants/config'
+import { getPermitClient } from '../biconomy/biconomy'
+import Swal from 'sweetalert2'
 
 export enum ApprovalState {
   UNKNOWN,
@@ -24,22 +26,6 @@ export enum ApprovalState {
   PENDING,
   APPROVED
 }
-
-const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
-// let ercForwarderClient: any
-let permitClient: any
-
-biconomy
-  .onEvent(biconomy.READY, () => {
-    // Initialize your dapp here like getting user accounts etc
-    // ercForwarderClient = biconomy.erc20ForwarderClient
-    permitClient = biconomy.permitClient
-    // console.log('permitClientOneventuseBiconomyContracts++', permitClient, ercForwarderClient)
-  })
-  .onEvent(biconomy.ERROR, () => {
-    // Handle error while initializing mexa
-    // console.log(error, message)
-  })
 
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
 export function useApproveCallback(
@@ -70,104 +56,127 @@ export function useApproveCallback(
   const addTransaction = useTransactionAdder()
 
   const approve = useCallback(async (): Promise<void> => {
-    if (approvalState !== ApprovalState.NOT_APPROVED) {
-      console.error('approve was called unnecessarily')
-      return
-    }
-    if (!token) {
-      console.error('no token')
-      return
-    }
-
-    if (!tokenContract) {
-      console.error('tokenContract is null')
-      return
-    }
-
-    if (!amountToApprove) {
-      console.error('missing amount to approve')
-      return
-    }
-
-    if (!spender) {
-      console.error('no spender')
-      return
-    }
-
-    let useExact = false
-    const estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256).catch(() => {
-      // general fallback for tokens who restrict approval amounts
-      useExact = true
-      return tokenContract.estimateGas.approve(spender, amountToApprove.raw.toString())
-    })
-
-    let domainData
-    let tokenPermitOptions1
-    let permitTx
-
-    if (tokenContract.address == DAI_kovan_contract.address) {
-      // DAI
-      domainData = {
-        name: 'Dai Stablecoin',
-        version: '1',
-        chainId: 42,
-        verifyingContract: DAI_kovan_contract.address // kovan
+    try {
+      if (approvalState !== ApprovalState.NOT_APPROVED) {
+        console.error('approve was called unnecessarily')
+        return
+      }
+      if (!token) {
+        console.error('no token')
+        return
       }
 
-      tokenPermitOptions1 = {
-        //forwarder
-        spender: BICONOMY_CONTRACT,
-        domainData: domainData,
-        value: '100000000000000000000',
-        deadline: Math.floor(Date.now() / 1000 + 3600)
+      if (!tokenContract) {
+        console.error('tokenContract is null')
+        return
       }
 
-      permitTx = await permitClient.daiPermit(tokenPermitOptions1)
-      await permitTx.wait(1)
-      addTransaction(permitTx, {
-        summary: 'Approve ' + amountToApprove.currency.symbol,
-        approval: { tokenAddress: token.address, spender: spender }
+      if (!amountToApprove) {
+        console.error('missing amount to approve')
+        return
+      }
+
+      if (!spender) {
+        console.error('no spender')
+        return
+      }
+
+      let useExact = false
+      const estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256).catch(() => {
+        // general fallback for tokens who restrict approval amounts
+        useExact = true
+        return tokenContract.estimateGas.approve(spender, amountToApprove.raw.toString())
       })
-      console.log('permitTx3++: ', permitTx)
-      return permitTx
-    } else if (tokenContract.address == USDC_kovan_contract.address) {
-      // USDC
-      domainData = {
-        name: 'USDC Coin',
-        version: '1',
-        chainId: 42,
-        verifyingContract: USDC_kovan_contract.address
-      }
 
-      tokenPermitOptions1 = {
-        spender: BICONOMY_CONTRACT,
-        domainData: domainData,
-        value: '100000000000000000000',
-        deadline: Math.floor(Date.now() / 1000 + 3600)
-      }
-      permitTx = await permitClient.eip2612Permit(tokenPermitOptions1)
-      await permitTx.wait(1)
-      console.log('permitTx3++: ', permitTx)
-      return permitTx
-    } else {
-      // OtherTokens
-      return tokenContract
-        .approve(spender, useExact ? amountToApprove.raw.toString() : MaxUint256, {
-          gasLimit: calculateGasMargin(estimatedGas)
-        })
-        .then((response: TransactionResponse) => {
-          addTransaction(response, {
-            summary: 'Approve ' + amountToApprove.currency.symbol,
-            approval: { tokenAddress: token.address, spender: spender }
+      let domainData
+      let tokenPermitOptions1
+      let permitTx
+
+      if (tokenContract.address == DAI_kovan_contract.address) {
+        if (getPermitClient() == '' || getPermitClient() == 'undefined' || getPermitClient() == null) {
+          Swal.fire('Something went wrong!')
+          return
+        } else {
+          domainData = {
+            name: 'Dai Stablecoin',
+            version: '1',
+            chainId: 42,
+            verifyingContract: DAI_kovan_contract.address // kovan
+          }
+
+          tokenPermitOptions1 = {
+            spender: BICONOMY_CONTRACT,
+            domainData: domainData,
+            value: '100000000000000000000',
+            deadline: Math.floor(Date.now() / 1000 + 3600)
+          }
+
+          permitTx = await getPermitClient().daiPermit(tokenPermitOptions1)
+          // console.log('permitTx: ', permitTx, amountToApprove.currency.symbol, token.address, spender)
+          // addTransaction(permitTx, {
+          //   summary: 'Approve ' + amountToApprove.currency.symbol,
+          //   approval: { tokenAddress: token.address, spender: spender }
+          // })
+          await permitTx.wait(1)
+          console.log('permitTx: ', permitTx)
+          if (permitTx.hash) {
+            addTransaction(permitTx, {
+              summary: 'Approve ' + amountToApprove.currency.symbol,
+              approval: { tokenAddress: token.address, spender: spender }
+            })
+          }
+          return permitTx
+        }
+      } else if (tokenContract.address == USDC_kovan_contract.address) {
+        if (getPermitClient() == '' || getPermitClient() == 'undefined' || getPermitClient() == null) {
+          Swal.fire('Something went wrong!')
+          return
+        } else {
+          domainData = {
+            name: 'USDC Coin',
+            version: '1',
+            chainId: 42,
+            verifyingContract: USDC_kovan_contract.address
+          }
+
+          tokenPermitOptions1 = {
+            spender: BICONOMY_CONTRACT,
+            domainData: domainData,
+            value: '100000000000000000000',
+            deadline: Math.floor(Date.now() / 1000 + 3600)
+          }
+          permitTx = await getPermitClient().eip2612Permit(tokenPermitOptions1)
+          await permitTx.wait(1)
+          console.log('permitTx: ', permitTx)
+          if (permitTx.hash) {
+            addTransaction(permitTx, {
+              summary: 'Approve ' + amountToApprove.currency.symbol,
+              approval: { tokenAddress: token.address, spender: spender }
+            })
+          }
+          return permitTx
+        }
+      } else {
+        return tokenContract
+          .approve(spender, useExact ? amountToApprove.raw.toString() : MaxUint256, {
+            gasLimit: calculateGasMargin(estimatedGas)
           })
-        })
-        .catch((error: Error) => {
-          console.debug('Failed to approve token', error)
-          throw error
-        })
+          .then((response: TransactionResponse) => {
+            console.log('permitTx', response)
+            addTransaction(response, {
+              summary: 'Approve ' + amountToApprove.currency.symbol,
+              approval: { tokenAddress: token.address, spender: spender }
+            })
+          })
+          .catch((error: Error) => {
+            console.debug('Failed to approve token', error)
+            throw error
+          })
+      }
+    } catch (error) {
+      console.log('Error: ', error)
     }
   }, [approvalState, token, tokenContract, amountToApprove, spender, addTransaction])
-
   return [approvalState, approve]
 }
 
@@ -179,6 +188,6 @@ export function useApproveCallbackFromTrade(trade?: Trade, allowedSlippage = 0) 
   )
   // const tradeIsV1 = getTradeVersion(trade) === Version.v1
   // const v1ExchangeAddress = useV1TradeExchangeAddress(trade)
-  return useApproveCallback(amountToApprove, BICONOMY_CONTRACT)
   // return useApproveCallback(amountToApprove, tradeIsV1 ? v1ExchangeAddress : ROUTER_ADDRESS)
+  return useApproveCallback(amountToApprove, BICONOMY_CONTRACT)
 }

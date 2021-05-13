@@ -6,21 +6,20 @@ import { darken } from 'polished'
 import { useBlockNumber } from '../../state/application/hooks'
 import { getEtherscanLink } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
-import biconomy from '../../assets/images/biconomy.png'
+// import biconomy from '../../assets/images/biconomy.png'
 
 const activeClassName = 'ACTIVE'
 
 const StyledCenter = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
   border-radius: 3rem;
   outline: none;
   cursor: pointer;
   text-decoration: none;
   color: ${({ theme }) => theme.text2};
-  font-size: 1rem;
+  font-size: 1.2rem;
   width: fit-content;
-  margin: 10px 12px;
+  margin-bottom: 20px;
   font-weight: 600;
 
   &.${activeClassName} {
@@ -137,29 +136,29 @@ export default function Polling() {
   )
 
   return (
-    <ExternalLink href={chainId && blockNumber ? getEtherscanLink(chainId, blockNumber.toString(), 'block') : ''}>
+    <div>
       <StyledCenter>
         <div>
           <strong>Save your ETH by paying gas in Stablecoins!</strong>
-          <br></br>
-          <div style={{ display: 'flex' }}>
-            <span style={{ textAlign: 'center', marginLeft: '80px', marginBottom: '10px', marginRight: '5px' }}>
-              Powered by{' '}
-            </span>
-            <img src={biconomy} style={{ height: '25px' }}></img>
+
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <span style={{ textAlign: 'center', marginBottom: '10px' }}>Powered by Biconomy </span>
+            {/* <img src={biconomy} style={{ height: '25px' }}></img> */}
           </div>
         </div>
       </StyledCenter>
-      <StyledPolling2 id={`stake-nav-link`} href={'https://docs.biconomy.io'}>
-        Want such a smooth UX on your dApp?
-        <br></br>
-        Integrate Biconomy Forward now!
-        <span style={{ fontSize: '11px' }}>↗</span>
-      </StyledPolling2>
-      <StyledPolling>
-        <TYPE.small style={{ opacity: isMounted ? '0.2' : '0.6' }}>{blockNumber}</TYPE.small>
-        <StyledPollingDot>{!isMounted && <Spinner />}</StyledPollingDot>
-      </StyledPolling>
-    </ExternalLink>
+      <ExternalLink href={chainId && blockNumber ? getEtherscanLink(chainId, blockNumber.toString(), 'block') : ''}>
+        <StyledPolling2 id={`stake-nav-link`} href={'https://docs.biconomy.io'}>
+          Want such a smooth UX on your dApp?
+          <br></br>
+          Integrate Biconomy Forward now!
+          <span style={{ fontSize: '11px' }}>↗</span>
+        </StyledPolling2>
+        <StyledPolling>
+          <TYPE.small style={{ opacity: isMounted ? '0.2' : '0.6' }}>{blockNumber}</TYPE.small>
+          <StyledPollingDot>{!isMounted && <Spinner />}</StyledPollingDot>
+        </StyledPolling>
+      </ExternalLink>
+    </div>
   )
 }

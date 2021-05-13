@@ -9,7 +9,7 @@ import {
 } from '@uniswap/sdk'
 import { BIPS_BASE, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
 import { Contract } from '@ethersproject/contracts'
-import { getBiconomySwappperContract, getEthersProvider } from '../utils'
+import { getBiconomySwappperContract, getEthersProvider, getEtherscanLink } from '../utils'
 import { Web3Provider } from '@ethersproject/providers'
 import { getTradeVersion, useV1TradeExchangeAddress } from '../data/V1'
 import { Version } from './useToggledVersion'
@@ -18,16 +18,12 @@ import { useV1ExchangeContract } from './useContract'
 import BICONOMYSWAPPER_ABI from '../constants/abis/biconomyswapper.json'
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
-import { Biconomy } from '@biconomy/mexa'
 import v1SwapArguments from '../utils/v1SwapArguments'
 import Swal from 'sweetalert2'
 import { useTransactionAdderBiconomy } from '../state/transactions/hooks'
 import { useWaitActionHandlers } from '../state/waitmodal/hooks'
-import { BICONOMY_API_KEY, BICONOMY_CONTRACT } from "../constants/config";
-
-const biconomy = new Biconomy(window.ethereum, { apiKey: BICONOMY_API_KEY })
-let _ercForwarderClient: any
-let _permitClient: any
+import { BICONOMY_CONTRACT } from '../constants/config'
+import { getErcForwarderClient, getPermitClient } from '../biconomy/biconomy'
 
 export enum SwapCallbackState {
   INVALID,
@@ -40,17 +36,10 @@ interface depositParameters {
   amount: string
 }
 
-// interface SwapCall2 {
-//   contract: Contract
-//   parameters: SwapParameters
-// }
-
 interface SwapCall {
   account: string
   contract: Contract
   ethersProvider: Web3Provider
-  ercForwarderClient: any
-  permitClient: any
   parameters: depositParameters
 }
 
@@ -58,8 +47,6 @@ interface SwapCallBiconomy {
   account: string
   contract: Contract
   ethersProvider: Web3Provider
-  ercForwarderClient: any
-  permitClient: any
   swapMethod: any
 }
 
@@ -96,27 +83,9 @@ function useSwapCallArgumentsForBiconomy(
 
   const v1Exchange = useV1ExchangeContract(useV1TradeExchangeAddress(trade), true)
 
-  biconomy
-    .onEvent(biconomy.READY, () => {
-      _ercForwarderClient = biconomy.erc20ForwarderClient
-      _permitClient = biconomy.permitClient
-    })
-    .onEvent(biconomy.ERROR, () => {})
-
   return useMemo(() => {
     const tradeVersion = getTradeVersion(trade)
-    if (
-      !trade ||
-      !recipient ||
-      !library ||
-      !account ||
-      !tradeVersion ||
-      !chainId ||
-      !deadline ||
-      !_permitClient ||
-      !_ercForwarderClient
-    )
-      return []
+    if (!trade || !recipient || !library || !account || !tradeVersion || !chainId || !deadline) return []
 
     const contract: Contract | null = getBiconomySwappperContract(
       BICONOMY_CONTRACT,
@@ -125,7 +94,8 @@ function useSwapCallArgumentsForBiconomy(
       account
     )
     const _ethersProvider: Web3Provider | null = getEthersProvider()
-    if (!contract && !_permitClient) {
+    // if (!contract && !_permitClient) {
+    if (!contract) {
       return []
     }
     const swapMethods = []
@@ -168,42 +138,43 @@ function useSwapCallArgumentsForBiconomy(
       account: account,
       contract: contract,
       ethersProvider: _ethersProvider,
-      permitClient: _permitClient,
-      ercForwarderClient: _ercForwarderClient,
       swapMethod: swapMethods[0]
     }
     swapper.push(pass)
     return swapper
     // return swapMethods.map(parameters => ({ parameters, contract }))
-  }, [
-    account,
-    allowedSlippage,
-    chainId,
-    deadline,
-    library,
-    recipient,
-    trade,
-    v1Exchange,
-    _permitClient,
-    _ercForwarderClient
-  ])
+  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, v1Exchange])
 }
 
 export function useBiconomySwapper(
   trade: Trade | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
-  // gasToken: string | null
 ): {
   state: SwapCallbackState
   callback: any
   error: string | null
 } {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const swapCalls = useSwapCallArgumentsForBiconomy(trade, allowedSlippage, recipientAddressOrName)
   const addBiconomyTransaction = useTransactionAdderBiconomy()
-  const { onChangeWait, onChangeTransaction, onChangeTransactionHash, onChangeFee} = useWaitActionHandlers()
+  const {
+    onChangeWait,
+    onChangeTransaction,
+    onChangeTransactionHash,
+    onChangeOpen,
+    onChangeGasModal
+  } = useWaitActionHandlers()
   // const tradeVersion = getTradeVersion(trade)
+
+  const paths: any = []
+  const len: any | undefined = trade?.route?.path?.length
+  if (len > 0) {
+    for (let i = 0; i < parseInt(len); i++) {
+      paths[i] = trade?.route.path[i].address
+    }
+  }
+  console.log('paths', paths)
 
   return useMemo(() => {
     // try {
@@ -214,130 +185,163 @@ export function useBiconomySwapper(
         // : Promise<string> {
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
+          onChangeOpen(false)
+          onChangeGasModal(false)
           swapCalls.map(async call => {
-            Swal.fire({
-              title: 'Please sign the transaction.',
-              html: '',
-              timerProgressBar: true,
-              didOpen: () => {
-                Swal.showLoading()
-              }
-            }).then(result => {
-              if (result.dismiss === Swal.DismissReason.timer) {
-                console.log('I was closed by the timer')
-              }
-            })
-
-            onChangeWait('true')
-            const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
-            // const addr1 = account
-            const token0 = swapMethod.args[2][0]
-            const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
-
-            console.log('swapMethod.args[0]+++', swapMethod.args[0])
-            const txResponse = await contract.populateTransaction.swapWithoutETH(
-              account,
-              token0,
-              path,
-              swapMethod.args[0]
-            )
-
-            const gasLimit = await ethersProvider.estimateGas({
-              to: contract.address,
-              from: account,
-              data: txResponse.data
-            })
-
-            const builtTx = await ercForwarderClient.buildTx({
-              to: contract.address,
-              token: gasToken,
-              txGas: Number(gasLimit),
-              data: txResponse.data
-            })
-            const tx = builtTx.request
-
-            let transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
-            console.log('transaction+++: ', transaction)
-
-            Swal.fire({
-              title: 'Transaction Sent.',
-              html: 'Waiting for Confirmation...',
-              timerProgressBar: true,
-              didOpen: () => {
-                Swal.showLoading()
-              }
-            }).then(result => {
-              if (result.dismiss === Swal.DismissReason.timer) {
-                console.log('I was closed by the timer')
-              }
-            })
-            onChangeWait('false')
-            onChangeTransactionHash(transaction && transaction.txHash)
-            // const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
-            // addBiconomyTransaction(transaction, {
-            //   summary: withVersion
-            // })
-
-            if (transaction && transaction.code == 200 && transaction.txHash) {
-              //event emitter methods
-              ethersProvider.once(transaction.txHash, result => {
-                console.log('gasUsed:++', transaction)
-                onChangeTransactionHash('')
-                onChangeTransaction(transaction.txHash)
-                onChangeFee('2')
-
-                // addBiconomyTransaction(transaction, {
-                //   summary: withVersion
-                // })
-                console.log('result: ', result)
-
-                Swal.fire({
-                  title: 'Success!',
-                  text: 'Transaction Successfully: ' + transaction.txHash,
-                  icon: 'success',
-                  confirmButtonText: 'continue'
-                })
-                  .then(result => {})
-                  .catch(error => {
-                    Swal.fire('reverted', 'Transaction Failed', 'error')
-                  })
-              })
+            if (
+              getErcForwarderClient() == '' ||
+              getErcForwarderClient() == 'undefined' ||
+              getErcForwarderClient() == null
+            ) {
+              Swal.fire('Something went wrong!')
+              onChangeOpen(false)
+              return
             } else {
-              // onChangeWait("false")
-              onChangeTransaction('undefined')
+              Swal.fire({
+                title: 'Please sign the message.',
+                html: '',
+                timerProgressBar: true,
+                didOpen: () => {
+                  Swal.showLoading()
+                }
+              }).then(result => {
+                if (result.dismiss === Swal.DismissReason.timer) {
+                }
+              })
+
+              onChangeWait('true')
+              const { account, contract, ethersProvider, swapMethod } = call
+              // const token0 = swapMethod.args[2][0]
+              // const path = [swapMethod.args[2][0], swapMethod.args[2][1]] // [token0, token1]
+
+              const txResponse = await contract.populateTransaction.swapWithoutETH(
+                account,
+                paths[0],
+                paths,
+                swapMethod.args[0]
+              )
+
+              const gasLimit = await ethersProvider.estimateGas({
+                to: contract.address,
+                from: account,
+                data: txResponse.data
+              })
+
+              const builtTx = await getErcForwarderClient().buildTx({
+                to: contract.address,
+                token: gasToken,
+                txGas: Number(gasLimit),
+                data: txResponse.data
+              })
+              const tx = builtTx.request
+
+              let transaction: any
+              try {
+                transaction = await getErcForwarderClient().sendTxEIP712({ req: tx })
+                console.log('transaction: ', transaction)
+              } catch (error) {
+                onChangeWait('false')
+                onChangeTransaction('undefined')
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Transaction Failed.!',
+                  didOpen: () => {
+                    Swal.hideLoading()
+                  }
+                })
+              }
+
+              Swal.fire({
+                title: 'Transaction Sent',
+                html: 'Waiting for Confirmation...',
+                timerProgressBar: true,
+                didOpen: () => {
+                  Swal.showLoading()
+                }
+              }).then(result => {
+                if (result.dismiss === Swal.DismissReason.timer) {
+                  console.log('I was closed by the timer')
+                }
+              })
+              onChangeWait('false')
+              onChangeTransactionHash(transaction && transaction.txHash)
+              // const withVersion = tradeVersion === Version.v2 ? account : `${account} on ${(tradeVersion as any).toUpperCase()}`
+              // addBiconomyTransaction(transaction, {
+              //   summary: withVersion
+              // })
+
+              if (transaction && transaction.code == 200 && transaction.txHash) {
+                ethersProvider.once(transaction.txHash, result => {
+                  // const hashLink = "https://kovan.etherscan.io/tx/"+transaction.txHash
+                  const chainIdForEtherscan: any = chainId
+                  onChangeTransactionHash('')
+                  onChangeTransaction(transaction.txHash)
+                  console.log('result: ', result)
+
+                  Swal.fire({
+                    title: 'Transaction Successfull',
+                    text: 'Transaction Successfull',
+                    icon: 'success',
+                    html: `<a href=${getEtherscanLink(
+                      chainIdForEtherscan,
+                      transaction.txHash,
+                      'transaction'
+                    )} target="_blank">Etherscan</a>`,
+                    confirmButtonText: 'continue'
+                  })
+                    .then(result => {
+                      onChangeOpen(false)
+                    })
+                    .catch(error => {
+                      Swal.fire('reverted', 'Transaction Failed!', 'error')
+                    })
+                })
+              } else {
+                // onChangeWait("false")
+                onChangeTransaction('undefined')
+                onChangeGasModal(false)
+                Swal.fire({
+                  icon: 'error',
+                  title: 'User denied message signature!',
+                  text: 'Transaction Failed.',
+                  didOpen: () => {
+                    Swal.hideLoading()
+                  }
+                })
+              }
+
+              // const txReciept = await txResponse.wait()
+              // console.log('txReciept: ', txReciept)
+              //  .then(gasEstimate => {
+              //   return {
+              //     call,
+              //     gasEstimate
+              //   }
+              // })
+              // .catch(gasError => {
+              //   console.debug('Gas estimate failed, trying eth_call to extract error', call)
+
+              //   return contract.callStatic[methodName](...args, options)
+              //     .then(result => {
+              //       console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
+              //       return { call, error: new Error('Unexpected issue with estimating the gas. Please try again.') }
+              //     })
+              //     .catch(callError => {
+              //       console.debug('Call threw error', call, callError)
+              //       let errorMessage: string
+              //       switch (callError.reason) {
+              //         case 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT':
+              //         case 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT':
+              //           errorMessage =
+              //             'This transaction will not succeed either due to price movement or fee on transfer. Try increasing your slippage tolerance.'
+              //           break
+              //         default:
+              //           errorMessage = `The transaction cannot succeed due to error: ${callError.reason}. This is probably an issue with one of the tokens you are swapping.`
+              //       }
+              //       return { call, error: new Error(errorMessage) }
+              //     })
+              // })
             }
-
-            // const txReciept = await txResponse.wait()
-            // console.log('txReciept: ', txReciept)
-            //  .then(gasEstimate => {
-            //   return {
-            //     call,
-            //     gasEstimate
-            //   }
-            // })
-            // .catch(gasError => {
-            //   console.debug('Gas estimate failed, trying eth_call to extract error', call)
-
-            //   return contract.callStatic[methodName](...args, options)
-            //     .then(result => {
-            //       console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
-            //       return { call, error: new Error('Unexpected issue with estimating the gas. Please try again.') }
-            //     })
-            //     .catch(callError => {
-            //       console.debug('Call threw error', call, callError)
-            //       let errorMessage: string
-            //       switch (callError.reason) {
-            //         case 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT':
-            //         case 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT':
-            //           errorMessage =
-            //             'This transaction will not succeed either due to price movement or fee on transfer. Try increasing your slippage tolerance.'
-            //           break
-            //         default:
-            //           errorMessage = `The transaction cannot succeed due to error: ${callError.reason}. This is probably an issue with one of the tokens you are swapping.`
-            //       }
-            //       return { call, error: new Error(errorMessage) }
-            //     })
-            // })
           })
           // )
         } catch (error) {
@@ -346,8 +350,11 @@ export function useBiconomySwapper(
           console.log('error:', error)
           Swal.fire({
             icon: 'error',
-            title: 'Oops...',
-            text: 'Transaction Failed!'
+            title: 'Used Denied Transaction!',
+            text: 'Transaction Failed!',
+            didOpen: () => {
+              Swal.hideLoading()
+            }
           })
         }
       },
@@ -372,29 +379,37 @@ export function useSwapperForGas(
   return useMemo(() => {
     try {
       swapCalls.map(async call => {
-        const { account, contract, ethersProvider, ercForwarderClient, swapMethod } = call
+        if (
+          getErcForwarderClient() == '' ||
+          getErcForwarderClient() == 'undefined' ||
+          getErcForwarderClient() == null
+        ) {
+          Swal.fire('Something went wrong!')
+          return
+        } else {
+          const { account, contract, ethersProvider, swapMethod } = call
 
-        const addr1 = account
-        const dai = swapMethod.args[2][0]
-        const path = [swapMethod.args[2][0], swapMethod.args[2][1]]
+          const addr1 = account
+          const dai = swapMethod.args[2][0]
+          const path = [swapMethod.args[2][0], swapMethod.args[2][1]]
 
-        const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, swapMethod.args[0])
+          const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, swapMethod.args[0])
 
-        // const gasPrice = await ethersProvider.getGasPrice()
-        const gasLimit = await ethersProvider.estimateGas({
-          to: contract.address,
-          from: account,
-          data: txResponse.data
-        })
+          const gasLimit = await ethersProvider.estimateGas({
+            to: contract.address,
+            from: account,
+            data: txResponse.data
+          })
 
-        const builtTx = await ercForwarderClient.buildTx({
-          to: contract.address,
-          token: swapMethod.args[2][0],
-          txGas: Number(gasLimit),
-          data: txResponse.data
-        })
-        TxFess = builtTx.cost
-        return TxFess
+          const builtTx = await getErcForwarderClient().buildTx({
+            to: contract.address,
+            token: swapMethod.args[2][0],
+            txGas: Number(gasLimit),
+            data: txResponse.data
+          })
+          TxFess = builtTx.cost
+          return TxFess
+        }
       })
     } catch (error) {
       console.log('error:', error)
@@ -405,24 +420,12 @@ export function useSwapperForGas(
   }, [swapCalls, account])
 }
 
+// For demo
 function useSwapCallArguments(): SwapCall[] {
   const { account, chainId, library } = useActiveWeb3React()
 
-  biconomy
-    .onEvent(biconomy.READY, () => {
-      // Initialize your dapp here like getting user accounts etc
-      _ercForwarderClient = biconomy.erc20ForwarderClient
-      _permitClient = biconomy.permitClient
-    })
-    .onEvent(biconomy.ERROR, () => {
-      // Handle error while initializing mexa
-    })
-
   return useMemo(() => {
-    if (!library || !account || !chainId || !_permitClient || !_ercForwarderClient) return []
-    // const contract3: Contract | null = getContract('0xa15E697806711003E635bEe08CA049130C4917fd', CHILL_ABI, library, account)
-    // const contract3: Contract | null = getContract('0xD6689f303fA491f1fBba919C1AFa619Bd8E595e3', BICONOMYSWAPPER_ABI, library, account)
-
+    if (!library || !account || !chainId) return []
     const _contract: Contract | null = getBiconomySwappperContract(
       BICONOMY_CONTRACT,
       BICONOMYSWAPPER_ABI,
@@ -431,7 +434,7 @@ function useSwapCallArguments(): SwapCall[] {
     )
     const _ethersProvider: Web3Provider | null = getEthersProvider()
 
-    if (!_contract && !_permitClient) {
+    if (!_contract) {
       return []
     }
 
@@ -441,17 +444,18 @@ function useSwapCallArguments(): SwapCall[] {
       account: account,
       contract: _contract,
       ethersProvider: _ethersProvider,
-      permitClient: _permitClient,
-      ercForwarderClient: _ercForwarderClient,
+      // permitClient: _permitClient,
+      // ercForwarderClient: _ercForwarderClient,
       parameters: _parameters
     }
     swapMethods.push(pass)
     return swapMethods
 
     // return swapMethods.map(parameters => ({ parameters, contract }))
-  }, [account, chainId, library, _permitClient, _ercForwarderClient])
+  }, [account, chainId, library])
 }
 
+// For demo
 export function useSwapper(): {
   state: SwapCallbackState
   callback: any
@@ -469,107 +473,119 @@ export function useSwapper(): {
         // : Promise<string> {
         //   const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
         try {
-          swapCalls.map(async call => {
-            const { account, contract, ethersProvider, ercForwarderClient, permitClient } = call
+          if (
+            getPermitClient() == '' ||
+            getPermitClient() == 'undefined' ||
+            getPermitClient() == null ||
+            getErcForwarderClient() == '' ||
+            getErcForwarderClient() == 'undefined' ||
+            getErcForwarderClient() == null
+          ) {
+            Swal.fire('Something went wrong!')
+            return
+          } else {
+            swapCalls.map(async call => {
+              const { account, contract, ethersProvider } = call
 
-            const domainData = {
-              name: 'Dai Stablecoin',
-              version: '1',
-              chainId: 42,
-              verifyingContract: '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa' // kovan
-            }
+              const domainData = {
+                name: 'Dai Stablecoin',
+                version: '1',
+                chainId: 42,
+                verifyingContract: '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa' // kovan
+              }
 
-            const tokenPermitOptions1 = {
-              //contract
-              spender: BICONOMY_CONTRACT,
-              domainData: domainData,
-              value: '100000000000000000000',
-              deadline: Math.floor(Date.now() / 1000 + 3600)
-            }
+              const tokenPermitOptions1 = {
+                //contract
+                spender: BICONOMY_CONTRACT,
+                domainData: domainData,
+                value: '100000000000000000000',
+                deadline: Math.floor(Date.now() / 1000 + 3600)
+              }
 
-            const tokenPermitOptions2 = {
-              //forwarder
-              domainData: domainData,
-              value: '100000000000000000000',
-              deadline: Math.floor(Date.now() / 1000 + 3600)
-            }
+              const tokenPermitOptions2 = {
+                //forwarder
+                domainData: domainData,
+                value: '100000000000000000000',
+                deadline: Math.floor(Date.now() / 1000 + 3600)
+              }
 
-            const permitTx1 = await permitClient.daiPermit(tokenPermitOptions1)
-            await permitTx1.wait(1)
+              const permitTx1 = await getPermitClient().daiPermit(tokenPermitOptions1)
+              await permitTx1.wait(1)
 
-            const permitTx2 = await permitClient.daiPermit(tokenPermitOptions2)
-            await permitTx2.wait(1)
+              const permitTx2 = await getPermitClient().daiPermit(tokenPermitOptions2)
+              await permitTx2.wait(1)
 
-            // // // const options = !value || isZero(value) ? {} : { value }
-            // // // console.log('methodName1:', methodName)
-            const addr1 = '0x48845392F5a7c6b360A733e0ABE2EdcC74f1F4d6'
-            const dai = '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa'
-            const path = ['0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '0xd0A1E359811322d97991E03f863a0C30C2cF029C']
+              // // // const options = !value || isZero(value) ? {} : { value }
+              // // // console.log('methodName1:', methodName)
+              const addr1 = '0x48845392F5a7c6b360A733e0ABE2EdcC74f1F4d6'
+              const dai = '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa'
+              const path = ['0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', '0xd0A1E359811322d97991E03f863a0C30C2cF029C']
 
-            const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, '100000000')
+              const txResponse = await contract.populateTransaction.swapWithoutETH(addr1, dai, path, '100000000')
 
-            // const gasPrice = await ethersProvider.getGasPrice()
-            const gasLimit = await ethersProvider.estimateGas({
-              to: BICONOMY_CONTRACT,
-              from: account,
-              data: txResponse.data
-            })
-            // console.log('gasLimit++', gasLimit.toString())
-            // console.log('gasPrice++', gasPrice.toString())
-            // console.log('txResponse++', txResponse)
-
-            const builtTx = await ercForwarderClient.buildTx({
-              to: BICONOMY_CONTRACT,
-              token: '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa',
-              txGas: Number(gasLimit),
-              data: txResponse.data
-            })
-            const tx = builtTx.request
-
-            const transaction = await ercForwarderClient.sendTxEIP712({ req: tx })
-            //returns an object containing code, log, message, txHash
-
-            if (transaction && transaction.code == 200 && transaction.txHash) {
-              //event emitter methods
-              ethersProvider.once(transaction.txHash, result => {
-                // Emitted when the transaction has been mined
-                console.log('result: ', result)
+              // const gasPrice = await ethersProvider.getGasPrice()
+              const gasLimit = await ethersProvider.estimateGas({
+                to: BICONOMY_CONTRACT,
+                from: account,
+                data: txResponse.data
               })
-            }
+              // console.log('gasLimit++', gasLimit.toString())
+              // console.log('gasPrice++', gasPrice.toString())
+              // console.log('txResponse++', txResponse)
 
-            // const txReciept = await txResponse.wait()
-            // console.log('txReciept: ', txReciept)
-            //  .then(gasEstimate => {
-            //   return {
-            //     call,
-            //     gasEstimate
-            //   }
-            // })
-            // .catch(gasError => {
-            //   console.debug('Gas estimate failed, trying eth_call to extract error', call)
+              const builtTx = await getErcForwarderClient().buildTx({
+                to: BICONOMY_CONTRACT,
+                token: '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa',
+                txGas: Number(gasLimit),
+                data: txResponse.data
+              })
+              const tx = builtTx.request
 
-            //   return contract.callStatic[methodName](...args, options)
-            //     .then(result => {
-            //       console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
-            //       return { call, error: new Error('Unexpected issue with estimating the gas. Please try again.') }
-            //     })
-            //     .catch(callError => {
-            //       console.debug('Call threw error', call, callError)
-            //       let errorMessage: string
-            //       switch (callError.reason) {
-            //         case 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT':
-            //         case 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT':
-            //           errorMessage =
-            //             'This transaction will not succeed either due to price movement or fee on transfer. Try increasing your slippage tolerance.'
-            //           break
-            //         default:
-            //           errorMessage = `The transaction cannot succeed due to error: ${callError.reason}. This is probably an issue with one of the tokens you are swapping.`
-            //       }
-            //       return { call, error: new Error(errorMessage) }
-            //     })
-            // })
-          })
-          // )
+              const transaction = await getErcForwarderClient().sendTxEIP712({ req: tx })
+              //returns an object containing code, log, message, txHash
+
+              if (transaction && transaction.code == 200 && transaction.txHash) {
+                //event emitter methods
+                ethersProvider.once(transaction.txHash, result => {
+                  // Emitted when the transaction has been mined
+                  console.log('result: ', result)
+                })
+              }
+
+              // const txReciept = await txResponse.wait()
+              // console.log('txReciept: ', txReciept)
+              //  .then(gasEstimate => {
+              //   return {
+              //     call,
+              //     gasEstimate
+              //   }
+              // })
+              // .catch(gasError => {
+              //   console.debug('Gas estimate failed, trying eth_call to extract error', call)
+
+              //   return contract.callStatic[methodName](...args, options)
+              //     .then(result => {
+              //       console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
+              //       return { call, error: new Error('Unexpected issue with estimating the gas. Please try again.') }
+              //     })
+              //     .catch(callError => {
+              //       console.debug('Call threw error', call, callError)
+              //       let errorMessage: string
+              //       switch (callError.reason) {
+              //         case 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT':
+              //         case 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT':
+              //           errorMessage =
+              //             'This transaction will not succeed either due to price movement or fee on transfer. Try increasing your slippage tolerance.'
+              //           break
+              //         default:
+              //           errorMessage = `The transaction cannot succeed due to error: ${callError.reason}. This is probably an issue with one of the tokens you are swapping.`
+              //       }
+              //       return { call, error: new Error(errorMessage) }
+              //     })
+              // })
+            })
+            // )
+          }
         } catch (error) {
           console.log('error:', error)
         }
