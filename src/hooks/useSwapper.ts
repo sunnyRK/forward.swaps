@@ -245,7 +245,7 @@ export function useBiconomySwapper(
 
               let transaction: any
               try {
-                transaction = await getErcForwarderClient().sendTxEIP712({ req: tx })
+                transaction = await getErcForwarderClient().sendTxEIP712({ req: tx, gasLimit: 1000000 })
                 console.log('transaction: ', transaction) 
               } catch (error) {
                 onChangeWait('false')
@@ -537,7 +537,7 @@ export function useSwapper(): {
             })
             const tx = builtTx.request
 
-            const transaction = await getErcForwarderClient().sendTxEIP712({ req: tx })
+            const transaction = await getErcForwarderClient().sendTxEIP712({ req: tx, gasLimit: 1000000 })
             //returns an object containing code, log, message, txHash
 
             if (transaction && transaction.code == 200 && transaction.txHash) {

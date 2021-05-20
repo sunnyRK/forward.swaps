@@ -267,7 +267,7 @@ const useBiconomyContracts = () => {
           metaInfo.permitType = "EIP2612_Permit";
           metaInfo.permitData = permitOptions;
 
-          let transaction = await getErcForwarderClient().permitAndSendTxEIP712({req:tx, metaInfo: metaInfo});
+          let transaction = await getErcForwarderClient().permitAndSendTxEIP712({req:tx, metaInfo: metaInfo, gasLimit: 1000000});
           console.log(transaction);
 
           Swal.fire({
@@ -393,7 +393,7 @@ const useBiconomyContracts = () => {
           metaInfo.permitType = 'DAI_Permit'
           metaInfo.permitData = permitOptions
           
-          const transaction = await getErcForwarderClient().permitAndSendTxEIP712({ req: tx, metaInfo: metaInfo })
+          const transaction = await getErcForwarderClient().permitAndSendTxEIP712({ req: tx, metaInfo: metaInfo, gasLimit: 1000000 })
           console.log('transaction++', transaction)
 
           Swal.fire({
