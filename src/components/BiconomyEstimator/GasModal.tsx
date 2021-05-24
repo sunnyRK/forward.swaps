@@ -212,7 +212,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           if (fee == undefined) {
             resetSelectedToken()
           } else {
-            if (selectedToken == 'USDT') {
+            if (selectedToken == 'USDT' || selectedToken == 'USDC') {
               setBalance((balance / 1e6).toString())
             } else {
               setBalance((balance / 1e18).toString())
@@ -223,7 +223,7 @@ const GasModal: React.FunctionComponent<GasModalProps> = ({
           }     
         } 
         } else {
-          if(selectedToken != 'USDT') {
+          if(selectedToken != 'USDT' && selectedToken!= 'USDC') {
             const approveAndSwapfee = await calculateGasFeesForApproveAndSwap(selectedToken, paths, inputAmount, decimals)
             if (approveAndSwapfee != ""){
             if (approveAndSwapfee == undefined) {
